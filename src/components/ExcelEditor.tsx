@@ -7,10 +7,8 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-// Registrar módulos AG Grid
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-// Import dinámico para evitar SSR issues con AG Grid
 const AgGridReact = dynamic(
   () => import("ag-grid-react").then((mod) => mod.AgGridReact),
   { ssr: false }
@@ -44,7 +42,6 @@ export default function ExcelEditorAGGrid() {
 
         if (jsonData.length === 0) return;
 
-        // Crear columnas usando la primera fila (encabezados reales)
         const cols = jsonData[0].map((val, index) => ({ //sgy este error va a matar el deploy
           headerName: val || `Col ${index + 1}`,
           field: `col_${index}`,
@@ -53,7 +50,6 @@ export default function ExcelEditorAGGrid() {
           sortable: true,
         }));
 
-        // Mapear filas
         const rows = jsonData.slice(1).map((row: any[]) => {
           const obj: any = {};
           row.forEach((val, i) => {
@@ -94,7 +90,6 @@ export default function ExcelEditorAGGrid() {
     <div className="p-6 flex flex-col gap-4">
       <h1 className="text-2xl font-semibold mb-4">📊 Editor </h1>
 
-      {/* Cargar archivo */}
       <input
         type="file"
         accept=".xlsx, .csv"
