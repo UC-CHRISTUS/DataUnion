@@ -9,7 +9,7 @@ import { saveAs } from "file-saver";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-const AgGridReact = dynamic(
+const AgGridReact = dynamic<any>(
   () => import("ag-grid-react").then((mod) => mod.AgGridReact),
   { ssr: false }
 );
@@ -42,7 +42,7 @@ export default function ExcelEditorAGGrid() {
 
         if (jsonData.length === 0) return;
 
-        const cols = jsonData[0].map((val, index) => ({ //sgy este error va a matar el deploy
+        const cols = jsonData[0].map((val: any, index: number) => ({ //sgy este error va a matar el deploy
           headerName: val || `Col ${index + 1}`,
           field: `col_${index}`,
           editable: true,
