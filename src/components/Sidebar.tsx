@@ -30,6 +30,49 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       ),
       label: 'Subir Archivos'
     },
+    {
+      href: '/visualizator',
+      icon: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 48 48"
+      width={24}
+      height={24}
+      fill="#217346" // color verde de Excel
+    >
+      <path d="M6 4h36v40H6z" /> 
+      <path
+        fill="white"
+        d="M12 12h24v24H12z"
+      />
+      <text x="24" y="30" textAnchor="middle" fontSize="16" fill="#217346" fontFamily="Arial">X</text>
+    </svg>
+  ),
+      label: 'Visualizador'
+    },
+        {
+      href: '/norma',
+      icon: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 48 48"
+      width={24}
+      height={24}
+    >
+    {/* Fondo del documento */}
+    <rect x="6" y="4" width="36" height="40" rx="3" fill="#f5f5f5" stroke="#217346" strokeWidth="2" />
+
+    {/* Líneas simulando texto */}
+    <rect x="12" y="12" width="24" height="3" fill="#217346" />
+    <rect x="12" y="18" width="24" height="3" fill="#217346" />
+    <rect x="12" y="24" width="24" height="3" fill="#217346" />
+
+    {/* Check para indicar oficial / norma */}
+    <polyline points="14,32 20,38 34,24" fill="none" stroke="#217346" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
+      label: 'Norma'
+    },
 
     
   ];
