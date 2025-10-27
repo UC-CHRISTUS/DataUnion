@@ -11,7 +11,7 @@ import * as XLSX from "xlsx";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 // Import dinámico de AG Grid React
-const AgGridReact = dynamic(
+const AgGridReact = dynamic<any>(
   () => import("ag-grid-react").then((mod) => mod.AgGridReact),
   { ssr: false }
 );
@@ -44,7 +44,7 @@ export default function NormaMinsalPage() {
 
         if (jsonData.length === 0) return;
 
-        const cols = jsonData[0].map((val, index) => ({
+        const cols = jsonData[0].map((val: any, index: number) => ({
         headerName: val || `Col ${index + 1}`, // usa el valor de la celda, si está vacío, usa Col #
         field: `col_${index}`,
         editable: true,
@@ -86,33 +86,35 @@ export default function NormaMinsalPage() {
     XLSX.writeFile(wb, `editado_${filename || "archivo"}.xlsx`);
   }, [rowData, columnDefs, filename]);
 
-  return (
-    <div className="p-6 flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold mb-4">📄 Cargar Excel / Norma</h1>
+return (
+  <div className="p-6 flex flex-col gap-4">
+    <h1 className="text-2xl font-semibold mb-4">📄 Cargar Excel / Norma</h1>
 
-      <input
-        type="file"
-        accept=".xlsx, .csv"
-        onChange={handleFileUpload}
-        className="border rounded p-2 mb-4"
-      />
+    <input
+      type="file"
+      accept=".xlsx, .csv"
+      onChange={handleFileUpload}
+      className="border rounded p-2 mb-4"
+    />
 
-      {rowData.length > 0 && (
-        <>
-          <div className="ag-theme-alpine w-full" style={{ height: "600px" }}>
-            <AgGridReact
-              rowData={rowData}
-              columnDefs={columnDefs}
-              defaultColDef={{
-                flex: 1,
-                minWidth: 100,
-                editable: true,
-                resizable: true,
-              }}
-            />
-          </div>
-
-      {rowData.length === 0 && <p>Selecciona un archivo para cargar la tabla...</p>}
-    </div>
-  );
-}
+    {rowData.length > 0 ? (
+      <>
+        <div className="ag-theme-alpine w-full" style={{ height: "600px" }}>
+          <AgGridReact
+            rowData={rowData}
+            columnDefs={columnDefs}
+            defaultColDef={{
+              flex: 1,
+              minWidth: 100,
+              editable: true,
+              resizable: true,
+            }}
+          />
+        </div>
+      </>
+    ) : (
+      <p>Selecciona un archivo para cargar la tabla...</p>
+    )}
+  </div>
+);
+};
