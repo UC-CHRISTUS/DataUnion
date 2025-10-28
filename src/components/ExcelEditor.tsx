@@ -138,7 +138,7 @@ export default function ExcelEditorAGGrid() {
     }
   };
 
-
+  const gridRef = useRef<any>(null);
   const handleSaveClick = () => {
     if (Object.keys(modifiedRows).length === 0) return;
     setShowConfirmModal(true);
@@ -495,6 +495,35 @@ const onPaginationChanged = (params: any) => {
     []
   );
 
+  const datasource = {
+  getRows: async (params: any) => {
+    const page = Math.floor(params.startRow / params.endRow) + 1;
+    const limit = params.endRow - params.startRow;
+
+    try {
+      const res = await fetch(
+        `/api/v1/grd/${selectedGRDId}/rows?page=${page}&pageSize=${limit}`
+      );
+      const json = await res.json();
+      const mergedData = (json.data || []).map((row: any) => {
+        const modified = modifiedRows[row.episodio];
+        return modified ? { ...row, ...modified } : row;
+      });
+
+      params.successCallback(mergedData, json.total);
+    } catch (error) {
+      params.failCallback();
+    } finally {
+      setTimeout(() => {
+        if (gridRef.current?.api) {
+          gridRef.current.api.hideOverlay();
+        }
+      }, 600); 
+    }
+  },
+};
+
+
   const handleDownload = useCallback(async () => {
     try {
       const grdResp = await fetch('/api/v1/grd');
@@ -554,23 +583,22 @@ const onPaginationChanged = (params: any) => {
     <div className="p-6 flex flex-col gap-4">
       <h1 className="text-2xl font-semibold mb-4">📊 Editor </h1>
 
-      {/* SIGESA file selector */}
-{sigesaFiles.length > 0 && (
-  <div className="mb-4 flex items-center gap-3" >
-    <div>
-      <label className="block mb-2 font-medium">Selecciona archivo GRD:</label>
-      <select
-        className="border rounded px-2 py-1"
-        value={selectedGRDId || ''}
-        onChange={e => setSelectedGRDId(e.target.value)}
-      >
-        {sigesaFiles.map(file => (
+    {sigesaFiles.length > 0 && (
+    <div className="mb-4 flex items-center gap-3" >
+      <div>
+        <label className="block mb-2 font-medium">Selecciona archivo GRD:</label>
+        <select
+          className="border rounded px-2 py-1"
+          value={selectedGRDId || ''}
+          onChange={e => setSelectedGRDId(e.target.value)}
+        >
+          {sigesaFiles.map(file => (
           <option key={file.id} value={file.id}>
             {file.id} {file.nombre ? `- ${file.nombre}` : ''}
           </option>
         ))}
-      </select>
-    </div>
+        </select>
+      </div>
 
     <button
       onClick={() => handleLoadSelectedGRD()}
@@ -578,22 +606,27 @@ const onPaginationChanged = (params: any) => {
       className={`${
         loading ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'
       } text-white px-4 py-2 rounded transition`}
-    >
+        >
       {loading ? 'Cargando...' : 'Cargar'}
     </button>
-  </div>
-)}
+    </div>
+    )}
 
-
-      {/* ...existing code... */}
       {rowData.length > 0 && (
         <>
           <div className="ag-theme-alpine w-full" style={{ height: "520px" }}>
             <AgGridReact
+            ref={gridRef}
             columnDefs={columnDefs}
             rowModelType="infinite"
             pagination={true}
             paginationPageSize={10}
+            datasource={datasource}
+            onCellValueChanged={() => {
+              if (gridRef.current?.api) {
+                gridRef.current.api.showLoadingOverlay();
+              }
+            }}
             localeText={{
                 page: 'Página',
                 more: 'Más',
@@ -605,18 +638,8 @@ const onPaginationChanged = (params: any) => {
                 pageSizeSelectorLabel: '',
                 totalRows: 'Total de filas',
             }}
-            datasource={{
-            getRows: async (params: any) => {
-                const page = Math.floor(params.startRow / params.endRow) + 1;
-                const res = await fetch(`/api/v1/grd/${selectedGRDId}/rows?page=${page}&pageSize=${params.endRow - params.startRow}`);
-                const json = await res.json();
-                params.successCallback(json.data, json.total);
-            },
-        }}
         />
           </div>
-
-          
 
           <div className="flex gap-4 mt-4">
             {Object.keys(modifiedRows).length > 0 && (
