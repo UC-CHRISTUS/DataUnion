@@ -40,3 +40,6 @@ a {
   color: inherit;
   text-decoration: none;
 }
+.ag-paging-page-size {
+  display: none !important;
+}

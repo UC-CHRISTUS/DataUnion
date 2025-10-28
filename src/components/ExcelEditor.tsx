@@ -588,19 +588,32 @@ const onPaginationChanged = (params: any) => {
       {/* ...existing code... */}
       {rowData.length > 0 && (
         <>
-          <div className="ag-theme-alpine w-full" style={{ height: "600px" }}>
+          <div className="ag-theme-alpine w-full" style={{ height: "520px" }}>
             <AgGridReact
-              rowData={rowData}
-              columnDefs={columnDefs}
-              defaultColDef={{
-                flex: 1,
-                minWidth: 100,
-                editable: true,
-                resizable: true,
-              }}
-              frameworkComponents={{ atMultiSelectEditor: AtMultiSelectEditor }}
-              context={{ atOptions }}
-            />
+            columnDefs={columnDefs}
+            rowModelType="infinite"
+            pagination={true}
+            paginationPageSize={10}
+            localeText={{
+                page: 'Página',
+                more: 'Más',
+                to: 'a',
+                of: 'de',
+                loadingOoo: 'Cargando...',
+                noRowsToShow: 'No hay filas para mostrar',
+                pageSize: 'Tamaño de página',
+                pageSizeSelectorLabel: '',
+                totalRows: 'Total de filas',
+            }}
+            datasource={{
+            getRows: async (params: any) => {
+                const page = Math.floor(params.startRow / params.endRow) + 1;
+                const res = await fetch(`/api/v1/grd/${selectedGRDId}/rows?page=${page}&pageSize=${params.endRow - params.startRow}`);
+                const json = await res.json();
+                params.successCallback(json.data, json.total);
+            },
+        }}
+        />
           </div>
 
           
