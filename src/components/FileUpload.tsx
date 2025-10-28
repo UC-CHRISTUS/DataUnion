@@ -6,6 +6,9 @@ import styles from './FileUpload.module.css';
 export default function FileUpload() {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -32,6 +35,49 @@ export default function FileUpload() {
     const files = e.target.files;
     if (files && files.length > 0) {
       setSelectedFile(files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    setMessage(null);
+    setError(null);
+    if (!selectedFile) {
+      setError('No hay archivo seleccionado');
+      return;
+    }
+
+    // only accept excel files
+    if (!selectedFile.name.endsWith('.xlsx') && !selectedFile.name.endsWith('.xls')) {
+      setError('El archivo debe ser Excel (.xlsx o .xls)');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const fd = new FormData();
+      fd.append('file', selectedFile);
+
+      const res = await fetch('/api/v1/sigesa/upload', {
+        method: 'POST',
+        body: fd,
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        const errMsg = json?.error || json?.message || 'Error al subir el archivo';
+        setError(String(errMsg));
+      } else {
+        setMessage('Archivo subido correctamente. Filas procesadas: ' + (json?.data?.rowCounts?.sigesaRows ?? 'n/a'));
+        // clear selected file
+        setSelectedFile(null);
+        // optionally you could trigger a refresh elsewhere
+      }
+    } catch (e: any) {
+      setError(e?.message || 'Error desconocido al subir');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -90,8 +136,29 @@ export default function FileUpload() {
           <p className={styles.fileSize}>
             Tamaño: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
           </p>
+          <div className={styles.actions} style={{ display: 'flex', visibility: 'visible', opacity: 1,  }}>
+            <button
+              type="button"
+              className={styles.uploadButton}
+              onClick={handleUpload}
+              disabled={uploading}
+            >
+              {uploading ? 'Subiendo...' : 'Cargar'}
+            </button>
+            <button
+              type="button"
+              className={styles.removeButton}
+              onClick={() => setSelectedFile(null)}
+              disabled={uploading}
+            >
+              Eliminar
+            </button>
+          </div>
         </div>
       )}
+
+      {message && <p className={styles.successMessage}>{message}</p>}
+      {error && <p className={styles.errorMessage}>{error}</p>}
     </div>
   );
 }

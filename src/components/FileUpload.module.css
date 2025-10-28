@@ -94,3 +94,39 @@
   margin: 0;
   font-size: 0.875rem;
 }
+
+.actions {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.uploadButton {
+  background-color: #0ea5a4;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  justify-content: center;
+}
+
+.removeButton {
+  background-color: transparent;
+  color: #065f46;
+  border: 1px solid #065f46;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  justify-content: center;
+}
+
+.successMessage {
+  margin-top: 1rem;
+  color: #065f46;
+}
+
+.errorMessage {
+  margin-top: 1rem;
+  color: #991b1b;
+}
