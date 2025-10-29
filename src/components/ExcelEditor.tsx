@@ -116,7 +116,7 @@ const AtMultiSelectEditor = React.forwardRef((props: any, ref: any) => {
   );
 });
 
-
+AtMultiSelectEditor.displayName = "AtMultiSelectEditor";
 
 export default function ExcelEditorAGGrid() {
   const [rowData, setRowData] = useState<any[]>([]);

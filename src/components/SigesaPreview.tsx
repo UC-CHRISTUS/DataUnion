@@ -76,6 +76,8 @@ const AtMultiSelectEditor = React.forwardRef((props: any, ref: any) => {
   );
 });
 
+AtMultiSelectEditor.displayName = "AtMultiSelectEditor";
+
 // === MAIN COMPONENT ===
 export default function ExcelEditorSigesa() {
   const [rowData, setRowData] = useState<any[]>([]);
