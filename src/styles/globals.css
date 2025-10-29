@@ -43,3 +43,10 @@ a {
 .ag-paging-page-size {
   display: none !important;
 }
+.cell-non-editable {
+  background-color: #d7f7d7 !important;
+}
+
+.cell-modified {
+  background-color: #e8ffe8 !important;
+}
