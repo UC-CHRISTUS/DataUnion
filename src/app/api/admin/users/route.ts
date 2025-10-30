@@ -164,8 +164,11 @@ export async function GET(request: NextRequest) {
     // Require admin authentication
     await requireAdmin();
     
+    // Get admin client
+    const supabaseAdmin = getSupabaseAdmin();
+    
     // Get all users from public.users
-    const { data: users, error } = await supabase
+    const { data: users, error } = await supabaseAdmin
       .from('users')
       .select('*')
       .order('created_at', { ascending: false });
