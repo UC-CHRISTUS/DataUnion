@@ -15,6 +15,9 @@
   --color-accent: #872899;
 }
 
+.ag-theme-alpine .ag-cell.ag-cell-editing {
+  background-color: white !important;
+}
 
 /* body {
   background: var(--background);

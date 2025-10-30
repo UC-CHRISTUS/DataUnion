@@ -21,7 +21,6 @@ const AgGridReact = dynamic<any>(
   { ssr: false }
 );
 
-// ===================== Constantes & Utils =====================
 const NON_EDITABLE_FIELDS = [
   "episodio",
   "tipo_episodio",
@@ -75,6 +74,13 @@ const FIELD_TYPES: Record<string, string> = {
   valor_grd: "number",
   monto_final: "number",
 };
+
+const DOCUMENTACION_OPTIONS = [
+  { label: "EPICRISIS" },
+  { label: "CERTIFICADO DEFUNCIÓN" },
+  { label: "PROTOCOLO OPERATORIO" },
+  { label: "DOCUMENTACION AT" },
+];
 
 const BASE_COLUMN_DEFS = [
   { headerName: "Validado", field: "validado", sortable: true },
@@ -163,25 +169,24 @@ const validateRow = (row: any) => {
 const fmtYesNo = (v: any) =>
   v === true || v === "true" ? "Sí" : v === false || v === "false" ? "No" : v ?? "";
 
-// marca fila como modificada por episodio
-const markModified =
+const markModifiedField =
   (setModifiedRows: React.Dispatch<React.SetStateAction<Record<string, any>>>) =>
-  (data: any) => {
-    if (!data?.episodio) return;
+  (episodio: string, field: string, value: any) => {
     setModifiedRows((prev) => ({
       ...prev,
-      [data.episodio]: { ...(prev[data.episodio] || {}), ...data },
+      [episodio]: {
+        ...(prev[episodio] || {}),
+        [field]: value,
+      },
     }));
   };
 
-// flash helper seguro
 const safeFlash = (params: any, colField: string) => {
   try {
     params.api.flashCells({ rowNodes: [params.node], columns: [colField] });
   } catch {}
 };
 
-// ===================== Editor Multiselección AT =====================
 const AtMultiSelectEditor = React.forwardRef((props: any, ref: any) => {
   const { options = [], value } = props;
   const initial = String(value ?? "")
@@ -189,6 +194,14 @@ const AtMultiSelectEditor = React.forwardRef((props: any, ref: any) => {
     .map((s: string) => s.trim())
     .filter(Boolean);
   const [selected, setSelected] = useState<string[]>(initial);
+
+  useEffect(() => {
+  const next = String(props.value ?? "")
+    .split(",")
+    .map((s: string) => s.trim())
+    .filter(Boolean);
+  setSelected(next);
+}, [props.value]);
 
   const toggle = (label: string) =>
     setSelected((prev) =>
@@ -240,7 +253,8 @@ const AtMultiSelectEditor = React.forwardRef((props: any, ref: any) => {
             onMouseDown={(e) => e.stopPropagation()}
           />
           <span>
-            {opt.label} (${Number(opt.valor).toLocaleString("es-CL")})
+            {opt.label}
+            {opt.valor != null && ` ($${Number(opt.valor).toLocaleString("es-CL")})`}
           </span>
         </label>
       ))}
@@ -273,36 +287,59 @@ export default function ExcelEditorAGGrid() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const gridRef = useRef<any>(null);
-  const touchModified = markModified(setModifiedRows);
+  const touchModified = markModifiedField(setModifiedRows);
 
-  // ======= Networking helpers
+
   const fetchJSON = async (url: string) => {
     const r = await fetch(url);
     if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
     return r.json();
   };
 
-  const saveRowToBackend = async (episodio: string, data: any) => {
-    const clean = { ...data, AT: toBoolLoose(data.AT) };
-    const res = await fetch(`/api/v1/grd/rows/${episodio}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(clean),
-    });
-    if (!res.ok) {
-      const txt = await res.text();
-      let detail = txt;
-      try {
-        const j = JSON.parse(txt);
-        detail = j.message || j.error || res.statusText;
-      } catch {}
-      throw new Error(`Error al guardar fila ${episodio}: ${detail}`);
-    }
-    await res.json(); // por si el backend devuelve algo
-    return true;
-  };
+  const saveRowToBackend = async (episodio: string, modifiedFields: any) => {
+  const clean: any = {};
 
-  // ======= Column factory
+  for (const key of Object.keys(modifiedFields)) {
+    let val = modifiedFields[key];
+
+    if (key === "AT") {
+      clean.AT = val === true || val === "Sí" ? true : false;
+      continue;
+    }
+
+    if (
+      [
+      "monto_at",
+      "monto_final",
+      "monto_rn",
+      "peso",
+      "precio_base_tramo", 
+      "valor_grd",      
+      "dias_estadia "   
+    ].includes(key)
+    ) {
+      clean[key] = val === "" || val === null ? 0 : Number(val);
+      continue;
+      }
+
+    clean[key] = val ?? "";
+  }
+
+  const res = await fetch(`/api/v1/grd/rows/${episodio}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(clean),
+  });
+
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Error al guardar fila ${episodio}: ${txt}`);
+  }
+
+  return true;
+};
+
+
   const buildColumns = useCallback(
     (cols: any[], atOpts: { label: string; valor: number }[]) =>
       cols.map((c) => {
@@ -323,21 +360,19 @@ export default function ExcelEditorAGGrid() {
             if (p.data._invalidFields) {
               p.data._invalidFields = p.data._invalidFields.filter((x: string) => x !== c.field);
             }
-            if (p.data.episodio && old !== parsed) touchModified(p.data);
+            if (p.data.episodio && old !== parsed) touchModified(p.data.episodio, c.field, parsed);
             return true;
           },
           cellStyle: (p: any) => {
             if (isNonEditable) return { backgroundColor: "#d7f7d7" };
             const epi = p.data?.episodio;
             const modified = epi && modifiedRows[epi] && modifiedRows[epi][c.field] !== undefined;
-            return modified ? { backgroundColor: "#d11" } : {};
+            return modified ? { backgroundColor: "#F9E37C" } : {};
           },
         };
 
-        // 🔒 Renderer para no editables
         if (isNonEditable) base.cellRenderer = LockCellRenderer;
 
-        // AT Detalle (editor multiselect)
         if (c.field === "at_detalle") {
           base.editable = true;
           base.singleClickEdit = true;
@@ -345,24 +380,21 @@ export default function ExcelEditorAGGrid() {
           base.cellEditorPopup = true;
           base.cellEditorParams = { options: atOpts };
           base.valueSetter = (p: any) => {
-            const v = p.newValue;
-            if (v && typeof v === "object") {
-              p.data.at_detalle = v.labels ?? "";
-              p.data.monto_at = v.monto ?? 0;
-            } else {
-              p.data.at_detalle = v ?? "";
-            }
-            touchModified(p.data);
-            p.api.refreshCells({
-              rowNodes: [p.node],
-              columns: ["at_detalle", "monto_at"],
-              force: true,
-            });
-            return true;
-          };
+          const v = p.newValue;
+          const labels = v && typeof v === "object" ? v.labels ?? "" : (v ?? "");
+          const monto = v && typeof v === "object" ? v.monto ?? 0 : p.data.monto_at;
+
+          p.data.at_detalle = labels;
+          p.data.monto_at = monto;
+
+          touchModified(p.data.episodio, "at_detalle", labels);
+          touchModified(p.data.episodio, "monto_at", monto);
+
+          return true;
+        };
+          base.valueFormatter = (p: any) => p.value ?? "";
         }
 
-        // AT (Sí/No → boolean)
         if (c.field === "AT") {
           base.editable = true;
           base.singleClickEdit = true;
@@ -374,18 +406,16 @@ export default function ExcelEditorAGGrid() {
             const next = raw === "Sí" ? true : raw === "No" ? false : p.data.AT;
             const old = p.data.AT;
             p.data.AT = next;
-            if (old !== next) touchModified(p.data);
+            if (old !== next) touchModified(p.data.episodio, "AT", next);
             return true;
           };
           base.cellStyle = (p: any) => {
             const epi = p.data?.episodio;
             const modified = epi && modifiedRows[epi] && modifiedRows[epi]["AT"] !== undefined;
-            return { backgroundColor: modified ? "#ffcccc" : "#f3f3f3", fontWeight: 500 };
+            return { backgroundColor: modified ? "#F9E37C" : "#f3f3f3", fontWeight: 500 };
           };
         }
-
-        // Campos Sí/No (texto normalizado)
-        if (["validado", "documentacion"].includes(c.field)) {
+        if (["validado"].includes(c.field)) {
           base.editable = true;
           base.singleClickEdit = true;
           base.cellEditor = "agSelectCellEditor";
@@ -398,22 +428,61 @@ export default function ExcelEditorAGGrid() {
             const nxt = p.newValue === "Sí" || p.newValue === "No" ? p.newValue : p.data[c.field];
             const old = p.data[c.field];
             p.data[c.field] = nxt;
-            if (old !== nxt) touchModified(p.data);
+            if (old !== nxt) touchModified(p.data.episodio, c.field, nxt);
             return true;
           };
           base.cellStyle = (p: any) => {
             const epi = p.data?.episodio;
             const modified = epi && modifiedRows[epi] && modifiedRows[epi][c.field] !== undefined;
-            return { backgroundColor: modified ? "#ffcccc" : "#f3f3f3", fontWeight: 500 };
+            return { backgroundColor: modified ? "#F9E37C" : "#f3f3f3", fontWeight: 500 };
           };
         }
+        if (
+  [
+    "monto_at",
+    "monto_final",
+    "monto_rn",
+    "peso",
+    "precio_base_tramo",
+    "valor_grd"
+  ].includes(c.field)
+) {
+  // Mostrar vacío si el valor es 0, null o ""
+  base.valueFormatter = (p: any) => {
+    return p.value === 0 || p.value === null || p.value === "" ? "" : p.value;
+  };
+}
+
+
+        if (c.field === "documentacion") {
+          base.editable = true;
+          base.singleClickEdit = true;
+          base.cellEditor = AtMultiSelectEditor;
+          base.cellEditorPopup = true;
+          base.cellEditorParams = { options: DOCUMENTACION_OPTIONS };
+
+          base.valueSetter = (p: any) => {
+          const v = p.newValue;
+          const labels = v && typeof v === "object" ? v.labels ?? "" : (v ?? "");
+          p.data.documentacion = labels;
+          touchModified(p.data.episodio, "documentacion", labels);
+          return true;
+        };
+
+          base.valueFormatter = (p: any) => p.value ?? ""
+          base.cellStyle = (p: any) => {
+          const epi = p.data?.episodio;
+          const modified = epi && modifiedRows[epi] && modifiedRows[epi]["documentacion"] !== undefined;
+          return { backgroundColor: modified ? "#F9E37C" : "#f3f3f3", fontWeight: 500 };
+        };
+    }
+
 
         return base;
       }),
     [modifiedRows]
   );
 
-  // ======= Cargas iniciales
   useEffect(() => {
     (async () => {
       try {
@@ -444,7 +513,6 @@ export default function ExcelEditorAGGrid() {
     })();
   }, [buildColumns]);
 
-  // primer fetch de filas
   useEffect(() => {
     (async () => {
       try {
@@ -463,7 +531,6 @@ export default function ExcelEditorAGGrid() {
     })();
   }, []);
 
-  // ======= Acciones
   const handleLoadSelectedGRD = useCallback(async () => {
     if (!selectedGRDId) return;
     try {
@@ -538,7 +605,6 @@ export default function ExcelEditorAGGrid() {
     }
   }, [columnDefs]);
 
-  // ============ DataSource (infinite)
   const datasource = useMemo(
     () => ({
       getRows: async (params: any) => {
@@ -562,7 +628,6 @@ export default function ExcelEditorAGGrid() {
     [selectedGRDId, modifiedRows]
   );
 
-  // ======= Upload Excel (opcional, lo mantengo igual)
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -657,6 +722,8 @@ export default function ExcelEditorAGGrid() {
               onCellValueChanged={() => gridRef.current?.api?.showLoadingOverlay?.()}
               onPaginationChanged={onPaginationChanged}
               localeText={LOCALE_ES}
+              getRowId={(p:any) => String(p.data?.episodio ?? '')}  
+              stopEditingWhenCellsLoseFocus={false}
             />
           </div>
 
@@ -683,12 +750,6 @@ export default function ExcelEditorAGGrid() {
             >
               Descargar Excel
             </button>
-            {/* <label className="ml-auto">
-              <input type="file" accept=".xlsx,.xls" onChange={handleFileUpload} className="hidden" />
-              <span className="cursor-pointer border px-3 py-2 rounded hover:bg-gray-50">
-                Cargar Excel{filename ? ` (${filename})` : ""}
-              </span>
-            </label> */}
           </div>
 
           {saveError && (
