@@ -30,6 +30,7 @@ export default function UsersPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -43,7 +44,26 @@ export default function UsersPage() {
         throw new Error(data.error || 'Error al cargar usuarios');
       }
 
-      setUsers(data.users || []);
+      // Get current user ID to filter them out
+      const allUsers = data.users || [];
+      
+      // If we don't have currentUserId yet, get it from session
+      if (!currentUserId && allUsers.length > 0) {
+        // Get current user from session API
+        const sessionResponse = await fetch('/api/auth/session');
+        const sessionData = await sessionResponse.json();
+        
+        if (sessionResponse.ok && sessionData.user) {
+          setCurrentUserId(sessionData.user.id);
+          // Filter out current user from the list
+          setUsers(allUsers.filter((user: User) => user.id !== sessionData.user.id));
+        } else {
+          setUsers(allUsers);
+        }
+      } else {
+        // Filter out current user if we already have their ID
+        setUsers(allUsers.filter((user: User) => user.id !== currentUserId));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar usuarios');
       console.error('Error fetching users:', err);
@@ -54,6 +74,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchUsers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleModalSuccess = () => {
