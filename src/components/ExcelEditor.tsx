@@ -9,10 +9,12 @@ import { saveAs } from "file-saver";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
+// TODO: Properly type this dynamic import instead of using 'as any'
+// Cleaner fix: import { AgGridReact as AgGridReactType } from 'ag-grid-react' and use ComponentType<AgGridReactProps>
 const AgGridReact = dynamic(
   () => import("ag-grid-react").then((mod) => mod.AgGridReact),
   { ssr: false }
-);
+) as any;
 
 export default function ExcelEditorAGGrid() {
   const [rowData, setRowData] = useState<any[]>([]);
@@ -42,7 +44,8 @@ export default function ExcelEditorAGGrid() {
 
         if (jsonData.length === 0) return;
 
-        const cols = jsonData[0].map((val, index) => ({ //sgy este error va a matar el deploy
+        // TODO: validate proper type for Excel cell values (currently any)
+        const cols = jsonData[0].map((val: any, index: number) => ({
           headerName: val || `Col ${index + 1}`,
           field: `col_${index}`,
           editable: true,
