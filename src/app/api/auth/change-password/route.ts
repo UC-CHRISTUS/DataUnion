@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { getCurrentUser } from '@/lib/auth-helpers';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { getSupabaseAdmin } from '@/lib/supabase';
 
 /**
  * POST /api/auth/change-password
@@ -11,13 +12,55 @@ export async function POST(request: NextRequest) {
   try {
     const { newPassword } = await request.json();
     
-    // Get current authenticated user
-    const user = await getCurrentUser();
+    // Create Supabase client with cookie handling
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+          set(name: string, value: string, options: any) {
+            try {
+              cookieStore.set({ name, value, ...options });
+            } catch (error) {
+              // Cookie setting may fail
+            }
+          },
+          remove(name: string, options: any) {
+            try {
+              cookieStore.set({ name, value: '', ...options });
+            } catch (error) {
+              // Cookie removal may fail
+            }
+          },
+        },
+      }
+    );
     
-    if (!user) {
+    // Get current authenticated user
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !authUser) {
       return NextResponse.json(
         { error: 'No autenticado. Por favor inicie sesión.' },
         { status: 401 }
+      );
+    }
+    
+    // Get user data from public.users
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('auth_id', authUser.id)
+      .single();
+    
+    if (userError || !userData) {
+      return NextResponse.json(
+        { error: 'Usuario no encontrado' },
+        { status: 404 }
       );
     }
     
@@ -44,10 +87,14 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Use admin client to update password (bypasses RLS)
+    const supabaseAdmin = getSupabaseAdmin();
+    
     // Update password in Supabase Auth
-    const { error: updateError } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+      authUser.id,
+      { password: newPassword }
+    );
     
     if (updateError) {
       console.error('Error updating password:', updateError);
@@ -58,18 +105,18 @@ export async function POST(request: NextRequest) {
     }
     
     // Update must_change_password flag in public.users
-    const { error: userUpdateError } = await supabase
+    const { error: userUpdateError } = await supabaseAdmin
       .from('users')
       .update({ 
         must_change_password: false,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', user.id);
+      .eq('id', userData.id);
     
     if (userUpdateError) {
       console.error('Error updating user must_change_password flag:', userUpdateError);
       // Password was changed but flag update failed - log warning
-      console.warn('Password changed successfully but must_change_password flag not updated for user:', user.id);
+      console.warn('Password changed successfully but must_change_password flag not updated for user:', userData.id);
     }
     
     return NextResponse.json({
