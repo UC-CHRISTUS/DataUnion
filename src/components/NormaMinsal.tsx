@@ -111,7 +111,8 @@ export default function NormaMinsalPage() {
               }}
             />
           </div>
-
+        </>
+      )}
       {rowData.length === 0 && <p>Selecciona un archivo para cargar la tabla...</p>}
     </div>
   );
