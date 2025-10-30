@@ -27,6 +27,9 @@ export default function UsersPage() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [userToToggle, setUserToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [isDeletingUser, setIsDeletingUser] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -104,6 +107,42 @@ export default function UsersPage() {
       setIsConfirmModalOpen(false);
     } finally {
       setIsTogglingStatus(false);
+    }
+  };
+
+  const handleDeleteClick = (user: User) => {
+    setUserToDelete({
+      id: user.id,
+      name: user.full_name,
+    });
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!userToDelete) return;
+
+    setIsDeletingUser(true);
+
+    try {
+      const response = await fetch(`/api/admin/users/${userToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al eliminar usuario');
+      }
+
+      // Success - reload users
+      await fetchUsers();
+      setIsDeleteModalOpen(false);
+      setUserToDelete(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar usuario');
+      setIsDeleteModalOpen(false);
+    } finally {
+      setIsDeletingUser(false);
     }
   };
 
@@ -251,7 +290,7 @@ export default function UsersPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button
                             onClick={() => handleEdit(user)}
-                            className="text-blue-600 hover:text-blue-900 mr-4 transition-colors"
+                            className="text-blue-600 hover:text-blue-900 mr-3 transition-colors"
                             title="Editar usuario"
                           >
                             <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,9 +299,9 @@ export default function UsersPage() {
                           </button>
                           <button
                             onClick={() => handleToggleStatusClick(user)}
-                            className={`transition-colors ${
+                            className={`mr-3 transition-colors ${
                               user.is_active 
-                                ? 'text-red-600 hover:text-red-900' 
+                                ? 'text-orange-600 hover:text-orange-900' 
                                 : 'text-green-600 hover:text-green-900'
                             }`}
                             title={user.is_active ? 'Desactivar usuario' : 'Activar usuario'}
@@ -276,6 +315,15 @@ export default function UsersPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             )}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteClick(user)}
+                            className="text-red-600 hover:text-red-900 transition-colors"
+                            title="Eliminar usuario"
+                          >
+                            <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                           </button>
                         </td>
                       </tr>
@@ -352,6 +400,22 @@ export default function UsersPage() {
         cancelText="Cancelar"
         isDestructive={userToToggle?.currentStatus}
         isLoading={isTogglingStatus}
+      />
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setUserToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Eliminar Usuario"
+        message={`¿Está seguro de eliminar permanentemente a ${userToDelete?.name}? Esta acción no se puede deshacer y eliminará todos los datos asociados al usuario.`}
+        confirmText="Eliminar Permanentemente"
+        cancelText="Cancelar"
+        isDestructive={true}
+        isLoading={isDeletingUser}
       />
     </div>
   );

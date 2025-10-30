@@ -10,13 +10,13 @@ import { USER_ROLES } from '@/lib/constants/roles';
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Require admin authentication
     await requireAdmin();
     
-    const { id } = params;
+    const { id } = await params;
     const { fullName, role } = await request.json();
     
     // Validación básica
@@ -105,13 +105,13 @@ export async function PUT(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Require admin authentication
     await requireAdmin();
     
-    const { id } = params;
+    const { id } = await params;
     const { is_active } = await request.json();
     
     // Validación básica
@@ -197,6 +197,113 @@ export async function PATCH(
     
   } catch (error) {
     console.error('Error in PATCH /api/admin/users/[id]:', error);
+    
+    if (error instanceof Error) {
+      if (error.message.includes('Unauthorized')) {
+        return NextResponse.json(
+          { error: 'No autorizado. Se requiere rol de administrador.' },
+          { status: 403 }
+        );
+      }
+    }
+    
+    return NextResponse.json(
+      { error: 'Error interno del servidor' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/admin/users/[id]
+ * Delete user permanently (admin only)
+ * Removes user from both auth.users and public.users
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Require admin authentication
+    await requireAdmin();
+    
+    const { id } = await params;
+    
+    // Get admin client
+    const supabaseAdmin = getSupabaseAdmin();
+    
+    // Check if user exists
+    const { data: existingUser, error: fetchError } = await supabaseAdmin
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (fetchError || !existingUser) {
+      return NextResponse.json(
+        { error: 'Usuario no encontrado' },
+        { status: 404 }
+      );
+    }
+    
+    // Security check: Don't allow deleting the last admin
+    if (existingUser.role === 'admin') {
+      // Count admins
+      const { data: admins, error: countError } = await supabaseAdmin
+        .from('users')
+        .select('id', { count: 'exact' })
+        .eq('role', 'admin');
+      
+      if (countError) {
+        console.error('Error counting admins:', countError);
+        return NextResponse.json(
+          { error: 'Error al verificar administradores' },
+          { status: 500 }
+        );
+      }
+      
+      // If this is the last admin, don't allow deletion
+      if (admins && admins.length <= 1) {
+        return NextResponse.json(
+          { error: 'No puede eliminar al único administrador del sistema' },
+          { status: 400 }
+        );
+      }
+    }
+    
+    // Delete from auth.users first (this will cascade to public.users if configured)
+    if (existingUser.auth_id) {
+      const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(
+        existingUser.auth_id
+      );
+      
+      if (authDeleteError) {
+        console.error('Error deleting user from auth:', authDeleteError);
+        // Continue anyway to try deleting from public.users
+      }
+    }
+    
+    // Delete from public.users
+    const { error: deleteError } = await supabaseAdmin
+      .from('users')
+      .delete()
+      .eq('id', id);
+    
+    if (deleteError) {
+      console.error('Error deleting user from public.users:', deleteError);
+      return NextResponse.json(
+        { error: deleteError.message || 'Error al eliminar usuario' },
+        { status: 400 }
+      );
+    }
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Usuario eliminado correctamente',
+    }, { status: 200 });
+    
+  } catch (error) {
+    console.error('Error in DELETE /api/admin/users/[id]:', error);
     
     if (error instanceof Error) {
       if (error.message.includes('Unauthorized')) {
