@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseAdmin } from '@/lib/supabase';
 import { requireAdmin } from '@/lib/auth-helpers';
 import { USER_ROLES } from '@/lib/constants/roles';
 import crypto from 'crypto';
@@ -73,8 +73,11 @@ export async function POST(request: NextRequest) {
     // Generate temporary password
     const temporaryPassword = generateSecurePassword(12);
     
+    // Get admin client with Service Role Key
+    const supabaseAdmin = getSupabaseAdmin();
+    
     // Create user in Supabase Auth using admin API
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password: temporaryPassword,
       email_confirm: true, // Auto-confirm email
@@ -109,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Verify user was created in public.users table (via trigger)
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('auth_id', authData.user.id)
