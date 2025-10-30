@@ -164,7 +164,7 @@ export class MockSupabaseQueryBuilder<T = any> {
     }
 
     // If mockData hasn't been set yet, populate it from the database
-    if (this.mockData === null && !this.pendingOperation) {
+    if (this.mockData === null) {
       const tableData = this.mockDatabase.get(this.tableName) || [];
       if (this.filterConditions.length > 0) {
         const filtered = this.applyFilters(tableData);
