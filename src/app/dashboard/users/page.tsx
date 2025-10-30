@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import CreateUserModal from '@/components/admin/CreateUserModal';
+import EditUserModal from '@/components/admin/EditUserModal';
+import ConfirmModal from '@/components/admin/ConfirmModal';
 import { ROLE_LABELS } from '@/lib/constants/roles';
 
 interface User {
@@ -20,6 +22,11 @@ export default function UsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [userToToggle, setUserToToggle] = useState<{ id: string; name: string; currentStatus: boolean } | null>(null);
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -48,6 +55,56 @@ export default function UsersPage() {
 
   const handleModalSuccess = () => {
     fetchUsers(); // Reload users after creating new one
+  };
+
+  const handleEdit = (user: User) => {
+    setEditingUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    fetchUsers(); // Reload users after editing
+  };
+
+  const handleToggleStatusClick = (user: User) => {
+    setUserToToggle({
+      id: user.id,
+      name: user.full_name,
+      currentStatus: user.is_active,
+    });
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleToggleStatusConfirm = async () => {
+    if (!userToToggle) return;
+
+    setIsTogglingStatus(true);
+
+    try {
+      const response = await fetch(`/api/admin/users/${userToToggle.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          is_active: !userToToggle.currentStatus,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al cambiar estado del usuario');
+      }
+
+      // Success - reload users
+      await fetchUsers();
+      setIsConfirmModalOpen(false);
+      setUserToToggle(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cambiar estado del usuario');
+      setIsConfirmModalOpen(false);
+    } finally {
+      setIsTogglingStatus(false);
+    }
   };
 
   const formatDate = (dateString: string | null) => {
@@ -193,16 +250,32 @@ export default function UsersPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button
-                            className="text-blue-600 hover:text-blue-900 mr-4"
+                            onClick={() => handleEdit(user)}
+                            className="text-blue-600 hover:text-blue-900 mr-4 transition-colors"
                             title="Editar usuario"
                           >
-                            ✏️
+                            <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
                           </button>
                           <button
-                            className="text-red-600 hover:text-red-900"
-                            title="Desactivar usuario"
+                            onClick={() => handleToggleStatusClick(user)}
+                            className={`transition-colors ${
+                              user.is_active 
+                                ? 'text-red-600 hover:text-red-900' 
+                                : 'text-green-600 hover:text-green-900'
+                            }`}
+                            title={user.is_active ? 'Desactivar usuario' : 'Activar usuario'}
                           >
-                            🗑️
+                            {user.is_active ? (
+                              <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            )}
                           </button>
                         </td>
                       </tr>
@@ -248,6 +321,37 @@ export default function UsersPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleModalSuccess}
+      />
+
+      {/* Edit User Modal */}
+      <EditUserModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingUser(null);
+        }}
+        onSuccess={handleEditSuccess}
+        user={editingUser}
+      />
+
+      {/* Confirm Toggle Status Modal */}
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => {
+          setIsConfirmModalOpen(false);
+          setUserToToggle(null);
+        }}
+        onConfirm={handleToggleStatusConfirm}
+        title={userToToggle?.currentStatus ? 'Desactivar Usuario' : 'Activar Usuario'}
+        message={
+          userToToggle?.currentStatus
+            ? `¿Está seguro de desactivar a ${userToToggle.name}? El usuario no podrá iniciar sesión.`
+            : `¿Está seguro de activar a ${userToToggle?.name}?`
+        }
+        confirmText={userToToggle?.currentStatus ? 'Desactivar' : 'Activar'}
+        cancelText="Cancelar"
+        isDestructive={userToToggle?.currentStatus}
+        isLoading={isTogglingStatus}
       />
     </div>
   );
