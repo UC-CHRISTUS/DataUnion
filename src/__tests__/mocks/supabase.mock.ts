@@ -158,8 +158,13 @@ export class MockSupabaseQueryBuilder<T = any> {
     onfulfilled?: ((value: MockSupabaseResponse<T>) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null
   ): Promise<TResult1 | TResult2> {
+    // CRITICAL: Execute any pending operation NOW (after all filters have been added)
+    if (this.pendingOperation) {
+      this.executePendingOperation();
+    }
+
     // If mockData hasn't been set yet, populate it from the database
-    if (this.mockData === null) {
+    if (this.mockData === null && !this.pendingOperation) {
       const tableData = this.mockDatabase.get(this.tableName) || [];
       if (this.filterConditions.length > 0) {
         const filtered = this.applyFilters(tableData);
@@ -179,6 +184,70 @@ export class MockSupabaseQueryBuilder<T = any> {
     };
 
     return Promise.resolve(response).then(onfulfilled, onrejected);
+  }
+
+  // Execute the pending operation after all filters have been added
+  private executePendingOperation(): void {
+    if (!this.pendingOperation) return;
+
+    const { type, data } = this.pendingOperation;
+
+    if (type === 'insert') {
+      const tableData = this.mockDatabase.get(this.tableName) || [];
+      const records = Array.isArray(data) ? data : [data];
+
+      const newRecords = records.map((record, index) => ({
+        id: tableData.length + index + 1,
+        ...record,
+        created_at: new Date().toISOString(),
+      }));
+
+      tableData.push(...newRecords);
+      this.mockDatabase.set(this.tableName, tableData);
+      this.mockData = (Array.isArray(data) ? newRecords : newRecords[0]) as T;
+    }
+
+    if (type === 'update') {
+      const tableData = this.mockDatabase.get(this.tableName) || [];
+      const filtered = this.applyFilters(tableData);
+
+      if (filtered.length === 0) {
+        this.mockError = new Error('No rows found to update');
+        this.mockData = null;
+        return;
+      }
+
+      const updated = filtered.map(record => ({ ...record, ...data }));
+
+      const allData = this.mockDatabase.get(this.tableName) || [];
+      updated.forEach(updatedRecord => {
+        const index = allData.findIndex((r: any) => r.id === (updatedRecord as any).id);
+        if (index !== -1) {
+          allData[index] = updatedRecord;
+        }
+      });
+      this.mockDatabase.set(this.tableName, allData);
+      this.mockData = (updated.length === 1 ? updated[0] : updated) as T;
+    }
+
+    if (type === 'delete') {
+      const tableData = this.mockDatabase.get(this.tableName) || [];
+      const filtered = this.applyFilters(tableData);
+
+      if (filtered.length === 0) {
+        this.mockError = new Error('No rows found to delete');
+        this.mockData = null;
+        return;
+      }
+
+      const allData = this.mockDatabase.get(this.tableName) || [];
+      const idsToDelete = new Set(filtered.map((r: any) => r.id));
+      const remaining = allData.filter((r: any) => !idsToDelete.has(r.id));
+      this.mockDatabase.set(this.tableName, remaining);
+      this.mockData = null;
+    }
+
+    this.pendingOperation = null;
   }
 }
 
