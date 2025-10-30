@@ -4,8 +4,8 @@ import { cookies } from 'next/headers';
 /**
  * Create Supabase client with cookie access for server-side
  */
-function createSupabaseServerClient() {
-  const cookieStore = cookies();
+async function createSupabaseServerClient() {
+  const cookieStore = await cookies();
   
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,17 +40,19 @@ function createSupabaseServerClient() {
  * @returns User object or null if not authenticated
  */
 export async function getCurrentUser() {
-  const supabase = createSupabaseServerClient();
-  const { data: { session } } = await supabase.auth.getSession();
+  const supabase = await createSupabaseServerClient();
   
-  if (!session?.user) {
+  // Use getUser() instead of getSession() for better security
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  if (authError || !user) {
     return null;
   }
   
   const { data: userData, error } = await supabase
     .from('users')
     .select('*')
-    .eq('auth_id', session.user.id)
+    .eq('auth_id', user.id)
     .single();
   
   if (error) {
@@ -107,8 +109,8 @@ export async function requireRole(allowedRoles: string[]) {
  * @returns Boolean indicating if user is authenticated
  */
 export async function isAuthenticated(): Promise<boolean> {
-  const supabase = createSupabaseServerClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  return !!session?.user;
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  return !!user;
 }
 
