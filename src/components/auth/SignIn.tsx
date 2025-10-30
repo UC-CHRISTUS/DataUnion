@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, FormEvent, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createBrowserClient } from '@supabase/ssr';
 
 interface SignInProps {
@@ -10,6 +10,7 @@ interface SignInProps {
 
 export default function SignIn({ onSignUp }: SignInProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -19,6 +20,14 @@ export default function SignIn({ onSignUp }: SignInProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Check for error parameter from redirect
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'no-session') {
+      setError('Debe iniciar sesión primero para cambiar su contraseña');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
