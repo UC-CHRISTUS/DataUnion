@@ -1,6 +1,7 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 import ExcelJS from 'exceljs'
-import { supabase } from '@/lib/supabase'
 import { successResponse, errorResponse, handleError } from '@/lib/api/response'
 
 /**
@@ -229,6 +230,61 @@ function calculateDaysDiff(fechaAlta: string | null, fechaIngreso: string | null
  */
 export async function POST(request: NextRequest) {
   try {
+    // Create Supabase client with user session from cookies
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            try {
+              cookieStore.set({ name, value, ...options })
+            } catch (error) {
+              // Cookie setting may fail in API routes
+            }
+          },
+          remove(name: string, options: any) {
+            try {
+              cookieStore.set({ name, value: '', ...options })
+            } catch (error) {
+              // Cookie removal may fail in API routes
+            }
+          },
+        },
+      }
+    )
+
+    // Verify user is authenticated and has encoder or admin role
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return errorResponse('Unauthorized: Authentication required', 401)
+    }
+
+    // Get user role from public.users table
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role, is_active')
+      .eq('auth_id', user.id)
+      .single()
+
+    if (userError || !userData) {
+      return errorResponse('User not found', 404)
+    }
+
+    if (!userData.is_active) {
+      return errorResponse('User is inactive', 403)
+    }
+
+    // Check if user has permission to upload (encoder or admin)
+    if (userData.role !== 'encoder' && userData.role !== 'admin') {
+      return errorResponse('Unauthorized: Only encoders and admins can upload files', 403)
+    }
+
     // Get form data
     const formData = await request.formData()
     const file = formData.get('file') as File
