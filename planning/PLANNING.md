@@ -1,8 +1,8 @@
 # PLANNING.md - Sistema de Gestión de Codificación y Facturación Hospitalaria UC Christus
 
-**Última actualización:** 3 de Noviembre, 2025 (19:00 hrs)  
-**Versión:** 1.3  
-**Estado del proyecto:** Sprint 3-4 en desarrollo (HU-03: Workflow y Acceso por Rol - FASE 1 Completada 60%, PLAN COMPLETO DEFINIDO)
+**Última actualización:** 4 de Noviembre, 2025 (21:00 hrs)  
+**Versión:** 1.4  
+**Estado del proyecto:** Sprint 3-4 en desarrollo (HU-03: Workflow y Acceso por Rol - 87.5% completado - 7/8 bloques implementados)
 
 ---
 
