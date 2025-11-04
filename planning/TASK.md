@@ -1,8 +1,8 @@
 # TASK.md - Backlog de Tareas del Proyecto
 
-**Última actualización:** 31 de Octubre, 2025  
-**Sprint Actual:** Sprint 3-4 (HU-03)  
-**Estado del Proyecto:** En desarrollo activo - Implementando Workflow y Acceso por Rol
+**Última actualización:** 3 de Noviembre, 2025 (19:00 hrs)  
+**Sprint Actual:** Sprint 3-4 (HU-03 - PLAN COMPLETO DEFINIDO)  
+**Estado del Proyecto:** En desarrollo activo - Implementando Workflow y Acceso por Rol (Fase 1: 60%, Plan 5 fases definido)
 
 ---
 
@@ -20,12 +20,16 @@
 
 ## 🎯 Resumen del Sprint Actual
 
-**Sprint 2** (29/sep/2025)
-- **Objetivo:** Refinamiento de arquitectura y diseño, preparación para Sprint 3
-- **Duración:** 1 semana
-- **Tareas Comprometidas:** 8
-- **Tareas Completadas:** 2
-- **Tareas En Progreso:** 6
+**Sprint 3-4** (3/nov/2025 - ACTUALIZADO)
+- **Objetivo:** Completar HU-03 (Workflow y Acceso por Rol) con flujo end-to-end funcional
+- **Duración:** 2-3 semanas estimadas
+- **Progreso General:** 35% completado
+- **Tareas Comprometidas:** 17 tareas nuevas identificadas
+- **Tareas Completadas:** 2 (FASE 1 parcial)
+- **Tareas En Progreso:** 15 (distribuidas en 5 fases)
+
+**Regla Crítica del Flujo:**
+⚠️ Solo puede existir UN archivo en proceso a la vez. Estados activos: `borrador_encoder`, `pendiente_finance`, `borrador_finance`, `pendiente_admin`. Estados que liberan el sistema: `exportado`, `rechazado`.
 
 ---
 
@@ -308,102 +312,303 @@
   - ⏳ Tests de permisos
 
 #### HU-003: Acceso restringido por rol + Workflow de Estados 🚧 **PRIORIDAD 1**
-- **Estado:** 🚧 En Progreso (ACTIVO) - 30% Completado
+- **Estado:** 🚧 En Progreso (ACTIVO) - 35% Completado
 - **Sprint:** 3-4
 - **Asignado:** Joaquín Peralta
-- **Fecha Actualización:** 31/oct/2025 (18:20 hrs)
+- **Fecha Actualización:** 3 de noviembre, 2025 (19:00 hrs)
 - **Fecha Inicio:** 31/oct/2025
 - **ClickUp URL:** https://app.clickup.com/t/86acn64fw
 - **Prioridad:** 🔴 URGENTE (CRÍTICO)
 - **Épica:** EP-01
-- **Estimación:** 13 puntos (10-12 horas)
-- **Descripción:** Implementar workflow completo con estados + acceso restringido por rol
-- **Objetivo:** Lograr flujo end-to-end: Encoder → Finance → Admin → Export
+- **Estimación:** 18-20 horas totales (distribuidas en 5 fases)
+- **Descripción:** Implementar workflow completo con estados + acceso restringido por rol + validación de archivo único
+- **Objetivo:** Lograr flujo end-to-end: Encoder → Finance → Admin → Export con restricción de archivo único
 
 **Criterios de Aceptación:**
   - ✅ Sistema de usuarios con 3 roles funcionando (admin, encoder, finance)
-  - 🚧 Sistema de 6 estados implementado en `grd_fila`
-  - 🚧 Dashboards diferenciados por rol (`/dashboard/encoder`, `/dashboard/finance`, `/dashboard/admin`)
-  - 🚧 Encoder solo ve archivos en estado `borrador_encoder`
-  - 🚧 Finance solo ve archivos en estado `pendiente_finance` o `borrador_finance`
-  - 🚧 Admin solo ve archivos en estado `pendiente_admin` o posteriores
-  - 🚧 Bloqueo dinámico de campos según rol y estado
-  - 🚧 Botón Submit con doble confirmación (modal de peligro)
-  - 🚧 Admin puede aprobar y exportar archivos
-  - ⏳ Validaciones de campos obligatorios (FLEXIBLE por ahora)
+  - ⏳ **CRÍTICO:** Agregar estado `rechazado` al ENUM (migración pendiente)
+  - ⏳ Encoder solo puede subir archivo si NO hay uno en flujo activo
+  - ⏳ Encoder edita solo campos AT en filas, auto-guardado cada 5s
+  - ⏳ Encoder hace Submit con doble confirmación → pasa a Finance
+  - ⏳ Finance recibe notificación y edita sus campos en filas
+  - ⏳ Finance hace Submit con doble confirmación → pasa a Admin
+  - ⏳ Admin puede aprobar, rechazar (vuelve a Encoder) o exportar
+  - ⏳ Sistema permite re-descarga de archivos exportados
+  - ⏳ Sidebar muestra opciones según rol del usuario
+  - ⏳ Campos bloqueados dinámicamente según estado y rol
+  - ⏳ Sistema de notificaciones simples (banners) entre roles
 
-**Subtareas por FASE:**
+**Plan de Implementación Completo - 5 FASES:**
 
-### **FASE 1: Base de Datos (Bloqueante) - DÍA 1** ⏰ 2-3 horas - **60% COMPLETADO** ✅
+---
+
+### **FASE 1: Base de Datos (Bloqueante) - ⏰ 30 min** - **60% COMPLETADO** ✅
+
   - ✅ **WORKFLOW-001**: Crear migración para agregar campo `estado` a `grd_fila` (ENUM)
-    - ✅ Tipo: `CREATE TYPE workflow_estado AS ENUM ('borrador_encoder', 'pendiente_finance', 'borrador_finance', 'pendiente_admin', 'aprobado', 'exportado')`
-    - ✅ Campo: `estado workflow_estado DEFAULT 'borrador_encoder'`
-    - ✅ Índice en `estado` para performance
-    - ✅ Archivo: `supabase/migrations/20251031_add_estado_workflow_to_grd_fila.sql`
-  - ✅ **WORKFLOW-002**: Aplicar migración en Supabase vía MCP
-    - ✅ ENUM `workflow_estado` creado exitosamente
-    - ✅ Campo `estado` agregado a tabla `grd_fila`
-    - ✅ 31 registros existentes actualizados a 'borrador_encoder'
-    - ✅ Índices creados: `idx_grd_fila_estado`, `idx_grd_fila_grd_oficial_estado`
-  - ✅ **WORKFLOW-003**: Regenerar tipos TypeScript desde Supabase
-    - ✅ Archivo `src/types/database.types.ts` actualizado
-    - ✅ Tipos incluyen campo `estado` y ENUM `workflow_estado`
-    - ✅ Todas las tablas con tipos actualizados
-  - ⏳ **WORKFLOW-004**: Crear API POST `/api/v1/grd/[grdId]/submit`
-    - Valida que usuario tenga permiso (encoder o finance)
-    - Cambia estado según rol actual
-    - Retorna nuevo estado
-  - ⏳ **WORKFLOW-005**: Testing de API submit (Postman o tests)
+    - **Fecha:** 31/oct/2025
+    - **Estado:** ✅ COMPLETADO
+    - **Archivo:** `supabase/migrations/20251031_add_estado_workflow_to_grd_fila.sql`
+    - **Detalles:**
+      - ✅ ENUM `workflow_estado` con 6 estados iniciales
+      - ✅ Campo `estado` agregado con DEFAULT 'borrador_encoder'
+      - ✅ Índices creados para performance
+      - ✅ Campo `updated_by` para trazabilidad
+      - ✅ Tipos TypeScript regenerados
 
-### **FASE 2: Middleware y Helpers - DÍA 1** ⏰ 2 horas
-  - ⏳ **AUTH-003**: Actualizar `middleware.ts` para validar rol en rutas
-    - Proteger `/dashboard/encoder` → solo encoder
-    - Proteger `/dashboard/finance` → solo finance
-    - Proteger `/dashboard/admin` → solo admin
-  - ⏳ **AUTH-004**: Crear HOC `withRole(Component, allowedRoles[])`
-    - Ejemplo: `withRole(EncoderDashboard, ['encoder'])`
-  - ⏳ **HELPER-001**: Crear helper `getEditableFieldsByRole(role, estado)`
-    - Retorna lista de campos editables según rol y estado
-    - Encoder: ['AT', 'AT_detalle'] si estado === 'borrador_encoder'
-    - Finance: ['validado', 'n_folio', 'estado_rn', 'monto_rn', 'documentacion'] si estado === 'pendiente_finance' o 'borrador_finance'
-    - Admin: [] (ninguno editable)
+  - ⚠️ **WORKFLOW-001B**: **BLOQUEANTE - Agregar estado `rechazado` al ENUM**
+    - **Fecha Inicio:** 3/nov/2025
+    - **Estado:** ⏳ NO INICIADO (CRÍTICO)
+    - **Prioridad:** 🔴 BLOQUEANTE
+    - **Estimación:** 30 minutos
+    - **Descripción:** Crear nueva migración para agregar estado `rechazado` al ENUM existente
+    - **Archivo a crear:** `supabase/migrations/20251103_add_rechazado_state.sql`
+    - **SQL requerido:**
+      ```sql
+      ALTER TYPE workflow_estado ADD VALUE 'rechazado';
+      ```
+    - **Bloqueante porque:** El flujo de rechazo por Admin es parte del MVP
 
-### **FASE 3: Dashboards por Rol - DÍA 2** ⏰ 3 horas
-  - ⏳ **DASH-001**: Crear `/dashboard/encoder/page.tsx`
-    - Lista archivos en estado `borrador_encoder`
-    - Botón "Editar" → Abre ExcelEditor
-    - Contador de archivos pendientes
-  - ⏳ **DASH-002**: Crear `/dashboard/finance/page.tsx`
-    - Lista archivos en estado `pendiente_finance` o `borrador_finance`
-    - Botón "Editar" → Abre ExcelEditor (campos de encoder bloqueados)
-    - Contador de archivos pendientes
-  - ⏳ **DASH-003**: Crear `/dashboard/admin/page.tsx`
-    - Lista archivos en estado `pendiente_admin`, `aprobado`, `exportado`
-    - Botón "Revisar" → Abre ExcelEditor (read-only)
-    - Botón "Aprobar" → Cambia estado a `aprobado`
-    - Botón "Exportar" → Genera Excel y cambia estado a `exportado`
-    - Filtro por AT (mostrar solo episodios con AT)
+  - ⏳ **WORKFLOW-002**: Crear API GET `/api/v1/grd/active-workflow`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1 hora
+    - **Descripción:** API para verificar si existe archivo en flujo activo
+    - **Response esperado:**
+      ```json
+      {
+        "hasActiveWorkflow": true,
+        "grdId": 123,
+        "estado": "pendiente_finance"
+      }
+      ```
 
-### **FASE 4: Editor Adaptativo + Submit - DÍA 3** ⏰ 3-4 horas
-  - ⏳ **EDITOR-001**: Modificar `ExcelEditor.tsx` para bloqueo dinámico
-    - Recibir props: `userRole`, `currentState`
-    - Usar helper `getEditableFieldsByRole()`
-    - Aplicar `editable: false` en AG-Grid para campos bloqueados
-    - Visual feedback (campos bloqueados en gris)
-  - ⏳ **EDITOR-002**: Agregar botón Submit con doble confirmación
-    - Modal de confirmación tipo "danger" (como GitHub delete repo)
-    - Usuario debe escribir "CONFIRMAR" para continuar
-    - Al confirmar → POST a `/api/v1/grd/[grdId]/submit`
-    - Redireccionar a dashboard después de submit
-  - ⏳ **EDITOR-003**: Agregar indicadores visuales de estado
-    - Badge de estado en header del editor
-    - Colores por estado (naranja: borrador, azul: pendiente, verde: aprobado)
-  - ⏳ **EDITOR-004**: Testing end-to-end del flujo completo
-    - Crear usuario encoder de prueba
-    - Subir archivo SIGESA → Editar AT → Submit
-    - Crear usuario finance de prueba
-    - Recibir archivo → Editar campos finance → Submit
-    - Login como admin → Revisar → Aprobar → Exportar
+  - ⏳ **WORKFLOW-003**: Crear API POST `/api/v1/grd/[grdId]/submit-encoder`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1.5 horas
+    - **Descripción:** API para que encoder haga submit y cambie estado a `pendiente_finance`
+    - **Validaciones:**
+      - Usuario debe ser `encoder`
+      - Todas las filas deben estar en estado `borrador_encoder`
+      - Actualizar `updated_by` con ID del encoder
+
+  - ⏳ **WORKFLOW-004**: Crear API POST `/api/v1/grd/[grdId]/submit-finance`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1.5 horas
+    - **Descripción:** API para que finance haga submit y cambie estado a `pendiente_admin`
+    - **Validaciones:**
+      - Usuario debe ser `finance`
+      - Todas las filas deben estar en `pendiente_finance` o `borrador_finance`
+
+  - ⏳ **WORKFLOW-005**: Testing de APIs submit (Postman o tests)
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1 hora
+
+---
+
+### **FASE 2: APIs de Control de Workflow - ⏰ 3-4 horas** - **0% COMPLETADO**
+
+  - ⏳ **WORKFLOW-006**: Crear API POST `/api/v1/grd/[grdId]/review`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 2 horas
+    - **Descripción:** API para que admin apruebe o rechace archivo
+    - **Request body:**
+      ```json
+      { "action": "approve" | "reject" }
+      ```
+    - **Validaciones:**
+      - Usuario debe ser `admin`
+      - Archivo debe estar en estado `pendiente_admin`
+      - Si `approve`: cambiar a `aprobado`
+      - Si `reject`: cambiar a `rechazado`
+
+  - ⏳ **WORKFLOW-007**: Modificar API GET `/api/v1/grd/[grdId]/rows`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1 hora
+    - **Descripción:** Agregar filtro por estado en query params
+    - **Ejemplo:** `GET /api/v1/grd/123/rows?estado=borrador_encoder`
+
+  - ⏳ **WORKFLOW-008**: Modificar API POST `/api/v1/sigesa/upload`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1 hora
+    - **Descripción:** Validar que NO exista archivo en flujo activo antes de subir
+    - **Cambios:**
+      - Llamar a `GET /api/v1/grd/active-workflow`
+      - Si `hasActiveWorkflow === true`: retornar Error 409 (Conflict)
+      - Mensaje: "Ya existe un archivo en proceso. Completa el flujo actual antes de subir uno nuevo."
+
+---
+
+### **FASE 3: Modificación de Componentes Existentes - ⏰ 5-6 horas** - **0% COMPLETADO**
+
+  - ⏳ **UI-002**: Modificar `FileUpload.tsx` - Validación de archivo único
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1.5 horas
+    - **Archivo:** `src/components/FileUpload.tsx`
+    - **Cambios:**
+      - Agregar `useEffect` para llamar a `GET /api/v1/grd/active-workflow`
+      - Si `hasActiveWorkflow === true`:
+        - Mostrar banner: "⚠️ Ya existe un archivo en proceso (Estado: {estado})"
+        - Deshabilitar dropzone y botón de carga
+      - Si `hasActiveWorkflow === false`: permitir carga normal
+
+  - ⏳ **UI-003**: Modificar `Sidebar.tsx` - Menú dinámico por rol
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 2 horas
+    - **Archivo:** `src/components/Sidebar.tsx`
+    - **Cambios:**
+      - Agregar `useEffect` para obtener rol (`GET /api/auth/session`)
+      - Crear lógica condicional de menú según rol:
+        - **Encoder:** Dashboard, Subir Archivo, SIGESA, Editor, Norma
+        - **Finance:** Dashboard, SIGESA, Editor (solo si hay archivo pendiente)
+        - **Admin:** Dashboard, Usuarios, SIGESA, Visualizador
+      - Páginas ya existen, solo cambiar visibilidad
+
+  - ⏳ **UI-004**: Modificar `ExcelEditor.tsx` - Campos editables dinámicos + Auto-guardado
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 3 horas
+    - **Archivo:** `src/components/ExcelEditor.tsx`
+    - **Cambios:**
+      1. **Agregar prop `role`** para saber qué campos bloquear
+      2. **Lógica de bloqueo por rol:**
+         - **Encoder:** Solo `AT`, `AT_detalle`, `monto_AT` editables
+         - **Finance:** Solo `validado`, `n_folio`, `estado_rn`, `monto_rn`, `documentacion` editables
+         - **Admin:** Todo bloqueado (read-only)
+      3. **Filtro de estado:**
+         - Obtener `grdId` activo del workflow
+         - **Encoder:** `estado = 'borrador_encoder'`
+         - **Finance:** `estado IN ('pendiente_finance', 'borrador_finance')`
+         - **Admin:** `estado IN ('pendiente_admin', 'aprobado')`
+      4. **Auto-guardado cada 5 segundos:**
+         - `useEffect` con `setInterval`
+         - Solo si hay cambios pendientes
+         - `PUT /api/v1/grd/rows/[episodio]`
+      5. **Botón "Entregar"** (solo Encoder y Finance)
+
+  - ⏳ **UI-005**: Crear `SubmitConfirmModal.tsx` - Modal doble confirmación
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1.5 horas
+    - **Archivo a crear:** `src/components/SubmitConfirmModal.tsx`
+    - **Funcionalidad:**
+      - Modal con 2 pasos de confirmación
+      - Paso 1: "¿Estás seguro de entregar?"
+      - Paso 2: "⚠️ No podrás editar hasta que finalice"
+      - Al confirmar:
+        - Si `role === 'encoder'`: `POST /api/v1/grd/[grdId]/submit-encoder`
+        - Si `role === 'finance'`: `POST /api/v1/grd/[grdId]/submit-finance`
+
+  - ⏳ **UI-006**: Crear `WorkflowAlert.tsx` - Notificaciones simples
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1 hora
+    - **Archivo a crear:** `src/components/WorkflowAlert.tsx`
+    - **Funcionalidad:**
+      - Banner en dashboard
+      - Llamar a `GET /api/v1/grd/active-workflow`
+      - Mostrar mensaje según rol:
+        - **Finance:** "🔔 Tienes archivo pendiente"
+        - **Admin:** "🔔 Tienes archivo pendiente de aprobación"
+        - **Encoder:** "⚠️ Admin rechazó tu archivo"
+
+  - ⏳ **UI-007**: Crear hook `useWorkflowStatus.ts`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 30 min
+    - **Archivo a crear:** `src/hooks/useWorkflowStatus.ts`
+    - **Funcionalidad:** Hook compartido para obtener estado de workflow
+
+---
+
+### **FASE 4: Integración en Páginas Existentes - ⏰ 3-4 horas** - **0% COMPLETADO**
+
+  - ⏳ **PAGE-001**: Modificar `/visualizator/page.tsx`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 2 horas
+    - **Archivo:** `src/app/visualizator/page.tsx`
+    - **Cambios:**
+      - Obtener rol del usuario
+      - Pasar prop `role` a `ExcelEditor`
+      - Agregar botón "Entregar" (encoder/finance)
+      - Agregar botones "Aprobar"/"Rechazar" (admin, si `pendiente_admin`)
+      - Agregar filtro "Solo AT = 'S'" (admin, filtro visual)
+      - Botón "Exportar" (admin, si `aprobado`)
+
+  - ⏳ **PAGE-002**: Modificar `/dashboard/page.tsx`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1 hora
+    - **Archivo:** `src/app/dashboard/page.tsx`
+    - **Cambios:**
+      - Agregar `<WorkflowAlert />` al inicio
+      - Mostrar tarjetas según rol
+
+  - ⏳ **PAGE-003**: Modificar `/sigesa/page.tsx`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 30 min
+    - **Archivo:** `src/app/sigesa/page.tsx`
+    - **Cambios:**
+      - Asegurar modo read-only estricto
+      - Mostrar solo archivo activo en workflow
+
+  - ⏳ **PAGE-004**: Modificar `/upload/page.tsx`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 30 min
+    - **Archivo:** `src/app/upload/page.tsx`
+    - **Cambios:**
+      - Integrar validación de archivo único de `FileUpload` modificado
+
+---
+
+### **FASE 5: Exportación y Cierre de Flujo - ⏰ 2-3 horas** - **0% COMPLETADO**
+
+  - ⏳ **EXPORT-001**: Crear/Modificar API GET `/api/v1/grd/[grdId]/export`
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 2 horas
+    - **Archivo:** `src/app/api/v1/grd/[grdId]/export/route.ts` (puede existir)
+    - **Funcionalidad:**
+      - Validar que usuario sea `admin`
+      - Validar que archivo esté en estado `aprobado`
+      - Generar Excel con 29 columnas formato FONASA
+      - Cambiar estado a `exportado` (solo primera vez)
+      - Permitir re-descarga sin cambiar estado
+      - Retornar archivo para download
+
+  - ⏳ **EXPORT-002**: Testing del flujo completo end-to-end
+    - **Estado:** ⏳ NO INICIADO
+    - **Estimación:** 1 hora
+    - **Descripción:** Probar flujo completo: Encoder → Finance → Admin → Export
+
+---
+
+**Bloqueadores:**
+  - ⚠️ **BLOQUEANTE:** Migración para agregar estado `rechazado` (WORKFLOW-001B)
+
+**Notas Técnicas:**
+  - ⚠️ Por ahora NO validaremos campos obligatorios (flexible)
+  - ✅ Páginas ya existen: `/sigesa`, `/norma`, `/upload`, `/visualizator`, `/dashboard`
+  - ✅ Componentes ya existen: `SigesaPreview`, `ExcelEditor`, `NormaMinsal`, `FileUpload`, `Sidebar`
+  - ✅ Focus en modificar lo existente, NO duplicar trabajo
+  - ✅ Auto-guardado cada 5 segundos en editor
+  - ✅ Doble confirmación en Submit (2 pasos)
+  - ✅ Notificaciones simples con banners (no emails)
+  - ✅ Filtro visual de AT no afecta exportación
+
+**Resumen de Archivos a Modificar (NO crear nuevos):**
+- `src/components/FileUpload.tsx`
+- `src/components/Sidebar.tsx`
+- `src/components/ExcelEditor.tsx`
+- `src/app/visualizator/page.tsx`
+- `src/app/dashboard/page.tsx`
+- `src/app/sigesa/page.tsx`
+- `src/app/upload/page.tsx`
+- `src/app/api/v1/sigesa/upload/route.ts`
+- `src/app/api/v1/grd/[grdId]/rows/route.ts`
+- `src/app/api/v1/grd/[grdId]/export/route.ts` (si existe)
+
+**Archivos Nuevos a Crear:**
+- `supabase/migrations/20251103_add_rechazado_state.sql`
+- `src/app/api/v1/grd/active-workflow/route.ts`
+- `src/app/api/v1/grd/[grdId]/submit-encoder/route.ts`
+- `src/app/api/v1/grd/[grdId]/submit-finance/route.ts`
+- `src/app/api/v1/grd/[grdId]/review/route.ts`
+- `src/components/SubmitConfirmModal.tsx`
+- `src/components/WorkflowAlert.tsx`
+- `src/hooks/useWorkflowStatus.ts`
 
 ### **FASE 5: Exportación Final - DÍA 3** ⏰ 1-2 horas
   - ⏳ **EXPORT-001**: Crear API POST `/api/v1/grd/[grdId]/export`
@@ -1005,5 +1210,52 @@
   - ENUM `workflow_estado` (borrador_encoder → pendiente_finance → borrador_finance → pendiente_admin → aprobado → exportado)
   - Campo `estado` en tabla `grd_fila`
   - Índices para optimización de queries
+
+**3/nov/2025 (HU-03 - Plan Completo):**
+- ⏳ **PENDIENTE:** `20251103_add_rechazado_state.sql` - **Agregar estado `rechazado` al ENUM** (BLOQUEANTE)
+
+---
+
+## 📝 Changelog de TASK.md
+
+### 3 de Noviembre, 2025 - Actualización Mayor
+**HU-003: Plan Completo de Implementación Definido**
+
+**Cambios principales:**
+- ✅ **Plan detallado de 5 fases** con 17 tareas nuevas identificadas
+- ✅ **Progreso actualizado:** 35% completado (antes 30%)
+- ✅ **Estado BLOQUEANTE identificado:** Migración para agregar estado `rechazado`
+- ✅ **Revisión completa del codebase:** Identificadas páginas y componentes existentes
+- ✅ **Estrategia anti-duplicación:** Modificar existente en lugar de crear nuevo
+- ✅ **Estimaciones de tiempo actualizadas:** 18-20 horas totales
+- ✅ **Archivos a modificar vs crear:** Lista completa documentada
+
+**Regla de Archivo Único:**
+- Solo puede existir UN archivo en proceso a la vez
+- Estados activos: `borrador_encoder`, `pendiente_finance`, `borrador_finance`, `pendiente_admin`
+- Estados que liberan: `exportado`, `rechazado`
+
+**Tareas Bloqueantes Críticas:**
+1. WORKFLOW-001B: Migración estado `rechazado` (30 min) ⚠️
+2. WORKFLOW-002: API active-workflow (1 hora)
+3. WORKFLOW-008: Modificar upload para validar unicidad (1 hora)
+
+**Páginas Existentes (NO duplicar):**
+- `/sigesa` - Vista SIGESA (SigesaPreview)
+- `/norma` - Vista Norma MINSAL (NormaMinsal)
+- `/upload` - Carga de archivos (FileUpload)
+- `/visualizator` - Editor (ExcelEditor)
+- `/dashboard` - Dashboard principal
+- `/dashboard/users` - Gestión de usuarios
+
+**Componentes Existentes (NO duplicar):**
+- `SigesaPreview.tsx`
+- `ExcelEditor.tsx`
+- `NormaMinsal.tsx`
+- `FileUpload.tsx`
+- `Sidebar.tsx`
+- `Layout.tsx`
+
+**Próxima Acción:** Comenzar FASE 1 completando migración de estado `rechazado`
 
 

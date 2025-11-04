@@ -1,8 +1,8 @@
 # PLANNING.md - Sistema de Gestión de Codificación y Facturación Hospitalaria UC Christus
 
-**Última actualización:** 31 de Octubre, 2025 (18:20 hrs)  
-**Versión:** 1.2  
-**Estado del proyecto:** Sprint 3-4 en desarrollo (HU-03: Workflow y Acceso por Rol - FASE 1 Completada 60%)
+**Última actualización:** 3 de Noviembre, 2025 (19:00 hrs)  
+**Versión:** 1.3  
+**Estado del proyecto:** Sprint 3-4 en desarrollo (HU-03: Workflow y Acceso por Rol - FASE 1 Completada 60%, PLAN COMPLETO DEFINIDO)
 
 ---
 
@@ -112,10 +112,21 @@ Plataforma web que automatice:
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Flujo de Datos Principal (Con Workflow de Estados)
+### Flujo de Datos Principal (Con Workflow de Estados) - ACTUALIZADO 3/Nov/2025
+
+#### **Regla de Archivo Único en Flujo**
+⚠️ **RESTRICCIÓN CRÍTICA:** Solo puede existir UN archivo en proceso a la vez.
+- **Estados en flujo activo:** `borrador_encoder`, `pendiente_finance`, `borrador_finance`, `pendiente_admin`
+- **Estados que liberan el sistema:** `exportado`, `rechazado`
+- Si existe un archivo en flujo activo, NO se puede subir otro hasta completar o rechazar el actual
+
+---
 
 1. **Encoder carga Excel desde SIGESA**
-   - Frontend valida formato básico
+   - **Validación previa:** Sistema verifica si existe archivo en flujo activo
+   - Si existe archivo activo → Error 409: "Ya existe un archivo en proceso"
+   - Si NO existe → Permite carga
+   - Frontend valida formato básico (página `/upload`)
    - API route `/api/v1/sigesa/upload` procesa archivo
    - Parser automático mapea 83 columnas de SIGESA
    - Datos se almacenan en tabla `sigesa` y `sigesa_fila`
@@ -123,32 +134,58 @@ Plataforma web que automatice:
    - Sistema cruza automáticamente con `norma_minsal` para obtener peso del GRD
 
 2. **Encoder edita Ajustes Tecnológicos (AT)**
-   - Accede a `/dashboard/encoder`
+   - Accede a página `/visualizator` (Editor)
    - Ve solo archivos en estado `borrador_encoder`
-   - Edita campos: `AT` (S/N), `AT_detalle` (multi-select)
+   - **Puede visualizar SIGESA original** en `/sigesa` (modo lectura)
+   - **Puede consultar Norma MINSAL** en `/norma` (modo lectura)
+   - Edita campos: `AT` (boolean), `AT_detalle` (multi-select)
    - Sistema calcula automáticamente `monto_AT`
-   - Cambios se guardan con PUT a `/api/v1/grd/rows/[episodio]`
-   - **Encoder hace Submit** → Estado cambia a `pendiente_finance`
-   - Campos de Encoder quedan bloqueados (read-only)
+   - **Auto-guardado cada 5 segundos** con PUT a `/api/v1/grd/rows/[episodio]`
+   - **Encoder hace Submit (doble confirmación):**
+     1. Modal paso 1: "¿Estás seguro de entregar?"
+     2. Modal paso 2: "⚠️ No podrás editar hasta que finalice el proceso"
+     3. Confirma → `POST /api/v1/grd/[grdId]/submit-encoder`
+     4. Estado cambia a `pendiente_finance`
+   - Campos de Encoder quedan **bloqueados** (read-only)
+   - Encoder recibe notificación si Admin rechaza
 
 3. **Finance agrega datos complementarios**
-   - Accede a `/dashboard/finance`
+   - **Notificación:** Banner en dashboard "🔔 Tienes archivo pendiente"
+   - Accede a página `/visualizator` (Editor)
    - Ve solo archivos en estado `pendiente_finance` o `borrador_finance`
+   - **Puede visualizar SIGESA original** en `/sigesa` (modo lectura)
    - Campos de Encoder están **bloqueados** (read-only)
    - Edita campos: `validado`, `n_folio`, `estado_rn`, `monto_rn`, `documentacion`
-   - Cambios se guardan con PUT a `/api/v1/grd/rows/[episodio]`
-   - **Finance hace Submit** → Estado cambia a `pendiente_admin`
-   - Todos los campos quedan bloqueados
+   - **Auto-guardado cada 5 segundos** con PUT a `/api/v1/grd/rows/[episodio]`
+   - **Finance hace Submit (doble confirmación):**
+     1. Modal paso 1: "¿Estás seguro de entregar?"
+     2. Modal paso 2: "⚠️ No podrás editar hasta que finalice el proceso"
+     3. Confirma → `POST /api/v1/grd/[grdId]/submit-finance`
+     4. Estado cambia a `pendiente_admin`
+   - Todos los campos quedan **bloqueados**
+   - Finance pierde acceso si Admin rechaza
 
 4. **Admin revisa y exporta archivo final**
-   - Accede a `/dashboard/admin`
-   - Ve archivos en estado `pendiente_admin` o posteriores
-   - Puede filtrar por episodios con AT
-   - **No puede editar** (solo visualización)
-   - **Admin aprueba** → Estado cambia a `aprobado`
-   - **Admin exporta** → Genera Excel con 29 columnas formato FONASA
-   - Estado cambia a `exportado`
-   - Archivo disponible para descarga local
+   - **Notificación:** Banner en dashboard "🔔 Tienes archivo pendiente de aprobación"
+   - Accede a página `/visualizator` (Visualizador)
+   - Ve archivos en estado `pendiente_admin`, `aprobado`, `exportado`
+   - **Puede visualizar SIGESA original** en `/sigesa` (modo lectura)
+   - **Filtro visual:** Checkbox "Solo filas con AT = 'S'" (no afecta exportación)
+   - **NO puede editar** (todo read-only)
+   - **Opciones de Admin:**
+     - ✅ **Aprobar:** `POST /api/v1/grd/[grdId]/review { action: 'approve' }`
+       - Estado cambia a `aprobado`
+       - Se habilita botón "Exportar"
+     - ❌ **Rechazar:** `POST /api/v1/grd/[grdId]/review { action: 'reject' }`
+       - Estado cambia a `rechazado`
+       - Encoder recibe notificación
+       - Encoder puede editar nuevamente (vuelve a `borrador_encoder` al abrir editor)
+     - 📥 **Exportar:** `GET /api/v1/grd/[grdId]/export`
+       - Solo si estado es `aprobado`
+       - Genera Excel con 29 columnas formato FONASA
+       - Estado cambia a `exportado`
+       - Archivo disponible para descarga local
+       - **Permite re-descarga** sin cambiar estado
 
 ---
 
@@ -194,28 +231,57 @@ Plataforma web que automatice:
 **Features:**
 - ✅ HU-001: Creación y gestión de usuarios (CRUD completo)
 - ✅ HU-002: Asignación de roles y permisos (admin, encoder, finance)
-- 🚧 **HU-003: Acceso restringido por rol (EN DESARROLLO)**
+- 🚧 **HU-003: Acceso restringido por rol (EN DESARROLLO ACTIVO)**
 - ✅ HU-004: Visualización de usuarios activos
 
-**Estado de HU-003 (Prioridad Actual) - 30% Completado:**
-- ✅ **FASE 1 (60% completada):** Sistema de estados implementado en Base de Datos
-  - ✅ Migración SQL creada y aplicada
-  - ✅ ENUM `workflow_estado` con 6 estados
+**Estado de HU-003 (Prioridad Actual) - 35% Completado (Actualizado 3/Nov/2025):**
+
+**PLAN COMPLETO DEFINIDO - 5 FASES:**
+
+- ✅ **FASE 1 (60% completada):** Sistema de estados en Base de Datos
+  - ✅ Migración SQL con ENUM `workflow_estado` (6 estados)
   - ✅ Campo `estado` agregado a `grd_fila`
   - ✅ Tipos TypeScript regenerados
-  - ⏳ API `/api/v1/grd/[grdId]/submit` pendiente
-- ⏳ **FASE 2:** Middleware y Helpers (próximo)
-- ⏳ **FASE 3:** Dashboards diferenciados por rol
-- ⏳ **FASE 4:** Bloqueo dinámico de campos + Botón Submit con doble confirmación
-- ⏳ **FASE 5:** Sistema de aprobación y exportación por admin
+  - ⚠️ **PENDIENTE CRÍTICO:** Agregar estado `rechazado` al ENUM (migración nueva)
+  - ⏳ APIs de workflow pendientes
+
+- 🚧 **FASE 2 (0%):** APIs de Control de Workflow
+  - ⏳ API validar archivo único en flujo (`GET /api/v1/grd/active-workflow`)
+  - ⏳ API submit encoder (`POST /api/v1/grd/[grdId]/submit-encoder`)
+  - ⏳ API submit finance (`POST /api/v1/grd/[grdId]/submit-finance`)
+  - ⏳ API review admin (`POST /api/v1/grd/[grdId]/review`)
+  - ⏳ API filtro por estado (modificar GET de rows)
+  - ⏳ Modificar API upload para validar unicidad
+
+- 🚧 **FASE 3 (0%):** Modificaciones de Componentes Existentes
+  - ⏳ Modificar `FileUpload.tsx` (validación archivo único)
+  - ⏳ Modificar `Sidebar.tsx` (menú dinámico por rol)
+  - ⏳ Modificar `ExcelEditor.tsx` (campos editables dinámicos + auto-guardado)
+  - ⏳ Crear `SubmitConfirmModal.tsx` (modal doble confirmación)
+  - ⏳ Crear `WorkflowAlert.tsx` (notificaciones simples)
+  - ⏳ Hook `useWorkflowStatus.ts` (estado de workflow compartido)
+
+- 🚧 **FASE 4 (0%):** Integración en Páginas Existentes
+  - ⏳ Modificar `/visualizator/page.tsx` (botones Submit/Aprobar/Rechazar)
+  - ⏳ Modificar `/dashboard/page.tsx` (agregar WorkflowAlert)
+  - ⏳ Modificar `/sigesa/page.tsx` (modo read-only estricto)
+  - ⏳ Modificar `/upload/page.tsx` (validación de carga única)
+
+- 🚧 **FASE 5 (0%):** Exportación y Cierre de Flujo
+  - ⏳ API exportación con cambio de estado (`GET /api/v1/grd/[grdId]/export`)
+  - ⏳ Lógica de re-descarga
+  - ⏳ Sistema de liberación de workflow
 
 **Criterios de Aceptación:**
 - ✅ Admin puede crear/eliminar usuarios
 - ✅ Sistema de roles: Admin, Encoder, Finance
 - ✅ RLS policies en Supabase correctamente configuradas
-- 🚧 Workflow de estados implementado
-- 🚧 Acceso restringido por rol en dashboards
-- 🚧 Bloqueo de campos según estado
+- 🚧 Workflow de estados implementado (60% completado)
+- ⏳ Validación de archivo único antes de carga (pendiente)
+- ⏳ Acceso restringido por rol en dashboards (pendiente)
+- ⏳ Bloqueo de campos según estado y rol (pendiente)
+- ⏳ Sistema de notificaciones entre roles (pendiente)
+- ⏳ Aprobación/rechazo por admin con flujo de regreso (pendiente)
 
 ---
 
@@ -301,39 +367,64 @@ Plataforma web que automatice:
 **Permisos:**
 - ✅ Gestión completa de usuarios (CRUD)
 - ✅ Asignación de roles y permisos
-- 🚧 **Acceso a `/dashboard/admin`**
+- 🚧 **Acceso a página `/dashboard/users` (Gestión de Usuarios)**
+- 🚧 **Acceso a página `/sigesa` (Visualización SIGESA en modo lectura)**
+- 🚧 **Acceso a página `/visualizator` (Visualizador en modo lectura)**
 - 🚧 **Visualiza archivos en estado: `pendiente_admin`, `aprobado`, `exportado`**
 - 🚧 **NO puede editar datos** (solo visualización)
+- 🚧 **Filtro visual:** "Solo filas con AT = 'S'" (no afecta exportación)
 - 🚧 **Puede aprobar archivos** (cambia estado a `aprobado`)
-- 🚧 **Puede exportar archivos** (genera Excel formato FONASA, cambia estado a `exportado`)
-- 🚧 **Puede filtrar por episodios con AT**
+- 🚧 **Puede rechazar archivos** (cambia estado a `rechazado`, notifica a Encoder)
+- 🚧 **Puede exportar archivos aprobados** (genera Excel formato FONASA, cambia estado a `exportado`)
+- 🚧 **Puede re-descargar archivos exportados** (sin cambiar estado)
+- 🚧 **Recibe notificación cuando Finance entrega archivo** (banner en dashboard)
 - Acceso al sistema de auditoría y logs
-- Aprobación/rechazo de registros
 - Exportación de archivo final
 - Acceso a logs y auditoría
 
 **Restricciones:**
 - No puede eliminar su propio usuario
 - Debe existir siempre al menos un admin
+- 🚧 **No puede editar ningún dato** (visualización únicamente)
+
+**Workflow:**
+```
+1. Admin recibe notificación: "🔔 Archivo pendiente de aprobación" → Estado: pendiente_admin
+2. Admin revisa archivo en modo lectura
+3. Admin puede filtrar visualmente filas con AT = 'S'
+4. Admin decide:
+   ✅ Aprobar → Estado: aprobado → Habilita botón "Exportar"
+   ❌ Rechazar → Estado: rechazado → Notifica a Encoder → Vuelve a borrador_encoder
+5. Si aprobó: Admin exporta → Genera Excel FONASA → Estado: exportado
+6. Admin puede re-descargar sin cambiar estado
+```
 
 ---
 
 ### 2. Codificador (Encoder)
 **Permisos:**
 - ✅ Carga de archivos Excel desde SIGESA (vía `/api/v1/sigesa/upload`)
-- 🚧 **Acceso a `/dashboard/encoder`**
+- 🚧 **Solo puede cargar si NO existe archivo en flujo activo**
+- 🚧 **Acceso a página `/upload` (Subir Archivo)**
+- 🚧 **Acceso a página `/sigesa` (Visualización SIGESA en modo lectura)**
+- 🚧 **Acceso a página `/visualizator` (Editor)**
+- 🚧 **Acceso a página `/norma` (Consulta Norma MINSAL en modo lectura)**
 - 🚧 **Visualiza archivos en estado: `borrador_encoder`**
-- 🚧 **Edita campos:** `AT` (S/N), `AT_detalle` (dropdown multi-select)
-- 🚧 **Puede hacer Submit** (cambia estado a `pendiente_finance`)
+- 🚧 **Edita SOLO filas (no columnas), campos específicos:** `AT` (boolean), `AT_detalle` (dropdown multi-select)
+- 🚧 **Auto-guardado cada 5 segundos**
+- 🚧 **Puede hacer Submit con doble confirmación** (cambia estado a `pendiente_finance`)
+- 🚧 **Recibe notificación si admin rechaza archivo**
 - Visualización de alertas y validaciones
 
 **Campos Editables:**
-- `AT` (Ajustes Tecnológicos - S/N)
+- `AT` (Ajustes Tecnológicos - boolean)
 - `AT_detalle` (Detalle de AT - dropdown desde tabla `ajuste_tecnologico`)
 - Cálculo automático de `monto_AT`
 
 **Restricciones:**
 - 🚧 **NO puede editar después de Submit** (campos bloqueados)
+- 🚧 **NO puede editar columnas** (solo filas)
+- 🚧 **NO puede editar datos clínicos originales de SIGESA** (83 columnas bloqueadas)
 - No puede aprobar registros finales
 - No puede exportar archivo final
 - No puede editar campos de Finance
@@ -341,19 +432,25 @@ Plataforma web que automatice:
 
 **Workflow:**
 ```
-1. Encoder carga Excel → Estado: borrador_encoder
-2. Encoder edita AT → Guarda cambios
-3. Encoder hace Submit → Estado: pendiente_finance (BLOQUEADO)
+1. Encoder valida que NO exista archivo en flujo → Si existe: Error, no puede cargar
+2. Encoder carga Excel → Estado: borrador_encoder
+3. Encoder edita AT en filas → Auto-guardado cada 5s
+4. Encoder hace Submit (doble confirmación) → Estado: pendiente_finance (BLOQUEADO)
+5. Si Admin rechaza → Notificación → Puede editar de nuevo
 ```
 
 ---
 
 ### 3. Usuario de Finanzas (Finance)
 **Permisos:**
-- 🚧 **Acceso a `/dashboard/finance`**
+- 🚧 **Acceso a página `/sigesa` (Visualización SIGESA en modo lectura)**
+- 🚧 **Acceso a página `/visualizator` (Editor) - solo si hay archivo en `pendiente_finance`**
 - 🚧 **Visualiza archivos en estado: `pendiente_finance`, `borrador_finance`**
-- 🚧 **Edita campos:** `validado`, `n_folio`, `estado_rn`, `monto_rn`, `documentacion`
-- 🚧 **Puede hacer Submit** (cambia estado a `pendiente_admin`)
+- 🚧 **Edita SOLO filas (no columnas), campos específicos:** `validado`, `n_folio`, `estado_rn`, `monto_rn`, `documentacion`
+- 🚧 **Auto-guardado cada 5 segundos**
+- 🚧 **Puede hacer Submit con doble confirmación** (cambia estado a `pendiente_admin`)
+- 🚧 **Recibe notificación cuando Encoder entrega archivo** (banner en dashboard)
+- 🚧 **Pierde acceso al archivo si Admin rechaza**
 - Ver reportes financieros
 - Notificaciones de inconsistencias en tarifas
 
@@ -370,16 +467,20 @@ Plataforma web que automatice:
 
 **Restricciones:**
 - 🚧 **NO puede editar después de Submit** (campos bloqueados)
+- 🚧 **NO puede editar columnas** (solo filas)
 - No puede modificar datos clínicos ni de Encoder
 - No puede cargar archivos SIGESA
 - No puede ver archivos en estado `borrador_encoder`
 - No puede aprobar ni exportar
+- 🚧 **Pierde acceso si archivo es rechazado por Admin**
 
 **Workflow:**
 ```
-1. Finance recibe archivo en: pendiente_finance
-2. Finance edita sus campos → Guarda cambios (estado: borrador_finance)
-3. Finance hace Submit → Estado: pendiente_admin (BLOQUEADO)
+1. Finance recibe notificación: "🔔 Archivo pendiente" → Estado: pendiente_finance
+2. Finance edita sus campos en filas → Auto-guardado cada 5s
+3. Cambios automáticos cambian estado a: borrador_finance
+4. Finance hace Submit (doble confirmación) → Estado: pendiente_admin (BLOQUEADO)
+5. Si Admin rechaza → Pierde acceso, vuelve a Encoder
 ```
 
 ---
@@ -695,6 +796,8 @@ created_at: timestamp
 - Precio base por convenio
 - Motor de alertas
 - Aprobación de registros
+
+**⚠️ ACTUALIZACIÓN 3/Nov/2025:** Sprint 5 se mantiene, pero prioridad se mantiene en completar HU-003 de Sprint 4.
 
 ### Sprint 6: Revisión Final y Exportación (17/nov/2025)
 **HU Comprometidas:** HU-015, HU-017
@@ -1018,6 +1121,50 @@ DataUnion/
 
 Este documento debe ser revisado y actualizado al menos una vez por sprint durante la retrospectiva. Cualquier cambio en la arquitectura, stack tecnológico o épicas debe reflejarse aquí inmediatamente.
 
-**Última revisión por:** [Equipo de Desarrollo]  
-**Próxima revisión:** Sprint 3 Retrospective (6/oct/2025)
+**Última revisión por:** Equipo de Desarrollo  
+**Próxima revisión:** Sprint 4 Retrospective (17/nov/2025)
+
+---
+
+## 📝 Changelog
+
+### Versión 1.3 - 3 de Noviembre, 2025
+**Actualización Mayor: Plan Completo de HU-003 Definido**
+
+- ✅ **Flujo de Workflow Completamente Detallado:**
+  - Regla de archivo único en flujo activo documentada
+  - Workflow completo: Encoder → Finance → Admin → Export con todos los casos
+  - Flujo de rechazo y vuelta a Encoder especificado
+  - Auto-guardado cada 5 segundos
+  - Doble confirmación en Submit (2 pasos)
+  - Sistema de notificaciones simples (banners)
+
+- ✅ **Plan de Implementación 5 Fases:**
+  - FASE 1: Base de Datos (60% completado) - **BLOQUEANTE:** agregar estado `rechazado`
+  - FASE 2: APIs de Control de Workflow (6 APIs nuevas)
+  - FASE 3: Modificación de Componentes Existentes (7 tareas)
+  - FASE 4: Integración en Páginas Existentes (4 páginas)
+  - FASE 5: Exportación y Cierre de Flujo (2 tareas)
+
+- ✅ **Revisión Completa del Codebase:**
+  - Identificadas páginas existentes: `/sigesa`, `/norma`, `/upload`, `/visualizator`, `/dashboard`, `/dashboard/users`
+  - Identificados componentes existentes: `SigesaPreview`, `ExcelEditor`, `NormaMinsal`, `FileUpload`, `Sidebar`
+  - **Evitar duplicación de trabajo:** Modificar lo existente en lugar de crear nuevo
+
+- ✅ **Roles Actualizados:**
+  - Encoder: Edita solo filas, no columnas. Solo campos AT. Notificación de rechazo.
+  - Finance: Recibe notificación. Pierde acceso si rechazado.
+  - Admin: Solo visualización. Puede aprobar, rechazar o exportar. Re-descarga permitida.
+
+- ✅ **Modelo de Datos Actualizado:**
+  - Estado `rechazado` pendiente de agregar al ENUM
+
+- ✅ **Estimaciones de Tiempo:**
+  - Total: 18-20 horas distribuidas en 5 fases
+  - Progreso actual: 35% (FASE 1 al 60%)
+
+**Próximos Pasos Inmediatos:**
+1. Crear migración para agregar estado `rechazado` (BLOQUEANTE)
+2. Implementar APIs de workflow (FASE 2)
+3. Modificar componentes existentes (FASE 3)
 
