@@ -11,10 +11,12 @@ import * as XLSX from "xlsx";
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 // Import dinámico de AG Grid React
+// TODO: Properly type this dynamic import instead of using 'as any'
+// Cleaner fix: import { AgGridReact as AgGridReactType } from 'ag-grid-react' and use ComponentType<AgGridReactProps>
 const AgGridReact = dynamic(
   () => import("ag-grid-react").then((mod) => mod.AgGridReact),
   { ssr: false }
-);
+) as any;
 
 export default function NormaMinsalPage() {
   const [rowData, setRowData] = useState<any[]>([]);
@@ -44,7 +46,8 @@ export default function NormaMinsalPage() {
 
         if (jsonData.length === 0) return;
 
-        const cols = jsonData[0].map((val, index) => ({
+        // TODO: validate proper type for Excel cell values (currently any)
+        const cols = jsonData[0].map((val: any, index: number) => ({
         headerName: val || `Col ${index + 1}`, // usa el valor de la celda, si está vacío, usa Col #
         field: `col_${index}`,
         editable: true,
@@ -111,6 +114,8 @@ export default function NormaMinsalPage() {
               }}
             />
           </div>
+        </>
+      )}
 
       {rowData.length === 0 && <p>Selecciona un archivo para cargar la tabla...</p>}
     </div>
