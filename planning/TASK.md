@@ -579,11 +579,15 @@
   - ⚠️ **BLOQUEANTE:** Migración para agregar estado `rechazado` (WORKFLOW-001B)
 
 **Notas Técnicas:**
-  - ⚠️ Por ahora NO validaremos campos obligatorios (flexible)
+  - ⚠️ **VALIDACIONES DE CAMPOS OBLIGATORIOS DESHABILITADAS** (actualizado 4/nov/2025)
+    - **APIs modificadas:** `/api/v1/grd/[grdId]/submit-finance` (líneas comentadas)
+    - **Objetivo:** Permitir flujo end-to-end sin bloqueos por validaciones
+    - **Razón:** Focus en implementar workflow completo primero, validaciones estrictas después
+    - **Tech Debt creado:** TECH-006 (ver sección Tech Debt)
   - ✅ Páginas ya existen: `/sigesa`, `/norma`, `/upload`, `/visualizator`, `/dashboard`
   - ✅ Componentes ya existen: `SigesaPreview`, `ExcelEditor`, `NormaMinsal`, `FileUpload`, `Sidebar`
   - ✅ Focus en modificar lo existente, NO duplicar trabajo
-  - ✅ Auto-guardado cada 5 segundos en editor
+  - ✅ Guardado manual con protección beforeunload (auto-guardado ELIMINADO por UX)
   - ✅ Doble confirmación en Submit (2 pasos)
   - ✅ Notificaciones simples con banners (no emails)
   - ✅ Filtro visual de AT no afecta exportación
@@ -626,8 +630,9 @@
   - Ninguno actual
 
 **Notas Técnicas:**
-  - ⚠️ Por ahora NO validaremos campos obligatorios (flexible)
+  - ⚠️ **VALIDACIONES DE CAMPOS OBLIGATORIOS DESHABILITADAS** (actualizado 4/nov/2025)
   - ⚠️ No implementaremos concurrencia/bloqueo de filas (Sprint futuro)
+  - ✅ Focus en flujo end-to-end funcional primero
   - ⚠️ No implementaremos cálculos de `precio_base_tramo` (Sprint futuro)
   - ✅ Priorizar funcionalidad sobre perfección
   - ✅ Focus en flujo end-to-end funcional
@@ -1062,6 +1067,30 @@
   - ⏳ Configurar estrategias de caché
   - ⏳ Invalidación de caché
 
+### TECH-006: Re-habilitar validaciones de campos obligatorios ⚠️
+- **Estado:** ⏳ No Iniciado
+- **Fecha Creado:** 4/nov/2025
+- **Prioridad:** 🔴 ALTA (BLOQUEA PRODUCCIÓN)
+- **Estimación:** 3 puntos
+- **Descripción:** Re-habilitar validaciones comentadas en APIs de submit
+- **Contexto:** Deshabilitadas temporalmente para permitir flujo end-to-end sin bloqueos
+- **Archivos afectados:**
+  - `src/app/api/v1/grd/[grdId]/submit-finance/route.ts` (líneas 102-110 comentadas)
+  - Validación: campo `validado` obligatorio para Finance
+- **Criterios de Aceptación:**
+  - Descomentar validaciones en submit-finance
+  - Validar campos según reglas de negocio
+  - Mensajes de error claros indicando qué campos faltan
+  - Tests de validación
+- **Bloquea:** Deployment a producción (debe completarse antes)
+- **Relacionado con:** HU-015 (Validación de campos obligatorios)
+- **Subtareas:**
+  - ⏳ Descomentar validación en submit-finance (líneas 102-110)
+  - ⏳ Definir reglas de negocio: ¿qué campos son realmente obligatorios?
+  - ⏳ Agregar validaciones adicionales si necesario
+  - ⏳ Tests de validación
+  - ⏳ Documentar campos obligatorios por rol en PLANNING.md
+
 ---
 
 ## 💡 Descubierto Durante el Trabajo
@@ -1111,13 +1140,13 @@
 ## 📊 Estadísticas del Proyecto
 
 ### Por Estado
-- ✅ Completadas: 8 tareas (+2)
-- 🚧 En Progreso: 9 tareas (-1)
-- ⏳ No Iniciadas: 31 tareas (-1)
+- ✅ Completadas: 8 tareas
+- 🚧 En Progreso: 9 tareas
+- ⏳ No Iniciadas: 32 tareas (+1 Tech Debt: TECH-006)
 - 🚫 Bloqueadas: 1 tarea
 
 ### Por Prioridad
-- 🔴 ALTA: 22 tareas
+- 🔴 ALTA: 23 tareas (+1: TECH-006)
 - 🟡 MEDIA: 15 tareas
 - 🟢 BAJA: 3 tareas
 
@@ -1217,6 +1246,38 @@
 ---
 
 ## 📝 Changelog de TASK.md
+
+### 4 de Noviembre, 2025 - Testing Bloques 4 y 5 + Bypass Validaciones
+**HU-003: Avance en Testing de Workflow End-to-End**
+
+**Cambios principales:**
+- ✅ **Bug fix crítico:** APIs submit-encoder y submit-finance ahora actualizan TODAS las filas (no .single())
+- ✅ **Bypass de validaciones:** Comentadas validaciones de campos obligatorios en submit-finance
+- ✅ **Tech Debt creado:** TECH-006 (Re-habilitar validaciones antes de producción)
+- ✅ **Testing en progreso:** Bloques 4 y 5 funcionales
+- ✅ **Documentación actualizada:** Notas técnicas reflejan estado actual del código
+
+**Problemas resueltos:**
+1. ❌ "Archivo GRD no encontrado" → ✅ Cambiado `.single()` por `.limit(1)` + actualización masiva
+2. ❌ "Faltan campos obligatorios" en Finance → ✅ Validaciones comentadas temporalmente
+
+**Justificación bypass validaciones:**
+- **Objetivo:** Completar flujo end-to-end Encoder → Finance → Admin sin bloqueos
+- **Alcance:** Solo API submit-finance (líneas 102-110 comentadas)
+- **Próximo paso:** Re-habilitar validaciones después de Bloque 8 (Testing completo)
+- **Registro:** Tech Debt TECH-006 (Prioridad ALTA, bloquea producción)
+
+**Archivos modificados:**
+- `src/app/api/v1/grd/[grdId]/submit-encoder/route.ts` - Fix .single() → múltiples filas
+- `src/app/api/v1/grd/[grdId]/submit-finance/route.ts` - Fix .single() + bypass validaciones
+- `planning/TASK.md` - Documentación actualizada, TECH-006 agregado
+
+**Estado del testing:**
+- ✅ Encoder → Finance: Funcional
+- 🧪 Finance → Admin: En testing (validaciones bypasseadas)
+- ⏳ Admin → Approve/Reject: Pendiente (Bloque 6)
+
+---
 
 ### 3 de Noviembre, 2025 - Actualización Mayor
 **HU-003: Plan Completo de Implementación Definido**

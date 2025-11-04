@@ -62,13 +62,14 @@ export async function POST(
     const supabase = getSupabaseAdmin();
 
     // Verificar que el archivo existe y está en el estado correcto
-    const { data: grdFile, error: fetchError } = await supabase
+    // Nota: Un archivo tiene MÚLTIPLES filas (una por episodio)
+    const { data: grdFiles, error: fetchError } = await supabase
       .from('grd_fila')
       .select('id, episodio, estado, id_grd_oficial, AT, AT_detalle')
       .eq('id_grd_oficial', grdId)
-      .single();
+      .limit(1);
 
-    if (fetchError || !grdFile) {
+    if (fetchError || !grdFiles || grdFiles.length === 0) {
       return NextResponse.json(
         {
           success: false,
@@ -78,6 +79,8 @@ export async function POST(
         { status: 404 }
       );
     }
+
+    const grdFile = grdFiles[0]; // Verificar estado con la primera fila
 
     // Verificar estado actual
     if (grdFile.estado !== 'borrador_encoder') {
@@ -111,23 +114,22 @@ export async function POST(
       );
     }
 
-    // Cambiar estado a pendiente_finance
-    const { data: updatedFile, error: updateError } = await supabase
+    // Cambiar estado a pendiente_finance para TODAS las filas del archivo
+    const { data: updatedFiles, error: updateError } = await supabase
       .from('grd_fila')
       .update({
         estado: 'pendiente_finance',
       })
       .eq('id_grd_oficial', grdId)
-      .select()
-      .single();
+      .select();
 
-    if (updateError) {
+    if (updateError || !updatedFiles || updatedFiles.length === 0) {
       console.error('[POST /api/v1/grd/submit-encoder] Update error:', updateError);
       return NextResponse.json(
         {
           success: false,
           error: 'Error al actualizar estado',
-          details: updateError.message,
+          details: updateError?.message,
         },
         { status: 500 }
       );
@@ -137,10 +139,10 @@ export async function POST(
       success: true,
       message: 'Archivo entregado exitosamente a Finance',
       data: {
-        grdId: updatedFile.id_grd_oficial,
-        episodio: updatedFile.episodio,
+        grdId: updatedFiles[0].id_grd_oficial,
+        rowsUpdated: updatedFiles.length,
         previousState: 'borrador_encoder',
-        currentState: updatedFile.estado,
+        currentState: updatedFiles[0].estado,
       },
     });
 
