@@ -297,6 +297,84 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
     }
   };
 
+  // Handler para Submit Encoder -> Finance
+  const handleSubmitEncoder = async () => {
+    if (!grdId) {
+      setSubmitError('No hay archivo GRD seleccionado');
+      return;
+    }
+
+    // Verificar que no haya cambios sin guardar
+    if (Object.keys(modifiedRows).length > 0) {
+      setSubmitError('Debes guardar los cambios antes de entregar');
+      return;
+    }
+
+    setShowSubmitModal(false);
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const res = await fetch(`/api/v1/grd/${grdId}/submit-encoder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Error al entregar archivo');
+      }
+
+      // Éxito: redirigir al dashboard
+      alert('✅ Archivo entregado a Finanzas exitosamente');
+      router.push('/dashboard');
+    } catch (e: any) {
+      setSubmitError(e.message || 'Error al entregar archivo');
+      console.error('Error submitting to finance:', e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handler para Submit Finance -> Admin
+  const handleSubmitFinance = async () => {
+    if (!grdId) {
+      setSubmitError('No hay archivo GRD seleccionado');
+      return;
+    }
+
+    // Verificar que no haya cambios sin guardar
+    if (Object.keys(modifiedRows).length > 0) {
+      setSubmitError('Debes guardar los cambios antes de entregar');
+      return;
+    }
+
+    setShowSubmitModal(false);
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const res = await fetch(`/api/v1/grd/${grdId}/submit-finance`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Error al entregar archivo');
+      }
+
+      // Éxito: redirigir al dashboard
+      alert('✅ Archivo entregado a Administración exitosamente');
+      router.push('/dashboard');
+    } catch (e: any) {
+      setSubmitError(e.message || 'Error al entregar archivo');
+      console.error('Error submitting to admin:', e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const BASE_COLUMN_DEFS = [
     { headerName: "Validado", field: "validado", sortable: true },
     { headerName: "Centro", field: "centro", sortable: true },
@@ -907,6 +985,53 @@ const onPaginationChanged = (params: any) => {
                 )}
               </button>
             )}
+
+            {/* Botón Submit Encoder -> Finance */}
+            {role === 'encoder' && estado === 'borrador_encoder' && Object.keys(modifiedRows).length === 0 && (
+              <button
+                onClick={() => setShowSubmitModal(true)}
+                disabled={isSubmitting}
+                className={`${
+                  isSubmitting ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
+                } text-white px-4 py-2 rounded transition flex items-center gap-2`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="animate-spin">⌛</span>
+                    Entregando...
+                  </>
+                ) : (
+                  <>
+                    ✅ Entregar a Finanzas
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* Botón Submit Finance -> Admin */}
+            {role === 'finance' && 
+             (estado === 'pendiente_finance' || estado === 'borrador_finance') && 
+             Object.keys(modifiedRows).length === 0 && (
+              <button
+                onClick={() => setShowSubmitModal(true)}
+                disabled={isSubmitting}
+                className={`${
+                  isSubmitting ? 'bg-purple-400' : 'bg-purple-600 hover:bg-purple-700'
+                } text-white px-4 py-2 rounded transition flex items-center gap-2`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="animate-spin">⌛</span>
+                    Entregando...
+                  </>
+                ) : (
+                  <>
+                    📊 Entregar a Administración
+                  </>
+                )}
+              </button>
+            )}
+
             <button
               onClick={handleDownload}
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
@@ -919,11 +1044,28 @@ const onPaginationChanged = (params: any) => {
               ❌ {saveError}
             </div>
           )}
+          {submitError && (
+            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300">
+              ❌ {submitError}
+            </div>
+          )}
         </>
       )}
 
       {loading && <p className="text-gray-600">Cargando datos del GRD...</p>}
       {!loading && rowData.length === 0 && <p>No hay datos disponibles. Puedes cargar un archivo o esperar que se carguen los datos del GRD.</p>}
+      
+      {/* Modal de confirmación para Submit (Encoder o Finance) */}
+      {showSubmitModal && grdId && (
+        <SubmitConfirmModal
+          isOpen={showSubmitModal}
+          onClose={() => setShowSubmitModal(false)}
+          onConfirm={role === 'finance' ? handleSubmitFinance : handleSubmitEncoder}
+          role={role as 'encoder' | 'finance'}
+          grdId={parseInt(grdId)}
+          isSubmitting={isSubmitting}
+        />
+      )}
     </div>
   );
 }
