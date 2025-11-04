@@ -285,6 +285,38 @@ export async function POST(request: NextRequest) {
       return errorResponse('Unauthorized: Only encoders and admins can upload files', 403)
     }
 
+    // ============================================================================
+    // WORKFLOW VALIDATION: Check if there's already an active workflow
+    // ============================================================================
+    const { data: activeFiles, error: workflowError } = await supabase
+      .from('grd_fila')
+      .select('id_grd_oficial, episodio, estado')
+      .in('estado', ['borrador_encoder', 'pendiente_finance', 'borrador_finance', 'pendiente_admin'])
+      .limit(1)
+
+    if (workflowError) {
+      console.error('[POST /api/v1/sigesa/upload] Workflow check error:', workflowError)
+      return errorResponse('Error al verificar workflow activo', 500)
+    }
+
+    if (activeFiles && activeFiles.length > 0) {
+      const activeFile = activeFiles[0]
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Ya existe un archivo en proceso',
+          message: 'Solo puede haber un archivo en flujo activo a la vez. Completa o rechaza el archivo actual antes de subir uno nuevo.',
+          activeWorkflow: {
+            grdId: activeFile.id_grd_oficial,
+            episodio: activeFile.episodio,
+            estado: activeFile.estado,
+          },
+        },
+        { status: 409 } // Conflict
+      )
+    }
+    // ============================================================================
+
     // Get form data
     const formData = await request.formData()
     const file = formData.get('file') as File

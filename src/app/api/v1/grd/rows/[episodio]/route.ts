@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { supabase, getSupabaseAdmin } from '@/lib/supabase'
 import { successResponse, errorResponse, handleError } from '@/lib/api/response'
 import { updateGrdRowSchema, episodioParamSchema } from './route.schema'
+import { getCurrentUser } from '@/lib/auth-helpers'
 
 /**
  * PUT /api/v1/grd/rows/[episodio]
  * Update a specific GRD row by episodio number
+ * 
+ * WORKFLOW VALIDATION:
+ * - Encoder can only edit when estado = 'borrador_encoder'
+ * - Finance can only edit when estado = 'pendiente_finance' or 'borrador_finance'
+ * - Admin cannot edit (read-only)
+ * - Fields are role-restricted
  */
 export async function PUT(
   request: NextRequest,
@@ -28,10 +35,18 @@ export async function PUT(
       return errorResponse('Invalid request body', 400)
     }
 
-    // Check if the row exists
-    const { data: existingRow, error: fetchError } = await supabase
+    // Get current authenticated user
+    const user = await getCurrentUser()
+    if (!user) {
+      return errorResponse('No autenticado', 401)
+    }
+
+    const supabaseAdmin = getSupabaseAdmin()
+
+    // Check if the row exists and get its current state
+    const { data: existingRow, error: fetchError } = await supabaseAdmin
       .from('grd_fila')
-      .select('id')
+      .select('id, episodio, estado, id_grd_oficial')
       .eq('episodio', episodioValidation.data)
       .single()
 
@@ -39,10 +54,49 @@ export async function PUT(
       return errorResponse('GRD row not found', 404)
     }
 
-    // Update the row
-    const { data, error } = await supabase
+    // Workflow validation based on role and estado
+    const { estado } = existingRow
+    const { role } = user
+
+    // Encoder can only edit in borrador_encoder
+    if (role === 'encoder' && estado !== 'borrador_encoder') {
+      return errorResponse(
+        `No puedes editar en estado: ${estado}. Solo puedes editar en 'borrador_encoder'.`,
+        403
+      )
+    }
+
+    // Finance can only edit in pendiente_finance or borrador_finance
+    if (role === 'finance' && !['pendiente_finance', 'borrador_finance'].includes(estado)) {
+      return errorResponse(
+        `No puedes editar en estado: ${estado}. Solo puedes editar cuando el archivo está pendiente o en borrador de Finance.`,
+        403
+      )
+    }
+
+    // Admin cannot edit (read-only)
+    if (role === 'admin') {
+      return errorResponse(
+        'Los Admins no pueden editar datos. Solo pueden aprobar, rechazar o exportar.',
+        403
+      )
+    }
+
+    // If Finance is editing for the first time (pendiente_finance), change to borrador_finance
+    let updatedEstado = estado
+    if (role === 'finance' && estado === 'pendiente_finance') {
+      updatedEstado = 'borrador_finance'
+    }
+
+    // Update the row with the new estado if needed
+    const updateData = {
+      ...validation.data,
+      ...(updatedEstado !== estado && { estado: updatedEstado }),
+    }
+
+    const { data, error } = await supabaseAdmin
       .from('grd_fila')
-      .update(validation.data)
+      .update(updateData)
       .eq('episodio', episodioValidation.data)
       .select()
       .single()
