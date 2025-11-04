@@ -8,10 +8,11 @@ import { createClient } from "@/lib/supabase/client";
 /**
  * VisualizatorPage - Página del Editor de GRD
  * 
- * VERSIÓN TEMPORAL PARA TESTING DE BLOQUES 4 Y 5
- * 
- * Esta versión permite testear los botones Submit de Encoder y Finance
- * obteniendo los datos necesarios de la sesión y base de datos.
+ * Versión completa con soporte para workflow completo incluyendo:
+ * - Botones Submit de Encoder y Finance (BLOQUES 4-5)
+ * - Botones Aprobar/Rechazar de Admin (BLOQUE 6)
+ * - Validación de acceso por rol y estado
+ * - Soporte para estado 'rechazado'
  */
 export default function VisualizatorPage() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function VisualizatorPage() {
   // Props para ExcelEditor
   const [role, setRole] = useState<'admin' | 'encoder' | 'finance' | null>(null);
   const [grdId, setGrdId] = useState<string | null>(null);
-  const [estado, setEstado] = useState<'borrador_encoder' | 'pendiente_finance' | 'borrador_finance' | 'pendiente_admin' | 'aprobado' | 'exportado' | null>(null);
+  const [estado, setEstado] = useState<'borrador_encoder' | 'pendiente_finance' | 'borrador_finance' | 'pendiente_admin' | 'aprobado' | 'exportado' | 'rechazado' | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -52,11 +53,11 @@ export default function VisualizatorPage() {
         const userRole = userData.role as 'admin' | 'encoder' | 'finance';
         setRole(userRole);
 
-        // 2. Obtener archivo activo en workflow
+        // 2. Obtener archivo activo en workflow (incluye estado rechazado para encoder)
         const { data: workflowData, error: workflowError } = await supabase
           .from('grd_fila')
           .select('id_grd_oficial, estado')
-          .in('estado', ['borrador_encoder', 'pendiente_finance', 'borrador_finance', 'pendiente_admin'])
+          .in('estado', ['borrador_encoder', 'pendiente_finance', 'borrador_finance', 'pendiente_admin', 'rechazado'])
           .limit(1)
           .maybeSingle();
 
@@ -75,7 +76,7 @@ export default function VisualizatorPage() {
 
         // 3. Validar acceso según rol y estado
         const allowedStates: Record<string, string[]> = {
-          encoder: ['borrador_encoder'],
+          encoder: ['borrador_encoder', 'rechazado'], // Encoder puede ver archivos rechazados para corregir
           finance: ['pendiente_finance', 'borrador_finance'],
           admin: ['pendiente_admin', 'aprobado', 'exportado'],
         };
@@ -88,7 +89,7 @@ export default function VisualizatorPage() {
 
         // Todo OK - establecer datos
         setGrdId(workflowData.id_grd_oficial.toString());
-        setEstado(workflowData.estado as 'borrador_encoder' | 'pendiente_finance' | 'borrador_finance' | 'pendiente_admin' | 'aprobado' | 'exportado');
+        setEstado(workflowData.estado as 'borrador_encoder' | 'pendiente_finance' | 'borrador_finance' | 'pendiente_admin' | 'aprobado' | 'exportado' | 'rechazado');
         setLoading(false);
 
       } catch (err) {
@@ -159,6 +160,25 @@ export default function VisualizatorPage() {
           </div>
         </div>
       </div>
+
+      {/* Alerta si el archivo fue rechazado */}
+      {estado === 'rechazado' && (
+        <div className="mb-4 bg-red-50 border-l-4 border-red-600 rounded-lg shadow p-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <div className="ml-3 flex-1">
+              <h3 className="text-sm font-medium text-red-800">
+                Archivo Rechazado por el Administrador
+              </h3>
+              <div className="mt-2 text-sm text-red-700">
+                <p>Este archivo fue rechazado. Por favor revisa los comentarios del administrador, realiza las correcciones necesarias y vuelve a enviarlo.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       <ExcelEditor 
         role={role}

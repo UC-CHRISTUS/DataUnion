@@ -66,9 +66,9 @@ const SIGESA_READONLY_FIELDS = [
       return false;
     }
 
-    // Encoder: solo puede editar 'at' y 'at_detalle' en estado 'borrador_encoder'
+    // Encoder: solo puede editar 'at' y 'at_detalle' en estado 'borrador_encoder' o 'rechazado'
     if (userRole === 'encoder') {
-      if (workflowEstado !== 'borrador_encoder') {
+      if (!['borrador_encoder', 'rechazado'].includes(workflowEstado)) {
         return false;
       }
       return ENCODER_EDITABLE_FIELDS.includes(field);
@@ -180,7 +180,7 @@ AtMultiSelectEditor.displayName = "AtMultiSelectEditor";
 interface ExcelEditorProps {
   role?: 'admin' | 'encoder' | 'finance';
   grdId?: string;
-  estado?: 'borrador_encoder' | 'pendiente_finance' | 'borrador_finance' | 'pendiente_admin' | 'aprobado' | 'exportado';
+  estado?: 'borrador_encoder' | 'pendiente_finance' | 'borrador_finance' | 'pendiente_admin' | 'aprobado' | 'exportado' | 'rechazado';
 }
 
 export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, estado = 'borrador_encoder' }: ExcelEditorProps) {
@@ -1072,7 +1072,7 @@ const onPaginationChanged = (params: any) => {
             )}
 
             {/* Botón Submit Encoder -> Finance */}
-            {role === 'encoder' && estado === 'borrador_encoder' && Object.keys(modifiedRows).length === 0 && (
+            {role === 'encoder' && (estado === 'borrador_encoder' || estado === 'rechazado') && Object.keys(modifiedRows).length === 0 && (
               <button
                 onClick={() => setShowSubmitModal(true)}
                 disabled={isSubmitting}
@@ -1087,7 +1087,7 @@ const onPaginationChanged = (params: any) => {
                   </>
                 ) : (
                   <>
-                    ✅ Entregar a Finanzas
+                    ✅ {estado === 'rechazado' ? 'Reenviar a Finanzas' : 'Entregar a Finanzas'}
                   </>
                 )}
               </button>
