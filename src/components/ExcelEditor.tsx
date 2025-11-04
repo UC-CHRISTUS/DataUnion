@@ -89,9 +89,10 @@ const SIGESA_READONLY_FIELDS = [
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const AgGridReact = dynamic<any>(
+
   () => import("ag-grid-react").then((mod) => mod.AgGridReact),
   { ssr: false }
-);
+) as any;
 
 const AtMultiSelectEditor = React.forwardRef((props: any, ref: any) => {
   const { options = [], value } = props;
@@ -870,7 +871,9 @@ const onPaginationChanged = (params: any) => {
 
         if (jsonData.length === 0) return;
 
+
         const headers = jsonData[0];
+
         const rows = jsonData.slice(1).map((row: any[]) => {
           const obj: any = {
             validado: row[headers.indexOf('Validado')] || '',

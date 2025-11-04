@@ -7,10 +7,12 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
+
 const AgGridReact = dynamic<any>(
+
   () => import("ag-grid-react").then((mod) => mod.AgGridReact),
   { ssr: false }
-);
+) as any;
 
 export default function NormaMinsalPage() {
   const [rowData, setRowData] = useState<any[]>([]);
