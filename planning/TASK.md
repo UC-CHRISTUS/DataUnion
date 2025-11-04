@@ -1247,7 +1247,32 @@
 
 ## 📝 Changelog de TASK.md
 
-### 4 de Noviembre, 2025 - Testing Bloques 4 y 5 + Bypass Validaciones
+### 4 de Noviembre, 2025 (Tarde) - Inicio Bloque 6: Botones Admin
+**HU-003: Implementando Approve/Reject para Admin**
+
+**En desarrollo:**
+- 🚧 **Bloque 6:** Botones Admin (Aprobar/Rechazar) - EN PROGRESO
+  - ✅ Bug fix API review: Cambiado `.single()` por `.limit(1)` + actualización masiva
+  - 🚧 Creando componente `RejectModal.tsx` (modal con textarea para razón de rechazo)
+  - 🚧 Implementando `handleApprove()` y `handleReject()` en ExcelEditor
+  - ⏳ Agregando botones verde (Aprobar) y rojo (Rechazar) para admin
+  - ⏳ Integración con API POST `/api/v1/grd/[grdId]/review`
+
+**Estados objetivo:**
+- `pendiente_admin` → `aprobado` (Admin aprueba)
+- `pendiente_admin` → `rechazado` (Admin rechaza con razón)
+
+**Estimación:** 1 hora
+**Progreso:** 20% (API corregida, modal en desarrollo)
+
+**Próximo paso:** 
+- Completar RejectModal component
+- Implementar handlers en ExcelEditor
+- Testing manual del flujo completo
+
+---
+
+### 4 de Noviembre, 2025 (Mañana) - Testing Bloques 4 y 5 + Bypass Validaciones
 **HU-003: Avance en Testing de Workflow End-to-End**
 
 **Cambios principales:**

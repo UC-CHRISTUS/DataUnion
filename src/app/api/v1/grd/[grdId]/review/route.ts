@@ -86,13 +86,14 @@ export async function POST(
     const supabase = getSupabaseAdmin();
 
     // Verificar que el archivo existe y está en el estado correcto
-    const { data: grdFile, error: fetchError } = await supabase
+    // Nota: Un archivo tiene MÚLTIPLES filas (una por episodio)
+    const { data: grdFiles, error: fetchError } = await supabase
       .from('grd_fila')
       .select('id, episodio, estado, id_grd_oficial')
       .eq('id_grd_oficial', grdId)
-      .single();
+      .limit(1);
 
-    if (fetchError || !grdFile) {
+    if (fetchError || !grdFiles || grdFiles.length === 0) {
       return NextResponse.json(
         {
           success: false,
@@ -102,6 +103,8 @@ export async function POST(
         { status: 404 }
       );
     }
+
+    const grdFile = grdFiles[0]; // Verificar estado con la primera fila
 
     // Verificar estado actual
     if (grdFile.estado !== 'pendiente_admin') {
@@ -119,8 +122,8 @@ export async function POST(
     // Determinar nuevo estado según la acción
     const newState = body.action === 'approve' ? 'aprobado' : 'rechazado';
 
-    // Actualizar estado
-    const { data: updatedFile, error: updateError } = await supabase
+    // Actualizar estado para TODAS las filas del archivo
+    const { data: updatedFiles, error: updateError } = await supabase
       .from('grd_fila')
       .update({
         estado: newState,
@@ -128,16 +131,15 @@ export async function POST(
         ...(body.reason && { documentacion: body.reason }),
       })
       .eq('id_grd_oficial', grdId)
-      .select()
-      .single();
+      .select();
 
-    if (updateError) {
+    if (updateError || !updatedFiles || updatedFiles.length === 0) {
       console.error('[POST /api/v1/grd/review] Update error:', updateError);
       return NextResponse.json(
         {
           success: false,
           error: 'Error al actualizar estado',
-          details: updateError.message,
+          details: updateError?.message,
         },
         { status: 500 }
       );
@@ -152,11 +154,11 @@ export async function POST(
       success: true,
       message: actionMessage,
       data: {
-        grdId: updatedFile.id_grd_oficial,
-        episodio: updatedFile.episodio,
+        grdId: updatedFiles[0].id_grd_oficial,
+        rowsUpdated: updatedFiles.length,
         action: body.action,
         previousState: 'pendiente_admin',
-        currentState: updatedFile.estado,
+        currentState: updatedFiles[0].estado,
         reason: body.reason,
       },
     });

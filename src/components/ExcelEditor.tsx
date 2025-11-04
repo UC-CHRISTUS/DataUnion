@@ -8,6 +8,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import SubmitConfirmModal from "./SubmitConfirmModal";
+import RejectModal from "./RejectModal";
 
 const NON_EDITABLE_FIELDS = [
   "episodio",
@@ -194,7 +195,10 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
   const [rejectReason, setRejectReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReviewing, setIsReviewing] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [approveError, setApproveError] = useState<string | null>(null);
   const router = useRouter();
 
   // Fallback: si no se pasa grdId, cargar el primero disponible
@@ -372,6 +376,87 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
       console.error('Error submitting to admin:', e);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  /**
+   * Handler para Admin: Aprobar archivo
+   * Estado: pendiente_admin → aprobado
+   */
+  const handleApprove = async () => {
+    if (!grdId) {
+      setApproveError('No hay archivo GRD seleccionado');
+      return;
+    }
+
+    setIsApproving(true);
+    setApproveError(null);
+
+    try {
+      const res = await fetch(`/api/v1/grd/${grdId}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'approve',
+          reason: 'Aprobado por administrador',
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Error al aprobar archivo');
+      }
+
+      // Éxito: redirigir al dashboard
+      alert('✅ Archivo aprobado exitosamente. Ahora puedes exportarlo.');
+      router.push('/dashboard');
+    } catch (e: any) {
+      setApproveError(e.message || 'Error al aprobar archivo');
+      console.error('Error approving file:', e);
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  /**
+   * Handler para Admin: Rechazar archivo con razón
+   * Estado: pendiente_admin → rechazado
+   * 
+   * @param reason - Razón del rechazo proporcionada por el admin
+   */
+  const handleReject = async (reason: string) => {
+    if (!grdId) {
+      setApproveError('No hay archivo GRD seleccionado');
+      return;
+    }
+
+    setIsRejecting(true);
+    setApproveError(null);
+
+    try {
+      const res = await fetch(`/api/v1/grd/${grdId}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reject',
+          reason: reason,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Error al rechazar archivo');
+      }
+
+      // Éxito: cerrar modal y redirigir
+      setShowRejectModal(false);
+      alert('✅ Archivo rechazado. El Encoder ha sido notificado.');
+      router.push('/dashboard');
+    } catch (e: any) {
+      setApproveError(e.message || 'Error al rechazar archivo');
+      console.error('Error rejecting file:', e);
+    } finally {
+      setIsRejecting(false);
     }
   };
 
@@ -1032,6 +1117,50 @@ const onPaginationChanged = (params: any) => {
               </button>
             )}
 
+            {/* Botón Admin: Aprobar */}
+            {role === 'admin' && estado === 'pendiente_admin' && (
+              <button
+                onClick={handleApprove}
+                disabled={isApproving}
+                className={`${
+                  isApproving ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
+                } text-white px-4 py-2 rounded transition flex items-center gap-2`}
+              >
+                {isApproving ? (
+                  <>
+                    <span className="animate-spin">⌛</span>
+                    Aprobando...
+                  </>
+                ) : (
+                  <>
+                    ✅ Aprobar Archivo
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* Botón Admin: Rechazar */}
+            {role === 'admin' && estado === 'pendiente_admin' && (
+              <button
+                onClick={() => setShowRejectModal(true)}
+                disabled={isRejecting}
+                className={`${
+                  isRejecting ? 'bg-red-400' : 'bg-red-600 hover:bg-red-700'
+                } text-white px-4 py-2 rounded transition flex items-center gap-2`}
+              >
+                {isRejecting ? (
+                  <>
+                    <span className="animate-spin">⌛</span>
+                    Rechazando...
+                  </>
+                ) : (
+                  <>
+                    ❌ Rechazar Archivo
+                  </>
+                )}
+              </button>
+            )}
+
             <button
               onClick={handleDownload}
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
@@ -1049,6 +1178,11 @@ const onPaginationChanged = (params: any) => {
               ❌ {submitError}
             </div>
           )}
+          {approveError && (
+            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300">
+              ❌ {approveError}
+            </div>
+          )}
         </>
       )}
 
@@ -1064,6 +1198,17 @@ const onPaginationChanged = (params: any) => {
           role={role as 'encoder' | 'finance'}
           grdId={parseInt(grdId)}
           isSubmitting={isSubmitting}
+        />
+      )}
+
+      {/* Modal de rechazo para Admin */}
+      {showRejectModal && grdId && (
+        <RejectModal
+          isOpen={showRejectModal}
+          onClose={() => setShowRejectModal(false)}
+          onConfirm={handleReject}
+          grdId={parseInt(grdId)}
+          isSubmitting={isRejecting}
         />
       )}
     </div>
