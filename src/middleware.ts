@@ -53,10 +53,25 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // If user is authenticated and trying to access login/signup, redirect to dashboard
+  // If user is authenticated and trying to access login/signup, redirect to dashboard (not /dashboard/users)
   if (isAuthenticated && isPublicPath) {
     const dashboardUrl = new URL('/dashboard', req.url);
     return NextResponse.redirect(dashboardUrl);
+  }
+
+  // Prevent non-admin users from accessing /dashboard/users
+  if (isAuthenticated && pathname.startsWith('/dashboard/users')) {
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('auth_id', user.id)
+      .single();
+    
+    // If user is not admin, redirect to dashboard
+    if (userData?.role !== 'admin') {
+      const dashboardUrl = new URL('/dashboard', req.url);
+      return NextResponse.redirect(dashboardUrl);
+    }
   }
 
   return res;

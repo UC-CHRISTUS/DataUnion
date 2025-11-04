@@ -31,9 +31,10 @@ interface ReviewBody {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { grdId: string } }
+  context: { params: Promise<{ grdId: string }> }
 ) {
   try {
+    const params = await context.params;
     const grdId = parseInt(params.grdId);
 
     if (isNaN(grdId)) {

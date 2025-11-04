@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useWorkflowStatus } from '@/hooks/useWorkflowStatus';
+import WorkflowAlert from './WorkflowAlert';
 import styles from './FileUpload.module.css';
 
 export default function FileUpload() {
@@ -11,9 +13,17 @@ export default function FileUpload() {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Check if there's an active workflow
+  const { hasActiveWorkflow, grdId, estado, loading: workflowLoading, refetch } = useWorkflowStatus(true, 30000); // Auto-refresh every 30s
+
+  // Determine if upload should be disabled
+  const isUploadDisabled = hasActiveWorkflow || uploading || workflowLoading;
+
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    setIsDragging(true);
+    if (!isUploadDisabled) {
+      setIsDragging(true);
+    }
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
@@ -25,6 +35,10 @@ export default function FileUpload() {
     e.preventDefault();
     setIsDragging(false);
     
+    if (isUploadDisabled) {
+      return;
+    }
+    
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       setSelectedFile(files[0]);
@@ -32,6 +46,10 @@ export default function FileUpload() {
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isUploadDisabled) {
+      return;
+    }
+    
     const files = e.target.files;
     if (files && files.length > 0) {
       setSelectedFile(files[0]);
@@ -41,6 +59,7 @@ export default function FileUpload() {
   const handleUpload = async () => {
     setMessage(null);
     setError(null);
+    
     if (!selectedFile) {
       setError('No hay archivo seleccionado');
       return;
@@ -72,7 +91,8 @@ export default function FileUpload() {
         setMessage('Archivo subido correctamente. Filas procesadas: ' + (json?.data?.rowCounts?.sigesaRows ?? 'n/a'));
         // clear selected file
         setSelectedFile(null);
-        // optionally you could trigger a refresh elsewhere
+        // Refetch workflow status after successful upload
+        await refetch();
       }
     } catch (e: any) {
       setError(e?.message || 'Error desconocido al subir');
@@ -87,8 +107,16 @@ export default function FileUpload() {
 
   return (
     <div className={styles.uploadContainer}>
+      {/* Show warning banner if there's an active workflow */}
+      {hasActiveWorkflow && !workflowLoading && (
+        <WorkflowAlert
+          message={`⚠️ Ya existe un archivo en proceso (GRD #${grdId}, Estado: ${estado}). Completa el flujo actual antes de subir uno nuevo.`}
+          type="warning"
+        />
+      )}
+
       <div
-        className={`${styles.dropZone} ${isDragging ? styles.dragging : ''}`}
+        className={`${styles.dropZone} ${isDragging ? styles.dragging : ''} ${isUploadDisabled ? styles.disabled : ''}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -109,26 +137,32 @@ export default function FileUpload() {
             />
           </svg>
           <p className={styles.dropZoneText}>
-            Arrastra archivo hasta esta zona
+            {isUploadDisabled ? 'Carga deshabilitada - Archivo en proceso' : 'Arrastra archivo hasta esta zona'}
           </p>
-          <p className={styles.orText}>o</p>
-          <button
-            type="button"
-            className={styles.chooseFileButton}
-            onClick={handleButtonClick}
-          >
-            Elegir el archivo en mi ordenador
-          </button>
+          {!isUploadDisabled && (
+            <>
+              <p className={styles.orText}>o</p>
+              <button
+                type="button"
+                className={styles.chooseFileButton}
+                onClick={handleButtonClick}
+                disabled={isUploadDisabled}
+              >
+                Elegir el archivo en mi ordenador
+              </button>
+            </>
+          )}
           <input
             ref={fileInputRef}
             type="file"
             className={styles.fileInput}
             onChange={handleFileInputChange}
+            disabled={isUploadDisabled}
           />
         </div>
       </div>
       
-      {selectedFile && (
+      {selectedFile && !hasActiveWorkflow && (
         <div className={styles.fileInfo}>
           <p className={styles.fileName}>
             Archivo seleccionado: {selectedFile.name}
@@ -141,7 +175,7 @@ export default function FileUpload() {
               type="button"
               className={styles.uploadButton}
               onClick={handleUpload}
-              disabled={uploading}
+              disabled={isUploadDisabled}
             >
               {uploading ? 'Subiendo...' : 'Cargar'}
             </button>
