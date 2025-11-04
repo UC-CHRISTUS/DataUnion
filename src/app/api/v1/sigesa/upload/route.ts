@@ -1,6 +1,7 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 import ExcelJS from 'exceljs'
-import { supabase } from '@/lib/supabase'
 import { successResponse, errorResponse, handleError } from '@/lib/api/response'
 
 /**
@@ -229,6 +230,93 @@ function calculateDaysDiff(fechaAlta: string | null, fechaIngreso: string | null
  */
 export async function POST(request: NextRequest) {
   try {
+    // Create Supabase client with user session from cookies
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            try {
+              cookieStore.set({ name, value, ...options })
+            } catch (error) {
+              // Cookie setting may fail in API routes
+            }
+          },
+          remove(name: string, options: any) {
+            try {
+              cookieStore.set({ name, value: '', ...options })
+            } catch (error) {
+              // Cookie removal may fail in API routes
+            }
+          },
+        },
+      }
+    )
+
+    // Verify user is authenticated and has encoder or admin role
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    
+    if (authError || !user) {
+      return errorResponse('Unauthorized: Authentication required', 401)
+    }
+
+    // Get user role from public.users table
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role, is_active')
+      .eq('auth_id', user.id)
+      .single()
+
+    if (userError || !userData) {
+      return errorResponse('User not found', 404)
+    }
+
+    if (!userData.is_active) {
+      return errorResponse('User is inactive', 403)
+    }
+
+    // Check if user has permission to upload (encoder or admin)
+    if (userData.role !== 'encoder' && userData.role !== 'admin') {
+      return errorResponse('Unauthorized: Only encoders and admins can upload files', 403)
+    }
+
+    // ============================================================================
+    // WORKFLOW VALIDATION: Check if there's already an active workflow
+    // ============================================================================
+    const { data: activeFiles, error: workflowError } = await supabase
+      .from('grd_fila')
+      .select('id_grd_oficial, episodio, estado')
+      .in('estado', ['borrador_encoder', 'pendiente_finance', 'borrador_finance', 'pendiente_admin'])
+      .limit(1)
+
+    if (workflowError) {
+      console.error('[POST /api/v1/sigesa/upload] Workflow check error:', workflowError)
+      return errorResponse('Error al verificar workflow activo', 500)
+    }
+
+    if (activeFiles && activeFiles.length > 0) {
+      const activeFile = activeFiles[0]
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Ya existe un archivo en proceso',
+          message: 'Solo puede haber un archivo en flujo activo a la vez. Completa o rechaza el archivo actual antes de subir uno nuevo.',
+          activeWorkflow: {
+            grdId: activeFile.id_grd_oficial,
+            episodio: activeFile.episodio,
+            estado: activeFile.estado,
+          },
+        },
+        { status: 409 } // Conflict
+      )
+    }
+    // ============================================================================
+
     // Get form data
     const formData = await request.formData()
     const file = formData.get('file') as File
