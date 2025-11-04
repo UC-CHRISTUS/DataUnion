@@ -22,10 +22,11 @@ const NON_EDITABLE_FIELDS = [
 ];
 
 // Campos editables por Encoder
-const ENCODER_EDITABLE_FIELDS = ['at', 'at_detalle'];
+const ENCODER_EDITABLE_FIELDS = ['AT', 'AT_detalle', 'centro', 'documentacion', 'dias_demora_rescate_hospital', 'pago_demora_rescate',
+  'pago_outlier_superior'];
 
 // Campos editables por Finance
-const FINANCE_EDITABLE_FIELDS = ['validado', 'n_folio', 'estado_rn', 'monto_rn', 'documentacion'];
+const FINANCE_EDITABLE_FIELDS = ['validado', 'n_folio', 'estado_rn', 'monto_rn'];
 
 // Admin NO edita ningún campo (solo visualiza)
 const ADMIN_EDITABLE_FIELDS: string[] = [];
@@ -33,10 +34,8 @@ const ADMIN_EDITABLE_FIELDS: string[] = [];
 // Campos de SIGESA que SIEMPRE están bloqueados (datos originales)
 const SIGESA_READONLY_FIELDS = [
   'episodio', 'tipo_episodio', 'fecha_ingreso', 'fecha_alta',
-  'servicios_alta', 'tipo_alta', 'IR-GRD', 'inlier/outlier',
-  'rut_paciente', 'nombre_paciente', 'centro', 'dias_estadia',
-  'peso', 'dias_demora_rescate', 'pago_demora_rescate',
-  'pago_outlier_superior', 'grupo_dentro_nombra', 'precio_base_tramo',
+  'servicios_alta', 'tipo_alta', 'IR-GRD', 'inlier/outlier', 'nombre_paciente', 'dias_estadia',
+  'peso', 'grupo_dentro_norma', 'precio_base_tramo',
   'valor_grd', 'monto_final'
 ];
 
@@ -82,7 +81,6 @@ const SIGESA_READONLY_FIELDS = [
       return FINANCE_EDITABLE_FIELDS.includes(field);
     }
 
-    // Por defecto, no editable
     return false;
   };
 
@@ -128,7 +126,7 @@ const AtMultiSelectEditor = React.forwardRef((props: any, ref: any) => {
   const applyAndClose = (e?: React.MouseEvent) => {
     e?.stopPropagation(); 
     if (typeof props.stopEditing === "function") {
-      props.stopEditing(true); // commit
+      props.stopEditing(true); 
     }
   };
 
@@ -136,7 +134,7 @@ const AtMultiSelectEditor = React.forwardRef((props: any, ref: any) => {
     e.stopPropagation();
     if (e.key === "Enter") applyAndClose();
     if (e.key === "Escape" && typeof props.stopEditing === "function") {
-      props.stopEditing(false); // cancel
+      props.stopEditing(false); 
     }
   };
 
@@ -202,7 +200,7 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
   const [approveError, setApproveError] = useState<string | null>(null);
   const router = useRouter();
 
-  // Fallback: si no se pasa grdId, cargar el primero disponible
+
   useEffect(() => {
     if (!grdId) {
       const fetchFirstGRD = async () => {
@@ -255,9 +253,7 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         throw new Error(`Error al guardar fila ${episodio}: ${errorDetail}`);
       }
 
-      const responseData = await res.json();
-      console.log('Respuesta exitosa:', responseData);
-      
+      const responseData = await res.json();      
       return true;
     } catch (e) {
       console.error('Error saving row:', e);
@@ -301,15 +297,12 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
       setIsSaving(false);
     }
   };
-
-  // Handler para Submit Encoder -> Finance
   const handleSubmitEncoder = async () => {
     if (!grdId) {
       setSubmitError('No hay archivo GRD seleccionado');
       return;
     }
 
-    // Verificar que no haya cambios sin guardar
     if (Object.keys(modifiedRows).length > 0) {
       setSubmitError('Debes guardar los cambios antes de entregar');
       return;
@@ -330,7 +323,6 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         throw new Error(errorData.error || 'Error al entregar archivo');
       }
 
-      // Éxito: redirigir al dashboard
       alert('✅ Archivo entregado a Finanzas exitosamente');
       router.push('/dashboard');
     } catch (e: any) {
@@ -341,14 +333,14 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
     }
   };
 
-  // Handler para Submit Finance -> Admin
+
   const handleSubmitFinance = async () => {
     if (!grdId) {
       setSubmitError('No hay archivo GRD seleccionado');
       return;
     }
 
-    // Verificar que no haya cambios sin guardar
+
     if (Object.keys(modifiedRows).length > 0) {
       setSubmitError('Debes guardar los cambios antes de entregar');
       return;
@@ -369,7 +361,7 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         throw new Error(errorData.error || 'Error al entregar archivo');
       }
 
-      // Éxito: redirigir al dashboard
+
       alert('✅ Archivo entregado a Administración exitosamente');
       router.push('/dashboard');
     } catch (e: any) {
@@ -408,7 +400,7 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         throw new Error(errorData.error || 'Error al aprobar archivo');
       }
 
-      // Éxito: redirigir al dashboard
+
       alert('✅ Archivo aprobado exitosamente. Ahora puedes exportarlo.');
       router.push('/dashboard');
     } catch (e: any) {
@@ -449,7 +441,7 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         throw new Error(errorData.error || 'Error al rechazar archivo');
       }
 
-      // Éxito: cerrar modal y redirigir
+
       setShowRejectModal(false);
       alert('✅ Archivo rechazado. El Encoder ha sido notificado.');
       router.push('/dashboard');
@@ -473,19 +465,19 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
     { headerName: "Fecha Alta", field: "fecha_alta", sortable: true },
     { headerName: "Servicios Alta", field: "servicios_alta", sortable: true },
     { headerName: "Estado RN", field: "estado_rn", sortable: true },
-    { headerName: "AT", field: "at", sortable: true },
-    { headerName: "AT Detalle", field: "at_detalle", sortable: true },
-    { headerName: "Monto AT", field: "monto_at", sortable: true },
+    { headerName: "AT", field: "AT", sortable: true },
+    { headerName: "AT Detalle", field: "AT_detalle", sortable: true },
+    { headerName: "Monto AT", field: "monto_AT", sortable: true },
     { headerName: "Tipo Alta", field: "tipo_alta", sortable: true },
     { headerName: "IR-GRD", field: "IR-GRD", sortable: true },
     { headerName: "Peso", field: "peso", sortable: true },
     { headerName: "Monto RN", field: "monto_rn", sortable: true },
-    { headerName: "Días Demora Rescate", field: "dias_demora_rescate", sortable: true },
+    { headerName: "Días Demora Rescate Hospital", field: "dias_demora_rescate_hospital", sortable: true },
     { headerName: "Pago Demora Rescate", field: "pago_demora_rescate", sortable: true },
     { headerName: "Pago Outlier Superior", field: "pago_outlier_superior", sortable: true },
     { headerName: "Documentación", field: "documentacion", sortable: true },
     { headerName: "Inlier/Outlier", field: "inlier/outlier", sortable: true },
-    { headerName: "Grupo Dentro Nombra", field: "grupo_dentro_nombra", sortable: true },
+    { headerName: "Grupo Dentro Norma", field: "grupo_dentro_norma", sortable: true },
     { headerName: "Días Estadía", field: "dias_estadia", sortable: true },
     { headerName: "Precio Base Tramo", field: "precio_base_tramo", sortable: true },
     { headerName: "Valor GRD", field: "valor_grd", sortable: true },
@@ -506,19 +498,19 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
     fecha_alta: 'date',
     servicios_alta: 'string',
     estado_rn: 'string',
-    at: 'boolean',
-    at_detalle: 'string',
-    monto_at: 'number',
+    AT: 'boolean',
+    AT_detalle: 'string',
+    monto_AT: 'number',
     tipo_alta: 'string',
     ir_grd: 'int',
     peso: 'number',
     monto_rn: 'number',
-    dias_demora_rescate: 'int',
+    dias_demora_rescate_hospital: 'int',
     pago_demora_rescate: 'number',
     pago_outlier_superior: 'number',
     documentacion: 'string',
     inlier_outlier: 'string',
-    grupo_dentro_nombra: 'boolean',
+    grupo_dentro_norma: 'boolean',
     dias_estadia: 'int',
     precio_base_tramo: 'number',
     valor_grd: 'number',
@@ -549,6 +541,14 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         if (['no', 'n', 'false', '0'].includes(v)) return { valid: true, parsed: false };
         return { valid: false, parsed: null };
       }
+      case 'string': {
+        const rawText = raw;
+        if (rawText === '') return { valid: true, parsed: '' };
+        if (/^\d+$/.test(rawText)) {
+        return { valid: false, parsed: null };
+        }
+        return { valid: true, parsed: rawText };
+      }
       default:
         return { valid: true, parsed: raw };
     }
@@ -572,94 +572,119 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
   return cols.map((c) => {
     const type = fieldTypes[c.field];
     
-    // Determinar si este campo es editable según rol y estado
+
     const fieldEditable = isFieldEditable(c.field, userRole, workflowEstado);
 
     const base: any = {
       ...c,
       resizable: true,
       filter: true,
-      editable: fieldEditable, // Usar nueva lógica de bloqueo
+      editable: fieldEditable, 
 
       valueParser: (params: any) => params.newValue,
       valueSetter: (params: any) => {
-        // Si el campo no es editable, rechazar cambios
+  
         if (!fieldEditable) return false;
 
         const newVal = params.newValue;
         const { valid, parsed } = validateValue(type, newVal);
 
         if (valid) {
-          const oldValue = params.data[c.field];
-          params.data[c.field] = parsed;
+  const oldValue = params.data[c.field];
+  params.data[c.field] = parsed;
 
-          if (params.data._invalidFields) {
-            params.data._invalidFields = params.data._invalidFields.filter((x: string) => x !== c.field);
-          }
+  params.data._invalidFields = (params.data._invalidFields || []).filter((x: string) => x !== c.field);
 
-          if (params.data.episodio && oldValue !== parsed) {
-            setModifiedRows(prev => ({
-              ...prev,
-              [params.data.episodio]: {
-                ...(prev[params.data.episodio] || {}),
-                ...params.data
-              }
-            }));
-          }
-          return true;
-        }
+  const changed = JSON.stringify(oldValue) !== JSON.stringify(parsed);
+  if (params.data.episodio && changed) {
+    setModifiedRows(prev => ({
+      ...prev,
+      [params.data.episodio]: {
+        ...(prev[params.data.episodio] || {}),
+        ...params.data
+      }
+      }));
+      }
+      return true;
+      }
 
-        try { params.api.flashCells({ rowNodes: [params.node], columns: [params.column] }); } catch (_e) {}
-        return false;
+      params.data._invalidFields = [...(params.data._invalidFields || []), c.field];
+
+      params.api.refreshCells({ rowNodes: [params.node], columns: [params.column], force: true });
+
+      return false;
+
       },
 
-      cellStyle: (params: any) => {
-        // Si el campo NO es editable, fondo gris claro con candado
-        if (!fieldEditable) {
-          return { 
-            backgroundColor: "#f0f0f0", 
-            color: "#999",
-            cursor: "not-allowed"
-          };
-        }
-
-        const episodio = params.data?.episodio;
-        const wasModified =
-          episodio && modifiedRows[episodio] && modifiedRows[episodio][c.field] !== undefined;
-
-        if (wasModified) {
-          return { backgroundColor: "#fffbcc" }; // Amarillo claro para modificados
-        }
-
-        return {};
-      }
+    cellStyle: (params: any) => {
+      const episodio = params.data?.episodio;
+      if (!fieldEditable) {
+      return {
+        backgroundColor: "#f0f0f0",
+        color: "#999",
+        cursor: "not-allowed"
     };
+  }
 
-    // Si el campo NO es editable, agregar renderer con candado
+  if (params.data?._invalidFields?.includes(c.field)) {
+    return {
+      backgroundColor: "#ffe5e5",
+      border: "1px solid #cc0000"
+    };
+  }
+
+  const wasModified =
+    episodio && modifiedRows[episodio] && modifiedRows[episodio][c.field] !== undefined;
+
+  if (wasModified) {
+    return { backgroundColor: "#fffbcc" };
+  }
+
+  return {};
+}
+
+    };
     if (!fieldEditable) {
       base.cellRenderer = LockCellRenderer;
     }
 
-    if (c.field === "at_detalle") {
-  base.editable = true;
+    if (c.field === "AT_detalle") {
+  base.editable = (params: any) => {
+  return fieldEditable && params.data?.AT === true;
+};
   base.singleClickEdit = true;
-  base.cellEditor = AtMultiSelectEditor;   
+  base.cellEditor = AtMultiSelectEditor;
   base.cellEditorPopup = true;
   base.cellEditorParams = { options: atOpts };
 
-  base.valueParser = (p: any) => p.newValue;
+    base.cellRenderer = (params: any) => {
+    if (params.data?.AT === false) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+          <span style={{ marginRight: 4 }}>🔒</span>
+          <span style={{ backgroundColor: "#f0f0f0", 
+            color: "#999",
+            cursor: "not-allowed" }}>{params.value || ""}</span>
+        </div>
+      );
+    }
+    return params.value || "";
+  };
+  base.onCellClicked = (params: any) => {
+  if (params.data?.AT === false) {
+    params.api.stopEditing();
+  }
+};
 
   base.valueSetter = (params: any) => {
     const v = params.newValue;
 
-
     if (v && typeof v === "object") {
-      params.data.at_detalle = v.labels ?? "";
+      params.data.AT_detalle = v.labels ?? "";
       params.data.monto_at   = v.monto  ?? 0;
     } else {
 
-      params.data.at_detalle = v ?? "";
-
+      params.data.AT_detalle = v ?? "";
     }
 
     if (params.data.episodio) {
@@ -667,27 +692,29 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         ...prev,
         [params.data.episodio]: {
           ...(prev[params.data.episodio] || {}),
-          ...params.data,
-        },
+          ...params.data
+        }
       }));
     }
 
-
     params.api.refreshCells({
       rowNodes: [params.node],
-      columns: ["at_detalle", "monto_at"],
-      force: true,
+      columns: ["AT_detalle", "monto_AT"],
+      force: true
     });
 
-    return true;
+    return true; 
   };
+
+  base.valueFormatter = (params: any) => params.value;
 }
 
 
-if (["at", "validado", "documentacion"].includes(c.field)) {
+
+if (["AT", "validado", "documentacion"].includes(c.field)) {
   base.cellEditor = "agSelectCellEditor";
   base.cellEditorParams = {
-    values: YES_NO_OPTIONS
+    values: ["", ...YES_NO_OPTIONS]
   };
   base.singleClickEdit = true;
 
@@ -695,22 +722,16 @@ if (["at", "validado", "documentacion"].includes(c.field)) {
     const raw = String(params.newValue ?? "").toLowerCase();
     if (["sí", "si", "s", "yes", "true", "1"].includes(raw)) return true;
     if (["no", "n", "false", "0"].includes(raw)) return false;
-    return null;
+    if (["", " ",].includes(raw)) return null;
   };
 
   base.valueFormatter = (params: any) => {
     if (params.value === true) return "Sí";
     if (params.value === false) return "No"; 
+    if (params.value === null) return "";
     
   };
 
-  base.cellStyle = (params: any) => ({
-    color: "#111", 
-    backgroundColor:
-      params.value === true || params.value === false
-        ? "#ffffff"
-        : "#f2f2f2" 
-  });
 }
 
     return base;
@@ -746,13 +767,12 @@ setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, cleaned, role, estado));
   fetchATOptions();
 }, []);
 
-  // useEffect para protección contra pérdida de datos al recargar página
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (Object.keys(modifiedRows).length > 0) {
         e.preventDefault();
-        e.returnValue = ''; // Chrome requiere esto
-        return ''; // Algunos navegadores muestran este mensaje
+        e.returnValue = ''; 
+        return ''; 
       }
     };
 
@@ -760,7 +780,6 @@ setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, cleaned, role, estado));
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [modifiedRows]);
 
-  // useEffect para protección contra navegación interna (Next.js)
   useEffect(() => {
     if (!router) return;
 
@@ -770,18 +789,14 @@ setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, cleaned, role, estado));
           '⚠️ Tienes cambios sin guardar que se perderán.\n\n¿Deseas continuar sin guardar?'
         );
         if (!confirmLeave) {
-          router.push(window.location.pathname); // Cancelar navegación
-          throw 'Navegación cancelada por el usuario'; // Detener la navegación
+          router.push(window.location.pathname);
+          throw 'Navegación cancelada por el usuario'; 
         }
       }
     };
 
-    // Interceptar navegación con router.events (Next.js < 13) o router (Next.js 13+)
-    // Como estamos en App Router, necesitamos otra estrategia
-    // Lo haremos en el componente padre o con un hook personalizado
-    
+
     return () => {
-      // Cleanup si es necesario
     };
   }, [modifiedRows, router]);
 
@@ -807,7 +822,6 @@ setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, cleaned, role, estado));
           throw new Error('Error al obtener filas del GRD');
         }
   const rowsData = await rowsResponse.json();
-  console.log(rowsData)
   const rows = rowsData.data || [];
   setRowData(rows.map(validateRow));
       } catch (error) {
@@ -831,7 +845,6 @@ setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, cleaned, role, estado));
     const data = await res.json();
     const rows = data.data || [];
 
-    console.log("Datos cargados del GRD:", grdId, rows);
     setRowData(rows.map(validateRow));
   } catch (e) {
     console.error("Error al cargar datos del GRD:", e);
@@ -887,19 +900,19 @@ const onPaginationChanged = (params: any) => {
             fecha_alta: row[headers.indexOf('Fecha Alta')] || '',
             servicios_alta: row[headers.indexOf('Servicios Alta')] || '',
             estado_rn: row[headers.indexOf('Estado RN')] || '',
-            at: row[headers.indexOf('AT')] || '',
-            at_detalle: row[headers.indexOf('AT Detalle')] || '',
-            monto_at: row[headers.indexOf('Monto AT')] || '',
+            AT: row[headers.indexOf('AT')] || '',
+            AT_detalle: row[headers.indexOf('AT Detalle')] || '',
+            monto_AT: row[headers.indexOf('Monto AT')] || '',
             tipo_alta: row[headers.indexOf('Tipo Alta')] || '',
             ir_grd: row[headers.indexOf('IR-GRD')] || '',
             peso: row[headers.indexOf('Peso')] || '',
             monto_rn: row[headers.indexOf('Monto RN')] || '',
-            dias_demora_rescate: row[headers.indexOf('Días Demora Rescate')] || '',
+            dias_demora_rescate_hostpital: row[headers.indexOf('Días Demora Rescate Hospital')] || '',
             pago_demora_rescate: row[headers.indexOf('Pago Demora Rescate')] || '',
             pago_outlier_superior: row[headers.indexOf('Pago Outlier Superior')] || '',
             documentacion: row[headers.indexOf('Documentación')] || '',
             inlier_outlier: row[headers.indexOf('Inlier/Outlier')] || '',
-            grupo_dentro_nombra: row[headers.indexOf('Grupo Dentro Nombra')] || '',
+            grupo_dentro_norma: row[headers.indexOf('Grupo Dentro Norma')] || '',
             dias_estadia: row[headers.indexOf('Días Estadía')] || '',
             precio_base_tramo: row[headers.indexOf('Precio Base Tramo')] || '',
             valor_grd: row[headers.indexOf('Valor GRD')] || '',
@@ -1005,7 +1018,6 @@ const onPaginationChanged = (params: any) => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold mb-4">📊 Editor </h1>
         
-        {/* Indicador de cambios sin guardar */}
         <div className="flex items-center gap-2 text-sm">
           {Object.keys(modifiedRows).length > 0 && (
             <span className="text-orange-600 flex items-center gap-1 font-medium">

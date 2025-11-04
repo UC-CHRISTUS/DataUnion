@@ -21,7 +21,6 @@ export default function SignIn({ onSignUp }: SignInProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Check for error parameter from redirect
   useEffect(() => {
     const errorParam = searchParams.get('error');
     if (errorParam === 'no-session') {
