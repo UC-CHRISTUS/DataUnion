@@ -1,6 +1,7 @@
+'use client';
 
 import React from "react";
-import ExcelEditor from "@/components/ExcelEditor"; 
+import ExcelEditor from "@/components/ExcelEditor";
 
 export default function VisualizatorPage() {
   return (

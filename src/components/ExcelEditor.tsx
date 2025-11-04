@@ -2,10 +2,12 @@
 
 import React, { useState, useCallback, useEffect, useRef, useImperativeHandle } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import SubmitConfirmModal from "./SubmitConfirmModal";
 
 const NON_EDITABLE_FIELDS = [
   "episodio",
@@ -18,14 +20,70 @@ const NON_EDITABLE_FIELDS = [
   "inlier/outlier"   
 ];
 
-const LockCellRenderer = (params: any) => {
-  return (
-    <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-      <span style={{ opacity: 0.7 }}>🔒</span>
-      <span>{params.value}</span>
-    </span>
-  );
-};
+// Campos editables por Encoder
+const ENCODER_EDITABLE_FIELDS = ['at', 'at_detalle'];
+
+// Campos editables por Finance
+const FINANCE_EDITABLE_FIELDS = ['validado', 'n_folio', 'estado_rn', 'monto_rn', 'documentacion'];
+
+// Admin NO edita ningún campo (solo visualiza)
+const ADMIN_EDITABLE_FIELDS: string[] = [];
+
+// Campos de SIGESA que SIEMPRE están bloqueados (datos originales)
+const SIGESA_READONLY_FIELDS = [
+  'episodio', 'tipo_episodio', 'fecha_ingreso', 'fecha_alta',
+  'servicios_alta', 'tipo_alta', 'IR-GRD', 'inlier/outlier',
+  'rut_paciente', 'nombre_paciente', 'centro', 'dias_estadia',
+  'peso', 'dias_demora_rescate', 'pago_demora_rescate',
+  'pago_outlier_superior', 'grupo_dentro_nombra', 'precio_base_tramo',
+  'valor_grd', 'monto_final'
+];
+
+  const LockCellRenderer = (params: any) => {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+        <span style={{ marginRight: 4 }}>🔒</span>
+        <span>{params.value != null ? params.value : ""}</span>
+      </div>
+    );
+  };
+
+  // Función para determinar si un campo es editable según rol y estado del workflow
+  const isFieldEditable = (field: string, userRole?: string, workflowEstado?: string): boolean => {
+    // Campos SIGESA siempre bloqueados
+    if (SIGESA_READONLY_FIELDS.includes(field)) {
+      return false;
+    }
+
+    // Si no hay rol o estado, bloquear por defecto
+    if (!userRole || !workflowEstado) {
+      return false;
+    }
+
+    // Admin NUNCA edita (solo visualiza)
+    if (userRole === 'admin') {
+      return false;
+    }
+
+    // Encoder: solo puede editar 'at' y 'at_detalle' en estado 'borrador_encoder'
+    if (userRole === 'encoder') {
+      if (workflowEstado !== 'borrador_encoder') {
+        return false;
+      }
+      return ENCODER_EDITABLE_FIELDS.includes(field);
+    }
+
+    // Finance: solo puede editar sus campos en 'pendiente_finance' o 'borrador_finance'
+    if (userRole === 'finance') {
+      if (!['pendiente_finance', 'borrador_finance'].includes(workflowEstado)) {
+        return false;
+      }
+      return FINANCE_EDITABLE_FIELDS.includes(field);
+    }
+
+    // Por defecto, no editable
+    return false;
+  };
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -118,29 +176,46 @@ const AtMultiSelectEditor = React.forwardRef((props: any, ref: any) => {
 
 AtMultiSelectEditor.displayName = "AtMultiSelectEditor";
 
-export default function ExcelEditorAGGrid() {
+interface ExcelEditorProps {
+  role?: 'admin' | 'encoder' | 'finance';
+  grdId?: string;
+  estado?: 'borrador_encoder' | 'pendiente_finance' | 'borrador_finance' | 'pendiente_admin' | 'aprobado' | 'exportado';
+}
+
+export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, estado = 'borrador_encoder' }: ExcelEditorProps) {
+  // Usar grdId de props o cargar el primero disponible (fallback temporal)
+  const [grdId, setGrdId] = useState<string | null>(grdIdProp || null);
   const [rowData, setRowData] = useState<any[]>([]);
-  const [sigesaFiles, setSigesaFiles] = useState<any[]>([]);
-  const [selectedGRDId, setSelectedGRDId] = useState<string | null>(null);
   const [sigesaPage, setSigesaPage] = useState(1);
 
+  // Estados para workflow
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReviewing, setIsReviewing] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const router = useRouter();
+
+  // Fallback: si no se pasa grdId, cargar el primero disponible
   useEffect(() => {
-    const fetchSigesaFiles = async () => {
-      try {
-        const res = await fetch('/api/v1/grd');
-        if (!res.ok) return;
-        const json = await res.json();
-        const arr = Array.isArray(json.data) ? json.data : [];
-        setSigesaFiles(arr);
-        if (arr.length > 0 && !selectedGRDId) {
-          setSelectedGRDId(arr[0].id);
+    if (!grdId) {
+      const fetchFirstGRD = async () => {
+        try {
+          const res = await fetch('/api/v1/grd');
+          if (!res.ok) return;
+          const json = await res.json();
+          const arr = Array.isArray(json.data) ? json.data : [];
+          if (arr.length > 0) {
+            setGrdId(arr[0].id);
+          }
+        } catch (e) {
+          console.error('Error fetching first grd', e);
         }
-      } catch (e) {
-        console.error('Error fetching grd files', e);
-      }
-    };
-    fetchSigesaFiles();
-  }, []);
+      };
+      fetchFirstGRD();
+    }
+  }, [grdId]);
 
   const [atOptions, setAtOptions] = useState<string[]>([]);
   const [modifiedRows, setModifiedRows] = useState<Record<string, any>>({});
@@ -221,6 +296,7 @@ export default function ExcelEditorAGGrid() {
       setIsSaving(false);
     }
   };
+
   const BASE_COLUMN_DEFS = [
     { headerName: "Validado", field: "validado", sortable: true },
     { headerName: "Centro", field: "centro", sortable: true },
@@ -328,20 +404,23 @@ export default function ExcelEditorAGGrid() {
 
   const YES_NO_OPTIONS = ["Sí", "No"];
 
-  const enrichColumns = (cols: any[], atOpts: string[]) => {
+  const enrichColumns = (cols: any[], atOpts: string[], userRole?: string, workflowEstado?: string) => {
   return cols.map((c) => {
     const type = fieldTypes[c.field];
-    const isNonEditable = NON_EDITABLE_FIELDS.includes(c.field);
+    
+    // Determinar si este campo es editable según rol y estado
+    const fieldEditable = isFieldEditable(c.field, userRole, workflowEstado);
 
     const base: any = {
       ...c,
       resizable: true,
       filter: true,
-      editable: !isNonEditable,
+      editable: fieldEditable, // Usar nueva lógica de bloqueo
 
       valueParser: (params: any) => params.newValue,
       valueSetter: (params: any) => {
-        if (isNonEditable) return false;
+        // Si el campo no es editable, rechazar cambios
+        if (!fieldEditable) return false;
 
         const newVal = params.newValue;
         const { valid, parsed } = validateValue(type, newVal);
@@ -371,8 +450,13 @@ export default function ExcelEditorAGGrid() {
       },
 
       cellStyle: (params: any) => {
-        if (isNonEditable) {
-          return { backgroundColor: "#d7f7d7" };
+        // Si el campo NO es editable, fondo gris claro con candado
+        if (!fieldEditable) {
+          return { 
+            backgroundColor: "#f0f0f0", 
+            color: "#999",
+            cursor: "not-allowed"
+          };
         }
 
         const episodio = params.data?.episodio;
@@ -380,12 +464,17 @@ export default function ExcelEditorAGGrid() {
           episodio && modifiedRows[episodio] && modifiedRows[episodio][c.field] !== undefined;
 
         if (wasModified) {
-          return { backgroundColor: "#d11" };
+          return { backgroundColor: "#fffbcc" }; // Amarillo claro para modificados
         }
 
         return {};
       }
     };
+
+    // Si el campo NO es editable, agregar renderer con candado
+    if (!fieldEditable) {
+      base.cellRenderer = LockCellRenderer;
+    }
 
     if (c.field === "at_detalle") {
   base.editable = true;
@@ -459,9 +548,6 @@ if (["at", "validado", "documentacion"].includes(c.field)) {
         : "#f2f2f2" 
   });
 }
-    if (isNonEditable) {
-      base.cellRenderer = LockCellRenderer;
-    }
 
     return base;
   });
@@ -469,8 +555,8 @@ if (["at", "validado", "documentacion"].includes(c.field)) {
 
 
   useEffect(() => {
-    setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, []));
-  }, []);
+    setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, [], role, estado));
+  }, [role, estado]);
   const [filename, setFilename] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -487,7 +573,7 @@ useEffect(() => {
   .filter((x: any) => x?.AT && x?.valor != null)
   .map((x: any) => ({ label: x.AT, valor: Number(x.valor) }));
 setAtOptions(cleaned);
-setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, cleaned));
+setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, cleaned, role, estado));
     } catch (e) {
       console.error('Error loading AT options', e);
     }
@@ -495,6 +581,45 @@ setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, cleaned));
 
   fetchATOptions();
 }, []);
+
+  // useEffect para protección contra pérdida de datos al recargar página
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (Object.keys(modifiedRows).length > 0) {
+        e.preventDefault();
+        e.returnValue = ''; // Chrome requiere esto
+        return ''; // Algunos navegadores muestran este mensaje
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [modifiedRows]);
+
+  // useEffect para protección contra navegación interna (Next.js)
+  useEffect(() => {
+    if (!router) return;
+
+    const handleRouteChange = (url: string) => {
+      if (Object.keys(modifiedRows).length > 0) {
+        const confirmLeave = window.confirm(
+          '⚠️ Tienes cambios sin guardar que se perderán.\n\n¿Deseas continuar sin guardar?'
+        );
+        if (!confirmLeave) {
+          router.push(window.location.pathname); // Cancelar navegación
+          throw 'Navegación cancelada por el usuario'; // Detener la navegación
+        }
+      }
+    };
+
+    // Interceptar navegación con router.events (Next.js < 13) o router (Next.js 13+)
+    // Como estamos en App Router, necesitamos otra estrategia
+    // Lo haremos en el componente padre o con un hook personalizado
+    
+    return () => {
+      // Cleanup si es necesario
+    };
+  }, [modifiedRows, router]);
 
 
 
@@ -532,17 +657,17 @@ setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, cleaned));
   }, []);
 
   const handleLoadSelectedGRD = async () => {
-  if (!selectedGRDId) return;
+  if (!grdId) return;
 
   try {
     setLoading(true);
-    const res = await fetch(`/api/v1/grd/${selectedGRDId}/rows`);
-    if (!res.ok) throw new Error(`Error al cargar GRD ${selectedGRDId}`);
+    const res = await fetch(`/api/v1/grd/${grdId}/rows`);
+    if (!res.ok) throw new Error(`Error al cargar GRD ${grdId}`);
 
     const data = await res.json();
     const rows = data.data || [];
 
-    console.log("Datos cargados del GRD:", selectedGRDId, rows);
+    console.log("Datos cargados del GRD:", grdId, rows);
     setRowData(rows.map(validateRow));
   } catch (e) {
     console.error("Error al cargar datos del GRD:", e);
@@ -632,7 +757,7 @@ const onPaginationChanged = (params: any) => {
 
     try {
       const res = await fetch(
-        `/api/v1/grd/${selectedGRDId}/rows?page=${page}&pageSize=${limit}`
+        `/api/v1/grd/${grdId}/rows?page=${page}&pageSize=${limit}`
       );
       const json = await res.json();
       const mergedData = (json.data || []).map((row: any) => {
@@ -711,36 +836,24 @@ const onPaginationChanged = (params: any) => {
 
   return (
     <div className="p-6 flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold mb-4">📊 Editor </h1>
-
-    {sigesaFiles.length > 0 && (
-    <div className="mb-4 flex items-center gap-3" >
-      <div>
-        <label className="block mb-2 font-medium">Selecciona archivo GRD:</label>
-        <select
-          className="border rounded px-2 py-1"
-          value={selectedGRDId || ''}
-          onChange={e => setSelectedGRDId(e.target.value)}
-        >
-          {sigesaFiles.map(file => (
-          <option key={file.id} value={file.id}>
-            {file.id} {file.nombre ? `- ${file.nombre}` : ''}
-          </option>
-        ))}
-        </select>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold mb-4">📊 Editor </h1>
+        
+        {/* Indicador de cambios sin guardar */}
+        <div className="flex items-center gap-2 text-sm">
+          {Object.keys(modifiedRows).length > 0 && (
+            <span className="text-orange-600 flex items-center gap-1 font-medium">
+              ⚠️ Tienes {Object.keys(modifiedRows).length} cambio(s) sin guardar
+            </span>
+          )}
+          
+          {saveError && (
+            <span className="text-red-600 flex items-center gap-1">
+              ❌ {saveError}
+            </span>
+          )}
+        </div>
       </div>
-
-    <button
-      onClick={() => handleLoadSelectedGRD()}
-      disabled={!selectedGRDId || loading}
-      className={`${
-        loading ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'
-      } text-white px-4 py-2 rounded transition`}
-        >
-      {loading ? 'Cargando...' : 'Cargar'}
-    </button>
-    </div>
-    )}
 
       {rowData.length > 0 && (
         <>
