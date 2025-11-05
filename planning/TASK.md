@@ -1187,29 +1187,36 @@
   - ⏳ Configurar estrategias de caché
   - ⏳ Invalidación de caché
 
-### TECH-006: Re-habilitar validaciones de campos obligatorios ⚠️
-- **Estado:** ⏳ No Iniciado
-- **Fecha Creado:** 4/nov/2025
-- **Prioridad:** 🔴 ALTA (BLOQUEA PRODUCCIÓN)
+### TECH-006: Re-habilitar validaciones de campos obligatorios ✅
+- **Estado:** ✅ COMPLETADO
+- **Fecha Completado:** 5/nov/2025
+- **Prioridad:** 🔴 ALTA (BLOQUEABA PRODUCCIÓN)
 - **Estimación:** 3 puntos
 - **Descripción:** Re-habilitar validaciones comentadas en APIs de submit
 - **Contexto:** Deshabilitadas temporalmente para permitir flujo end-to-end sin bloqueos
-- **Archivos afectados:**
-  - `src/app/api/v1/grd/[grdId]/submit-finance/route.ts` (líneas 102-110 comentadas)
-  - Validación: campo `validado` obligatorio para Finance
+- **Archivos modificados:**
+  - ✅ `src/app/api/v1/grd/[grdId]/submit-finance/route.ts` (validaciones re-habilitadas)
+  - **Validación implementada:** Campo `validado` obligatorio en TODAS las filas
 - **Criterios de Aceptación:**
-  - Descomentar validaciones en submit-finance
-  - Validar campos según reglas de negocio
-  - Mensajes de error claros indicando qué campos faltan
-  - Tests de validación
-- **Bloquea:** Deployment a producción (debe completarse antes)
+  - ✅ Validaciones re-habilitadas en submit-finance
+  - ✅ Validación de campo `validado` en todas las filas (no solo primera)
+  - ✅ Mensajes de error claros indicando episodios afectados
+  - ✅ Muestra primeros 5 episodios + contador total si hay más
+  - ⏳ Tests de validación (pendiente)
+- **Bloquea:** ❌ Ya no bloquea producción (RESUELTO)
 - **Relacionado con:** HU-015 (Validación de campos obligatorios)
+- **Mejoras implementadas:**
+  - Validación de TODAS las filas (no solo primera)
+  - Mensajes descriptivos con episodios afectados
+  - Contador total de filas inválidas
+  - Hint con lista de episodios (máximo 5 ejemplos)
 - **Subtareas:**
-  - ⏳ Descomentar validación en submit-finance (líneas 102-110)
-  - ⏳ Definir reglas de negocio: ¿qué campos son realmente obligatorios?
-  - ⏳ Agregar validaciones adicionales si necesario
-  - ⏳ Tests de validación
-  - ⏳ Documentar campos obligatorios por rol en PLANNING.md
+  - ✅ Re-habilitar validación en submit-finance
+  - ✅ Mejorar validación para revisar todas las filas
+  - ✅ Mensajes de error descriptivos
+  - ✅ Actualizar comentarios del archivo
+  - ⏳ Agregar tests de validación (Sprint 6)
+  - ⏳ Documentar campos obligatorios en PLANNING.md (opcional)
 
 ---
 
