@@ -113,22 +113,21 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
 
 ### 4. Validaciones Temporalmente Deshabilitadas
 
-⚠️ **IMPORTANTE:** Para permitir testing end-to-end sin bloqueos, algunas validaciones están comentadas:
+✅ **ACTUALIZADO 5/Nov/2025:** Validaciones re-habilitadas (TECH-006 completado)
 
 **Archivo:** `src/app/api/v1/grd/[grdId]/submit-finance/route.ts`
-**Líneas:** 102-110 (validación campo `validado`)
 
-```typescript
-// ⚠️ TEMPORALMENTE COMENTADO PARA TESTING
-// if (!firstRow.validado || firstRow.validado === '') {
-//   return NextResponse.json(
-//     { error: 'Debes completar el campo "validado" antes de entregar' },
-//     { status: 400 }
-//   );
-// }
-```
+**Validación activa:**
+- Campo `validado` es OBLIGATORIO en TODAS las filas
+- Finance NO puede hacer Submit si hay filas sin completar
+- Validación muestra episodios afectados y contador total
 
-**Tech Debt:** TECH-006 (Re-habilitar antes de producción)
+**Para testing:**
+- Asegurarse de completar campo `validado` en todas las filas
+- Valores aceptados: Cualquier string no vacío (ej: "Sí", "No")
+- Si falta alguna fila: Error descriptivo con episodios
+
+**Ver documentación completa:** `docs/TECH-006_VALIDATION_TEST.md`
 
 ---
 
@@ -847,7 +846,7 @@ WHERE id_grd_oficial = [ID];
 ### Próximos Pasos
 
 1. **Completar BLOQUE 8:** Testing manual E2E completo
-2. **Re-habilitar validaciones:** TECH-006 (campos obligatorios)
+2. ✅ **Re-habilitar validaciones:** TECH-006 (campos obligatorios) - **COMPLETADO 5/nov/2025**
 3. **Testing de carga:** Subir archivo con 100+ filas
 4. **Testing de performance:** Medir tiempo de guardado masivo
 5. **Testing de concurrencia:** 2 usuarios editando simultáneamente

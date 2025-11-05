@@ -12,11 +12,7 @@ export default function FileUpload() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Check if there's an active workflow
-  const { hasActiveWorkflow, grdId, estado, loading: workflowLoading, refetch } = useWorkflowStatus(true, 30000); // Auto-refresh every 30s
-
-  // Determine if upload should be disabled
+  const { hasActiveWorkflow, grdId, estado, loading: workflowLoading, refetch } = useWorkflowStatus(true, 30000);
   const isUploadDisabled = hasActiveWorkflow || uploading || workflowLoading;
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -65,7 +61,6 @@ export default function FileUpload() {
       return;
     }
 
-    // only accept excel files
     if (!selectedFile.name.endsWith('.xlsx') && !selectedFile.name.endsWith('.xls')) {
       setError('El archivo debe ser Excel (.xlsx o .xls)');
       return;
@@ -85,13 +80,19 @@ export default function FileUpload() {
       const json = await res.json();
 
       if (!res.ok) {
-        const errMsg = json?.error || json?.message || 'Error al subir el archivo';
+        let errMsg = json?.error || json?.message || 'Error al subir el archivo';
+
+        if (errMsg === 'No valid rows found in Excel file') {
+        errMsg = 'Debe subir un archivo con el formato descargado desde SIGESA';
+        }
+
         setError(String(errMsg));
       } else {
-        setMessage('Archivo subido correctamente. Filas procesadas: ' + (json?.data?.rowCounts?.sigesaRows ?? 'n/a'));
-        // clear selected file
+
+        setMessage('Archivo subido correctamente.');
+
         setSelectedFile(null);
-        // Refetch workflow status after successful upload
+
         await refetch();
       }
     } catch (e: any) {
@@ -107,7 +108,7 @@ export default function FileUpload() {
 
   return (
     <div className={styles.uploadContainer}>
-      {/* Show warning banner if there's an active workflow */}
+
       {hasActiveWorkflow && !workflowLoading && (
         <WorkflowAlert
           message={`⚠️ Ya existe un archivo en proceso (GRD #${grdId}, Estado: ${estado}). Completa el flujo actual antes de subir uno nuevo.`}
