@@ -7,11 +7,16 @@
  * Validaciones:
  * - Usuario debe tener rol 'finance'
  * - El archivo debe estar en estado 'borrador_finance' o 'pendiente_finance'
- * - Todos los campos obligatorios de Finance deben estar completos
+ * - Todos los campos obligatorios de Finance deben estar completos:
+ *   • Campo 'validado' es OBLIGATORIO en TODAS las filas (re-habilitado 5/nov/2025 - TECH-006)
  * 
  * Después del submit:
  * - Todos los campos quedan bloqueados (read-only)
  * - Admin recibe notificación (banner en dashboard)
+ * 
+ * @author Joaquín Peralta
+ * @version 2.0 (TECH-006 completado)
+ * @date 5 de Noviembre, 2025
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -61,13 +66,13 @@ export async function POST(
 
     const supabase = getSupabaseAdmin();
 
-    // Verificar que el archivo existe y está en el estado correcto
+    // Verificar que el archivo existe y obtener TODAS las filas
     // Nota: Un archivo tiene MÚLTIPLES filas (una por episodio)
     const { data: grdFiles, error: fetchError } = await supabase
       .from('grd_fila')
       .select('id, episodio, estado, id_grd_oficial, validado, n_folio, estado_rn, monto_rn, documentacion')
       .eq('id_grd_oficial', grdId)
-      .limit(1);
+      .order('episodio', { ascending: true });
 
     if (fetchError || !grdFiles || grdFiles.length === 0) {
       return NextResponse.json(
@@ -80,33 +85,49 @@ export async function POST(
       );
     }
 
-    const grdFile = grdFiles[0]; // Verificar estado con la primera fila
+    const firstRow = grdFiles[0]; // Verificar estado con la primera fila
 
     // Verificar estado actual (puede ser pendiente_finance o borrador_finance)
     const validStates = ['pendiente_finance', 'borrador_finance'];
-    if (!validStates.includes(grdFile.estado)) {
+    if (!validStates.includes(firstRow.estado)) {
       return NextResponse.json(
         {
           success: false,
-          error: `No se puede entregar. Estado actual: ${grdFile.estado}`,
+          error: `No se puede entregar. Estado actual: ${firstRow.estado}`,
           expectedStates: validStates,
-          currentState: grdFile.estado,
+          currentState: firstRow.estado,
         },
         { status: 400 }
       );
     }
 
-    // ⚠️ VALIDACIÓN DESHABILITADA TEMPORALMENTE
-    // Objetivo: Permitir flujo end-to-end sin validaciones estrictas
-    // TODO: Re-habilitar validaciones en fase posterior del proyecto
-    // 
-    // const missingFields: string[] = [];
-    // if (!grdFile.validado) {
-    //   missingFields.push('validado');
-    // }
-    // if (missingFields.length > 0) {
-    //   return NextResponse.json({ success: false, error: 'Faltan campos obligatorios', missingFields }, { status: 400 });
-    // }
+    // ✅ VALIDACIÓN DE CAMPOS OBLIGATORIOS (TECH-006 - Re-habilitada 5/nov/2025)
+    // Validar que TODAS las filas tengan el campo 'validado' completado
+    const rowsWithoutValidado = grdFiles.filter(row => 
+      !row.validado || row.validado.trim() === ''
+    );
+
+    if (rowsWithoutValidado.length > 0) {
+      const episodiosInvalidos = rowsWithoutValidado.map(row => row.episodio).slice(0, 5);
+      const totalInvalidos = rowsWithoutValidado.length;
+      
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Faltan campos obligatorios en algunas filas',
+          details: {
+            message: `El campo "Validado" es obligatorio en todas las filas. Encontradas ${totalInvalidos} fila(s) sin completar.`,
+            missingField: 'validado',
+            affectedRows: totalInvalidos,
+            sampleEpisodios: episodiosInvalidos,
+            hint: totalInvalidos > 5 
+              ? `Primeros 5 episodios afectados: ${episodiosInvalidos.join(', ')}. Y ${totalInvalidos - 5} más...`
+              : `Episodios afectados: ${episodiosInvalidos.join(', ')}`
+          }
+        },
+        { status: 400 }
+      );
+    }
 
     // Cambiar estado a pendiente_admin para TODAS las filas del archivo
     const { data: updatedFiles, error: updateError } = await supabase
@@ -135,7 +156,7 @@ export async function POST(
       data: {
         grdId: updatedFiles[0].id_grd_oficial,
         rowsUpdated: updatedFiles.length,
-        previousState: grdFile.estado,
+        previousState: firstRow.estado,
         currentState: updatedFiles[0].estado,
       },
     });
