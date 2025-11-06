@@ -1,8 +1,8 @@
 # PLANNING.md - Sistema de Gestión de Codificación y Facturación Hospitalaria UC Christus
 
-**Última actualización:** 4 de Noviembre, 2025 (21:00 hrs)  
-**Versión:** 1.4  
-**Estado del proyecto:** Sprint 3-4 en desarrollo (HU-03: Workflow y Acceso por Rol - 87.5% completado - 7/8 bloques implementados)
+**Última actualización:** 5 de Noviembre, 2025 (Tarde)  
+**Versión:** 1.5  
+**Estado del proyecto:** Sprint 3-4 completado (HU-03: Workflow ✅ + Admin UX: FASE 1+2 ✅)
 
 ---
 
@@ -52,7 +52,52 @@ Plataforma web que automatice:
 
 ---
 
-## 🎯 Objetivos
+## � Últimas Actualizaciones (5 de Noviembre, 2025)
+
+### ✅ Sprint 3-4 Completado
+
+**HU-003: Workflow y Acceso por Rol**
+- ✅ Sistema de workflow con 7 estados implementado
+- ✅ Flujo end-to-end funcional: Encoder → Finance → Admin
+- ✅ Restricción de archivo único en proceso
+- ✅ 7/8 bloques completados (87.5%)
+- ⏳ Pendiente: BLOQUE 8 (Testing manual E2E)
+
+**TECH-006: Validaciones Re-habilitadas**
+- ✅ Campo `validado` obligatorio en todas las filas
+- ✅ Mensajes descriptivos con episodios afectados
+- ✅ Validación mejorada para revisar todas las filas
+
+**TECH-007: FASE 1 - Admin UX Fix**
+- ✅ Eliminada redirección después de aprobar/rechazar
+- ✅ Admin se queda en página con archivo aprobado
+- ✅ Botón "Descargar" aparece automáticamente
+- ✅ Botón "Aprobado" bloqueado como indicador visual
+- ✅ Mejora de UX: de 6 pasos a 2 pasos para descargar
+
+**TECH-008: FASE 2 - Lista de Archivos Aprobados**
+- ✅ Nueva página `/dashboard/archivos` para Admin
+- ✅ API GET `/api/v1/admin/approved-files`
+- ✅ Grid responsive con cards de archivos
+- ✅ Solo archivos aprobados (filtrado simplificado)
+- ✅ Botón "Descargar" directo (sin botón "Ver")
+- ✅ Ítem "Archivos" agregado al Sidebar (solo admin)
+
+**Bugs Corregidos:**
+- ✅ Sidebar: useEffect duplicado eliminado
+- ✅ Layout: Componente Layout duplicado eliminado (causaba dos navbars)
+- ✅ ExcelEditor: Botón "Descargar" ahora condicional según estado
+- ✅ APIs submit: Cambiado `.single()` por actualización masiva de filas
+
+**Próximos Pasos (Sprint 5):**
+- Testing manual E2E del workflow completo
+- Cruce automático con Norma MINSAL
+- Cálculo automático de montos
+- Exportación formato FONASA oficial
+
+---
+
+## �🎯 Objetivos
 
 ### Objetivos de Negocio
 
@@ -780,24 +825,46 @@ created_at: timestamp
 - Parser de SIGESA
 - Vista tipo Excel básica
 
-### Sprint 4: Gestión de Usuarios y Validación (20/oct/2025)
-**HU Comprometidas:** HU-001, HU-002, HU-003, HU-004, HU-007, HU-012, HU-013, HU-020
-- CRUD de usuarios
-- Sistema de roles y permisos
-- Cruce con Norma MINSAL
-- Guardado de progreso
-- Exportación básica
+### Sprint 4: Gestión de Usuarios y Validación (20/oct/2025 - 5/nov/2025) ✅ COMPLETADO
+**HU Comprometidas:** HU-001, HU-002, HU-003, HU-004
+- ✅ CRUD de usuarios (HU-001)
+- ✅ Sistema de roles y permisos (HU-002)
+- ✅ Workflow completo por roles (HU-003) - 7/8 bloques completados
+- ✅ Vista de usuarios (HU-004)
+- ✅ TECH-006: Validaciones de campos re-habilitadas
+- ✅ TECH-007: FASE 1 - Fix Admin UX (sin redirección después de aprobar)
+- ✅ TECH-008: FASE 2 - Lista de archivos aprobados para Admin
 
-### Sprint 5: Enriquecimiento y Validaciones (3/nov/2025)
-**HU Comprometidas:** HU-006, HU-008, HU-010, HU-011, HU-014, HU-016, HU-018, HU-019
-- Validación automática de datos
-- Cálculo de montos
-- Ajustes Tecnológicos
-- Precio base por convenio
-- Motor de alertas
-- Aprobación de registros
+**Logros principales:**
+- Workflow end-to-end funcional: Encoder → Finance → Admin
+- Estados implementados: borrador_encoder, pendiente_finance, borrador_finance, pendiente_admin, aprobado, exportado, rechazado
+- Admin puede aprobar/rechazar sin perder contexto
+- Admin tiene vista centralizada de archivos aprobados
+- Sistema de archivo único en proceso (restricción implementada)
 
-**⚠️ ACTUALIZACIÓN 3/Nov/2025:** Sprint 5 se mantiene, pero prioridad se mantiene en completar HU-003 de Sprint 4.
+**Pendientes para Sprint 5:**
+- BLOQUE 8: Testing manual E2E completo
+- HU-007: Cruce con Norma MINSAL
+- HU-012: Guardado de progreso
+- HU-013: Complemento financiero
+- HU-020: Exportación básica
+
+### Sprint 5: Enriquecimiento y Validaciones (10/nov/2025 - estimado)
+**HU Comprometidas:** HU-006, HU-007, HU-008, HU-010, HU-011, HU-012, HU-013, HU-014, HU-016, HU-018, HU-019, HU-020
+- Testing end-to-end del workflow (BLOQUE 8 de HU-003)
+- Cruce con Norma MINSAL (HU-007)
+- Validación automática de datos (HU-006)
+- Cálculo de montos (HU-008)
+- Ajustes Tecnológicos (HU-010)
+- Precio base por convenio (HU-011)
+- Guardado de progreso (HU-012)
+- Complemento financiero (HU-013)
+- Motor de alertas (HU-014, HU-016)
+- Aprobación de registros (HU-018)
+- Filtrado de ATs (HU-019)
+- Exportación formato FONASA (HU-020)
+
+**⚠️ ACTUALIZACIÓN 5/Nov/2025:** Sprint 4 completado exitosamente. Admin UX mejorada significativamente con FASE 1+2.
 
 ### Sprint 6: Revisión Final y Exportación (17/nov/2025)
 **HU Comprometidas:** HU-015, HU-017
