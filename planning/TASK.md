@@ -1,8 +1,8 @@
 # TASK.md - Backlog de Tareas del Proyecto
 
-**Última actualización:** 4 de Noviembre, 2025 (21:00 hrs)  
-**Sprint Actual:** Sprint 3-4 (HU-03 - BLOQUES 1-7 COMPLETADOS ✅)  
-**Estado del Proyecto:** En desarrollo activo - Workflow completo implementado (87.5% completado, 7/8 bloques)
+**Última actualización:** 5 de Noviembre, 2025 (Tarde)  
+**Sprint Actual:** Sprint 3-4 (HU-03 + Admin UX Improvements - COMPLETADOS ✅)  
+**Estado del Proyecto:** En desarrollo activo - Workflow completo + Admin UX mejorada (100% FASE 1+2)
 
 ---
 
@@ -1217,6 +1217,100 @@
   - ✅ Actualizar comentarios del archivo
   - ⏳ Agregar tests de validación (Sprint 6)
   - ⏳ Documentar campos obligatorios en PLANNING.md (opcional)
+
+### TECH-007: Fix Admin UX - Eliminar Redirección Después de Aprobar ✅
+- **Estado:** ✅ COMPLETADO
+- **Fecha Completado:** 5/nov/2025 (Tarde)
+- **Prioridad:** 🔴 CRÍTICO (BLOQUEABA WORKFLOW ADMIN)
+- **Estimación:** 1-2 horas (completado en < 30 min)
+- **Descripción:** Eliminar redirección al dashboard después de aprobar/rechazar archivo
+- **Contexto:** Admin perdía contexto del archivo aprobado y no podía descargarlo inmediatamente
+- **Archivos modificados:**
+  - ✅ `src/components/ExcelEditor.tsx` (líneas ~407, ~451, ~1120-1180)
+- **Cambios implementados:**
+  1. ✅ Reemplazar `router.push('/dashboard')` con `window.location.reload()`
+  2. ✅ Agregar botón "Aprobado" (bloqueado) cuando estado='aprobado' o 'exportado'
+  3. ✅ Hacer botón "Descargar" condicional (solo visible si aprobado/exportado)
+- **Criterios de Aceptación:**
+  - ✅ Admin NO es redirigido después de aprobar
+  - ✅ Admin NO es redirigido después de rechazar
+  - ✅ Página se recarga automáticamente para actualizar estado
+  - ✅ Botón "Aprobado" aparece bloqueado cuando estado='aprobado'
+  - ✅ Botón "Descargar Excel" solo visible cuando estado='aprobado' o 'exportado'
+  - ✅ Admin puede descargar inmediatamente después de aprobar
+- **Mejora de UX:**
+  - ❌ Antes: Aprobar → Redirect → Dashboard → Buscar archivo → Ver → Descargar (6 pasos)
+  - ✅ Ahora: Aprobar → Reload → [Aprobado ✓] [Descargar 📥] → Click Descargar (2 pasos)
+- **Documentación:**
+  - ✅ `docs/FASE1_ADMIN_UX_FIX.md` creado con testing manual
+- **Relacionado con:** BLOQUE 7 (Admin UX), Plan simplificado de 2 fases
+- **Subtareas:**
+  - ✅ Modificar handleApprove() - eliminar redirect
+  - ✅ Modificar handleReject() - eliminar redirect
+  - ✅ Agregar botón "Aprobado" bloqueado
+  - ✅ Hacer "Descargar" condicional según estado
+  - ⏳ Testing manual (FASE 1) - Ver docs/FASE1_ADMIN_UX_FIX.md
+  - ✅ FASE 2: Crear página /dashboard/archivos (lista de archivos procesados) - COMPLETADO
+
+### TECH-008: FASE 2 - Lista de Archivos Procesados para Admin ✅
+- **Estado:** ✅ COMPLETADO
+- **Fecha Completado:** 5/nov/2025 (Tarde)
+- **Prioridad:** 🟡 MEDIA (COMPLEMENTA FASE 1)
+- **Estimación:** 2-3 horas (completado en ~1 hora con fixes)
+- **Descripción:** Crear página simple para que Admin vea todos los archivos aprobados
+- **Contexto:** Admin necesita vista consolidada de archivos históricos
+- **Archivos creados:**
+  - ✅ `src/app/api/v1/admin/approved-files/route.ts` (API nueva)
+  - ✅ `src/app/dashboard/archivos/page.tsx` (Página nueva)
+  - ✅ `src/app/dashboard/archivos/page.module.css` (Estilos nuevos)
+- **Archivos modificados:**
+  - ✅ `src/components/Sidebar.tsx` (agregado ítem "Archivos" para admin + fix useEffect duplicado)
+  - ✅ `src/app/dashboard/archivos/page.tsx` (eliminado Layout duplicado)
+- **Funcionalidad implementada:**
+  1. ✅ API GET `/api/v1/admin/approved-files` - Solo archivos APROBADOS
+  2. ✅ Página `/dashboard/archivos` - Grid responsive de cards
+  3. ✅ Cards simples: nombre, ID GRD, episodios, badge "Aprobado"
+  4. ✅ Botón "Descargar" - Ancho completo, solo archivos aprobados
+  5. ✅ Ítem "Archivos" en Sidebar (solo admin)
+  6. ✅ Sin descripción innecesaria - título limpio
+  7. ✅ Fix: Sidebar useEffect duplicado eliminado
+  8. ✅ Fix: Layout duplicado eliminado (causaba dos navbars)
+- **Criterios de Aceptación:**
+  - ✅ Admin puede ver lista de archivos APROBADOS únicamente
+  - ✅ Filtrado automático: solo estado 'aprobado'
+  - ✅ Cards muestran información clara y completa
+  - ✅ Botón "Descargar" funcional (ancho completo)
+  - ✅ NO hay botón "Ver" (simplificado)
+  - ✅ Responsive: funciona en mobile y desktop
+  - ✅ Estado vacío: "No hay archivos aprobados todavía"
+  - ✅ Error handling: banner rojo si falla carga
+  - ✅ Sin duplicación de navbars
+  - ✅ Sidebar sin bugs de renderizado
+- **Mejora de UX:**
+  - ✅ Vista centralizada solo de archivos aprobados
+  - ✅ Descarga directa sin navegación extra
+  - ✅ Simple y efectivo: THE SIMPLER THE BETTER
+  - ✅ Etiqueta "Episodios" más descriptiva que "Total filas"
+- **Bugs corregidos:**
+  - ✅ Sidebar: useEffect duplicado causaba doble fetch
+  - ✅ Layout: Componente Layout duplicado causaba dos navbars
+  - ✅ API: Cambiado de múltiples estados a solo 'aprobado'
+  - ✅ UI: Eliminado botón "Ver" innecesario
+- **Documentación:**
+  - ⏳ `docs/FASE2_ADMIN_FILES_LIST.md` (pendiente actualizar con fixes)
+- **Relacionado con:** TECH-007 (FASE 1), Admin UX improvements
+- **Subtareas:**
+  - ✅ Crear API GET /api/v1/admin/approved-files
+  - ✅ Filtrar solo estado 'aprobado'
+  - ✅ Crear página /dashboard/archivos con grid de cards
+  - ✅ Agregar ítem "Archivos" al Sidebar (solo admin)
+  - ✅ Eliminar botón "Ver" - solo "Descargar"
+  - ✅ Cambiar "Total filas" → "Episodios"
+  - ✅ Eliminar descripción del título
+  - ✅ Fix: Sidebar useEffect duplicado
+  - ✅ Fix: Layout duplicado (dos navbars)
+  - ✅ Estilos responsive con CSS modules
+  - ✅ Testing manual y corrección de bugs
 
 ---
 

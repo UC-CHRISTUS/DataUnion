@@ -105,7 +105,7 @@ export default function VisualizatorPage() {
   // Estados de carga
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-white-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Cargando editor...</p>
@@ -116,7 +116,7 @@ export default function VisualizatorPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-white-100 flex items-center justify-center p-6">
         <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
           <div className="text-red-600 text-6xl mb-4 text-center">⚠️</div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
@@ -125,9 +125,9 @@ export default function VisualizatorPage() {
           <p className="text-gray-600 mb-6 text-center">{error}</p>
           <button
             onClick={() => router.push('/dashboard')}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded transition"
           >
-            Volver al Dashboard
+            Volver al Inicio
           </button>
         </div>
       </div>
@@ -136,7 +136,7 @@ export default function VisualizatorPage() {
 
   if (!role || !grdId || !estado) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-white-100 flex items-center justify-center">
         <div className="text-gray-600">No se pudieron cargar los datos</div>
       </div>
     );
@@ -144,7 +144,7 @@ export default function VisualizatorPage() {
 
   // Renderizar ExcelEditor con props correctas
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-white-100 p-6">
       <div className="mb-4 bg-white rounded-lg shadow p-4">
         <div className="flex items-center justify-between">
           <div>
