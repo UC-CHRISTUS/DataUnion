@@ -1218,6 +1218,40 @@
   - ⏳ Agregar tests de validación (Sprint 6)
   - ⏳ Documentar campos obligatorios en PLANNING.md (opcional)
 
+### TECH-007: Fix Admin UX - Eliminar Redirección Después de Aprobar ✅
+- **Estado:** ✅ COMPLETADO
+- **Fecha Completado:** 5/nov/2025 (Tarde)
+- **Prioridad:** 🔴 CRÍTICO (BLOQUEABA WORKFLOW ADMIN)
+- **Estimación:** 1-2 horas (completado en < 30 min)
+- **Descripción:** Eliminar redirección al dashboard después de aprobar/rechazar archivo
+- **Contexto:** Admin perdía contexto del archivo aprobado y no podía descargarlo inmediatamente
+- **Archivos modificados:**
+  - ✅ `src/components/ExcelEditor.tsx` (líneas ~407, ~451, ~1120-1180)
+- **Cambios implementados:**
+  1. ✅ Reemplazar `router.push('/dashboard')` con `window.location.reload()`
+  2. ✅ Agregar botón "Aprobado" (bloqueado) cuando estado='aprobado' o 'exportado'
+  3. ✅ Hacer botón "Descargar" condicional (solo visible si aprobado/exportado)
+- **Criterios de Aceptación:**
+  - ✅ Admin NO es redirigido después de aprobar
+  - ✅ Admin NO es redirigido después de rechazar
+  - ✅ Página se recarga automáticamente para actualizar estado
+  - ✅ Botón "Aprobado" aparece bloqueado cuando estado='aprobado'
+  - ✅ Botón "Descargar Excel" solo visible cuando estado='aprobado' o 'exportado'
+  - ✅ Admin puede descargar inmediatamente después de aprobar
+- **Mejora de UX:**
+  - ❌ Antes: Aprobar → Redirect → Dashboard → Buscar archivo → Ver → Descargar (6 pasos)
+  - ✅ Ahora: Aprobar → Reload → [Aprobado ✓] [Descargar 📥] → Click Descargar (2 pasos)
+- **Documentación:**
+  - ✅ `docs/FASE1_ADMIN_UX_FIX.md` creado con testing manual
+- **Relacionado con:** BLOQUE 7 (Admin UX), Plan simplificado de 2 fases
+- **Subtareas:**
+  - ✅ Modificar handleApprove() - eliminar redirect
+  - ✅ Modificar handleReject() - eliminar redirect
+  - ✅ Agregar botón "Aprobado" bloqueado
+  - ✅ Hacer "Descargar" condicional según estado
+  - ⏳ Testing manual (FASE 1) - Ver docs/FASE1_ADMIN_UX_FIX.md
+  - ⏳ FASE 2: Crear página /dashboard/archivos (lista de archivos procesados)
+
 ---
 
 ## 💡 Descubierto Durante el Trabajo

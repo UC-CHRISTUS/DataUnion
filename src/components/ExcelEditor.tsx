@@ -375,6 +375,7 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
   /**
    * Handler para Admin: Aprobar archivo
    * Estado: pendiente_admin → aprobado
+   * Después de aprobar, se queda en la página para poder descargar
    */
   const handleApprove = async () => {
     if (!grdId) {
@@ -400,9 +401,10 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         throw new Error(errorData.error || 'Error al aprobar archivo');
       }
 
-
-      alert('✅ Archivo aprobado exitosamente. Ahora puedes exportarlo.');
-      router.push('/dashboard');
+      alert('✅ Archivo aprobado exitosamente. Ahora puedes descargarlo.');
+      
+      // ✅ FASE 1: No redirigir, solo recargar la página para actualizar estado
+      window.location.reload();
     } catch (e: any) {
       setApproveError(e.message || 'Error al aprobar archivo');
       console.error('Error approving file:', e);
@@ -414,6 +416,7 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
   /**
    * Handler para Admin: Rechazar archivo con razón
    * Estado: pendiente_admin → rechazado
+   * Después de rechazar, se queda en la página
    * 
    * @param reason - Razón del rechazo proporcionada por el admin
    */
@@ -444,7 +447,9 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
 
       setShowRejectModal(false);
       alert('✅ Archivo rechazado. El Encoder ha sido notificado.');
-      router.push('/dashboard');
+      
+      // ✅ FASE 1: No redirigir, solo recargar la página para actualizar estado
+      window.location.reload();
     } catch (e: any) {
       setApproveError(e.message || 'Error al rechazar archivo');
       console.error('Error rejecting file:', e);
@@ -1154,6 +1159,16 @@ const onPaginationChanged = (params: any) => {
               </button>
             )}
 
+            {/* Botón Admin: Estado Aprobado (bloqueado) */}
+            {role === 'admin' && (estado === 'aprobado' || estado === 'exportado') && (
+              <button
+                disabled
+                className="bg-green-400 text-white px-4 py-2 rounded cursor-not-allowed flex items-center gap-2"
+              >
+                ✅ Aprobado
+              </button>
+            )}
+
             {/* Botón Admin: Rechazar */}
             {role === 'admin' && estado === 'pendiente_admin' && (
               <button
@@ -1176,12 +1191,15 @@ const onPaginationChanged = (params: any) => {
               </button>
             )}
 
-            <button
-              onClick={handleDownload}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-            >
-              Descargar Excel
-            </button>
+            {/* Botón Descargar: Solo visible cuando está aprobado o exportado */}
+            {(estado === 'aprobado' || estado === 'exportado') && (
+              <button
+                onClick={handleDownload}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition flex items-center gap-2"
+              >
+                📥 Descargar Excel
+              </button>
+            )}
           </div>
           {saveError && (
             <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300">
