@@ -127,7 +127,7 @@ export default function VisualizatorPage() {
             onClick={() => router.push('/dashboard')}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded transition"
           >
-            Volver al Dashboard
+            Volver al Inicio
           </button>
         </div>
       </div>
