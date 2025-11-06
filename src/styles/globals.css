@@ -9,7 +9,7 @@
 
 /* Variables base */
 :root {
-  --background: #ffffff;
+  --background: white;
   --foreground: #333333;
   --color-primary: #AA7BCA;
   --color-accent: #872899;
@@ -39,4 +39,14 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+.ag-paging-page-size {
+  display: none !important;
+}
+.cell-non-editable {
+  background-color: #ffffff;
+}
+
+.cell-modified {
+  background-color: #ffffff;
 }

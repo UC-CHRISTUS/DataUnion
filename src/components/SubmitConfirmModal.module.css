@@ -1,0 +1,284 @@
+/* SubmitConfirmModal.module.css */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+  padding: 1rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 32rem;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  padding: 2rem 2rem 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.iconWrapper {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconWarning {
+  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.content {
+  padding: 1.5rem 2rem;
+}
+
+.infoBox {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.infoRow:not(:last-child) {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.infoLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.infoValue {
+  font-size: 0.875rem;
+  color: #111827;
+  font-weight: 600;
+}
+
+.question {
+  font-size: 1rem;
+  color: #374151;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+}
+
+.warningBox {
+  background: #fef3c7;
+  border: 2px solid #fbbf24;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.warningTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.warningList {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #78350f;
+}
+
+.warningList li {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.warningList li:last-child {
+  margin-bottom: 0;
+}
+
+.confirmQuestion {
+  font-size: 1rem;
+  color: #374151;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+}
+
+.confirmQuestion strong {
+  color: #111827;
+  font-weight: 700;
+}
+
+.footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.button {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonSecondary {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.buttonSecondary:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.buttonPrimary {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  color: white;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.buttonDanger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.buttonDanger:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+}
+
+.loadingWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinnerCircle {
+  opacity: 0.25;
+}
+
+.spinnerPath {
+  opacity: 0.75;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .modal {
+    max-width: 100%;
+    margin: 1rem;
+  }
+
+  .header,
+  .content,
+  .footer {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .footer {
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
+}
