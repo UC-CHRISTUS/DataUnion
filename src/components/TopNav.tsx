@@ -31,7 +31,7 @@ export default function TopNav({ onToggleSidebar, isSidebarOpen }: TopNavProps) 
       <div className={styles.navRight}>
         <div className={styles.navActions}>
           <div className={styles.userMenu}>
-            <button 
+            {/* <button 
               className={styles.userAvatar}
               onClick={() => setMenuOpen(!menuOpen)}
             >
@@ -47,14 +47,14 @@ export default function TopNav({ onToggleSidebar, isSidebarOpen }: TopNavProps) 
                   d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
                 />
               </svg>
-            </button>
+            </button> */}
 
             {/* ✅ Dropdown Menú */}
-            {menuOpen && (
+            {/* {menuOpen && (
               <div className={styles.dropdownMenu}>
                 <SignOut />
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </div>

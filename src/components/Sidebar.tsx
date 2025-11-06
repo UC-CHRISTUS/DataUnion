@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Sidebar.module.css';
+import { createBrowserClient } from '@supabase/ssr';
+import { useRouter } from 'next/navigation';
+
 
 interface SidebarProps {
   isOpen: boolean;
@@ -11,7 +14,7 @@ interface SidebarProps {
 
 interface User {
   id: number;
-  name: string;
+  fullName: string;
   email: string;
   role: 'admin' | 'encoder' | 'finance';
 }
@@ -20,6 +23,18 @@ export default function Sidebar({ isOpen }: SidebarProps) {
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const supabase = createBrowserClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+const handleSignOut = async () => {
+  await supabase.auth.signOut();
+  router.push('/'); 
+  router.refresh();
+};
+
 
   // Fetch current user session
   useEffect(() => {
@@ -33,6 +48,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
+          console.log('User data:', data.user);
         }
       } catch (error) {
         console.error('Error fetching user:', error);
@@ -52,16 +68,16 @@ export default function Sidebar({ isOpen }: SidebarProps) {
    */
   const getMenuItemsByRole = (role: 'admin' | 'encoder' | 'finance') => {
     const allMenuItems = [
-      // {
-      //   href: '/dashboard',
-      //   icon: (
-      //     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-      //     </svg>
-      //   ),
-      //   label: 'Dashboard',
-      //   roles: ['admin', 'encoder', 'finance'] // All roles
-      // },
+        {
+          href: '/inicio',
+          icon: (
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+         ),
+          label: 'Inicio',
+          roles: ['admin', 'encoder', 'finance'] // All roles
+       },
       {
         href: '/dashboard/users',
         icon: (
@@ -192,23 +208,29 @@ export default function Sidebar({ isOpen }: SidebarProps) {
         </ul>
       </nav>
 
-      <div className={styles.sidebarFooter}>
-        <div className={styles.userProfile}>
-          <div className={styles.userAvatar}>
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <div className={styles.userInfo}>
-            <span className={styles.userName}>{user?.name || 'Usuario'}</span>
-            <span className={styles.userEmail}>
-              {user?.role === 'admin' && '👑 Admin'}
-              {user?.role === 'encoder' && '✏️ Codificador'}
-              {user?.role === 'finance' && '💰 Finanzas'}
-            </span>
-          </div>
-        </div>
-      </div>
+<div className={styles.sidebarFooter}>
+  <div className={styles.userProfile}>
+    <div className={styles.userAvatar}>
+      {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+    </div>
+
+    <div className={styles.userInfo}>
+      <span className={styles.userName}>{user?.fullName || "Usuario"}</span>
+      <span className={styles.userRole}>
+        {user?.role === "admin" && "Administrador"}
+        {user?.role === "encoder" && "Codificador"}
+        {user?.role === "finance" && "Finanzas"}
+      </span>
+    </div>
+  </div>
+
+  <button onClick={handleSignOut} className={styles.logoutButton}>
+    Cerrar sesión
+  </button>
+</div>
+
+
+
     </aside>
   );
 }

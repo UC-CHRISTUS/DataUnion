@@ -322,78 +322,87 @@ const BASE_COLUMN_DEFS = [
   }, [columnDefs, selectedSigesaId]);
 
   return (
-    <div className="p-6 flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold mb-4"></h1>
+  <div className="p-6 flex flex-col gap-4">
 
-      {/* Selector de archivo SIGESA */}
-      {sigesaFiles.length > 0 && (
-        <div className="mb-4 flex items-center gap-3">
-          <div>
-            <label className="block mb-2 font-medium">
-              Selecciona archivo SIGESA:
-            </label>
-            <select
-              className="border rounded px-2 py-1"
-              value={selectedSigesaId || ""}
-              onChange={(e) => setSelectedSigesaId(e.target.value)}
-            >
-              {sigesaFiles.map((file) => (
-                <option key={file.id} value={file.id}>
-                  {file.id} {file.nombre ? `- ${file.nombre}` : ""}
-                </option>
-              ))}
-            </select>
-          </div>
+    {/* Título */}
+    <h1 className="text-3xl font-semibold text-white-800">Archivos SIGESA</h1>
+
+    {/* Selector Archivo */}
+    {sigesaFiles.length > 0 && (
+      <div className="bg-white border rounded-lg p-5 shadow-sm">
+        <label className="block font-medium text-gray-700 mb-2">
+          Selecciona archivo SIGESA:
+        </label>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <select
+            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition w-full sm:w-auto"
+            value={selectedSigesaId || ""}
+            onChange={(e) => setSelectedSigesaId(e.target.value)}
+          >
+            {sigesaFiles.map((file) => (
+              <option key={file.id} value={file.id}>
+                {file.id} {file.nombre ? `- ${file.nombre}` : ""}
+              </option>
+            ))}
+          </select>
 
           <button
-            onClick={() => handleLoadSelectedSigesa()}
+            onClick={handleLoadSelectedSigesa}
             disabled={!selectedSigesaId || loading}
-            className={`${
-              loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
-            } text-white px-4 py-2 rounded transition`}
+            className={`px-5 py-2 rounded-lg text-white font-medium transition 
+            ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-purple-600 hover:bg-purple-700"}`}
           >
             {loading ? "Cargando..." : "Cargar"}
           </button>
         </div>
-      )}
+      </div>
+    )}
 
-      {/* Tabla */}
-      {rowData.length > 0 && (
-        <>
-          <div className="ag-theme-alpine w-full" style={{ height: "520px" }}>
-            <AgGridReact
+    {/* Tabla */}
+    {rowData.length > 0 && (
+      <div className="bg-white border rounded-lg shadow-sm p-4">
+        <div className="ag-theme-alpine w-full" style={{ height: "520px" }}>
+          <AgGridReact
             columnDefs={columnDefs}
             rowModelType="infinite"
             pagination={true}
             paginationPageSize={10}
             localeText={{
-                page: 'Página',
-                more: 'Más',
-                to: 'a',
-                of: 'de',
-                loadingOoo: 'Cargando...',
-                noRowsToShow: 'No hay filas para mostrar',
-                pageSize: 'Tamaño de página',
-                pageSizeSelectorLabel: '',
-                totalRows: 'Total de filas',
+              page: "Página",
+              more: "Más",
+              to: "a",
+              of: "de",
+              loadingOoo: "Cargando...",
+              noRowsToShow: "No hay filas para mostrar",
+              pageSize: "Tamaño de página",
+              pageSizeSelectorLabel: "",
+              totalRows: "Total de filas",
             }}
             datasource={{
-            getRows: async (params: any) => {
-                const page = Math.floor(params.startRow / params.endRow) + 1;
+              getRows: async (params: any) => {
+                const page = Math.floor(params.startRow / (params.endRow - params.startRow)) + 1;
                 const res = await fetch(`/api/v1/sigesa/${selectedSigesaId}/rows?page=${page}&pageSize=${params.endRow - params.startRow}`);
                 const json = await res.json();
                 params.successCallback(json.data, json.total);
-            },
-        }}
-        />
-          </div>
-        </>
-      )}
+              },
+            }}
+          />
+        </div>
+      </div>
+    )}
 
-      {loading && <p className="text-gray-600">Cargando datos SIGESA...</p>}
-      {!loading && rowData.length === 0 && (
-        <p>No hay datos disponibles. Selecciona un archivo SIGESA para cargar.</p>
-      )}
-    </div>
-  );
+    {/* Mensajes */}
+    {loading && (
+      <p className="text-gray-600 text-center">Cargando datos SIGESA...</p>
+    )}
+
+    {!loading && rowData.length === 0 && (
+      <p className="text-center text-gray-600">
+        No hay datos disponibles. Selecciona un archivo SIGESA para cargar.
+      </p>
+    )}
+  </div>
+);
+
 }

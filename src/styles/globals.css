@@ -9,7 +9,7 @@
 
 /* Variables base */
 :root {
-  --background: #ffffff;
+  --background: white;
   --foreground: #333333;
   --color-primary: #AA7BCA;
   --color-accent: #872899;
@@ -44,9 +44,9 @@ a {
   display: none !important;
 }
 .cell-non-editable {
-  background-color: #d7f7d7 !important;
+  background-color: #ffffff;
 }
 
 .cell-modified {
-  background-color: #e8ffe8 !important;
+  background-color: #ffffff;
 }

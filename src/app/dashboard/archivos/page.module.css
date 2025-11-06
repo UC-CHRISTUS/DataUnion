@@ -4,6 +4,14 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+
+  /* 👇 Agregar */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;     /* Centra horizontal */
+  justify-content: center; /* Centra vertical */
+  text-align: center;      /* Centra títulos y textos */
 }
 
 .header {
@@ -105,12 +113,12 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: #10b981;
+  background-color: #6A4DF4;
   color: white;
 }
 
 .btnDownload:hover {
-  background-color: #059669;
+  background-color: #5B21B6;
 }
 
 /* Responsive */

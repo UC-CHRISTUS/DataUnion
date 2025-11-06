@@ -79,102 +79,99 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Edit
   if (!isOpen || !user) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        {/* Form Header */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Editar Usuario</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Modifique los datos del usuario
-          </p>
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    {/* Backdrop */}
+    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fadeIn" onClick={handleClose} />
+
+    {/* Modal Panel */}
+    <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slideUp border border-gray-200">
+
+      {/* Header */}
+      <div className="mb-6 border-b pb-4">
+        <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+          ✏️ Editar Usuario
+        </h2>
+        <p className="text-sm text-gray-500 mt-1">
+          Actualice la información del usuario
+        </p>
+      </div>
+
+      {/* Error */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-lg text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-5">
+
+        {/* Email */}
+        <div>
+          <label className="text-sm font-medium text-gray-700">Correo Electrónico</label>
+          <input
+            type="email"
+            value={user.email}
+            disabled
+            className="mt-1 w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-600 cursor-not-allowed"
+          />
+          <p className="text-xs text-gray-400 mt-1">No se puede modificar</p>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
+        {/* Full Name */}
+        <div>
+          <label className="text-sm font-medium text-gray-700">Nombre Completo</label>
+          <input
+            type="text"
+            value={formData.fullName}
+            onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+            required
+            disabled={isLoading}
+            placeholder="Juan Pérez"
+            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+          />
+        </div>
 
-        {/* Edit User Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email (Read-only) */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Correo Electrónico
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={user.email}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
-              disabled
-              readOnly
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              El correo electrónico no se puede modificar
-            </p>
-          </div>
+        {/* Role */}
+        <div>
+          <label className="text-sm font-medium text-gray-700">Rol</label>
+          <select
+            value={formData.role}
+            onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
+            disabled={isLoading}
+            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white transition"
+          >
+            {getRoleOptions().map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          {/* Full Name */}
-          <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre Completo
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Juan Pérez"
-              required
-              disabled={isLoading}
-            />
-          </div>
+        {/* Buttons */}
+        <div className="flex gap-3 pt-2">
+          <button
+            type="button"
+            onClick={handleClose}
+            disabled={isLoading}
+            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition disabled:opacity-50"
+          >
+            Cancelar
+          </button>
 
-          {/* Role */}
-          <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-              Rol
-            </label>
-            <select
-              id="role"
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-              required
-              disabled={isLoading}
-            >
-              {getRoleOptions().map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex gap-3 mt-6">
-            <button
-              type="button"
-              onClick={handleClose}
-              disabled={isLoading}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
-              {isLoading ? 'Guardando...' : 'Guardar Cambios'}
-            </button>
-          </div>
-        </form>
-      </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:opacity-50 shadow-md"
+          >
+            {isLoading ? 'Guardando...' : 'Guardar Cambios'}
+          </button>
+        </div>
+      </form>
     </div>
-  );
+  </div>
+);
+
 }
 

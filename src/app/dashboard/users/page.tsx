@@ -177,268 +177,164 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
-              <p className="mt-2 text-sm text-gray-600">
-                Administre los usuarios del sistema y sus permisos
-              </p>
-            </div>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-sm"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Crear Usuario
-            </button>
-          </div>
+  <div className="min-h-screen bg-white py-10 px-4 flex justify-center">
+
+
+    <div className="w-full max-w-6xl">
+
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-semibold text-gray-900">Gestión de Usuarios</h1>
+          <p className="text-sm text-gray-600 mt-1">Administre los usuarios y sus permisos</p>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {isLoading && (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
-        )}
-
-        {/* Users Table */}
-        {!isLoading && !error && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Usuario
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Rol
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Estado
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Último Login
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Fecha Creación
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Acciones
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {users.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                        <div className="flex flex-col items-center">
-                          <svg className="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                          </svg>
-                          <p className="text-sm">No hay usuarios registrados</p>
-                          <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium"
-                          >
-                            Crear primer usuario
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    users.map((user) => (
-                      <tr key={user.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                              <span className="text-blue-600 font-medium text-sm">
-                                {user.full_name.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{user.full_name}</div>
-                              <div className="text-sm text-gray-500">{user.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            user.role === 'admin' 
-                              ? 'bg-purple-100 text-purple-800'
-                              : user.role === 'encoder'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-green-100 text-green-800'
-                          }`}>
-                            {ROLE_LABELS[user.role]}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex flex-col gap-1">
-                            <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
-                              user.is_active 
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}>
-                              {user.is_active ? '✓ Activo' : '✗ Inactivo'}
-                            </span>
-                            {user.must_change_password && (
-                              <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">
-                                🔒 Contraseña temporal
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(user.last_login)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(user.created_at)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button
-                            onClick={() => handleEdit(user)}
-                            className="text-blue-600 hover:text-blue-900 mr-3 transition-colors"
-                            title="Editar usuario"
-                          >
-                            <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleToggleStatusClick(user)}
-                            className={`mr-3 transition-colors ${
-                              user.is_active 
-                                ? 'text-orange-600 hover:text-orange-900' 
-                                : 'text-green-600 hover:text-green-900'
-                            }`}
-                            title={user.is_active ? 'Desactivar usuario' : 'Activar usuario'}
-                          >
-                            {user.is_active ? (
-                              <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                              </svg>
-                            ) : (
-                              <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteClick(user)}
-                            className="text-red-600 hover:text-red-900 transition-colors"
-                            title="Eliminar usuario"
-                          >
-                            <svg className="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Stats */}
-        {!isLoading && !error && users.length > 0 && (
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-sm text-gray-600">Total Usuarios</p>
-              <p className="text-2xl font-bold text-gray-900">{users.length}</p>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-sm text-gray-600">Administradores</p>
-              <p className="text-2xl font-bold text-purple-600">
-                {users.filter(u => u.role === 'admin').length}
-              </p>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-sm text-gray-600">Codificadores</p>
-              <p className="text-2xl font-bold text-blue-600">
-                {users.filter(u => u.role === 'encoder').length}
-              </p>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-              <p className="text-sm text-gray-600">Finanzas</p>
-              <p className="text-2xl font-bold text-green-600">
-                {users.filter(u => u.role === 'finance').length}
-              </p>
-            </div>
-          </div>
-        )}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="mt-4 md:mt-0 inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-sm transition-all"
+        >
+          <svg className="w-5 h-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Crear Usuario
+        </button>
       </div>
 
-      {/* Create User Modal */}
-      <CreateUserModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={handleModalSuccess}
-      />
+      {/* Error */}
+      {error && (
+        <div className="mb-6 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
+          {error}
+        </div>
+      )}
 
-      {/* Edit User Modal */}
-      <EditUserModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setEditingUser(null);
-        }}
-        onSuccess={handleEditSuccess}
-        user={editingUser}
-      />
+      {/* Loading */}
+      {isLoading && (
+        <div className="flex justify-center py-16">
+          <div className="animate-spin h-12 w-12 border-4 border-purple-300 border-t-transparent rounded-full"></div>
+        </div>
+      )}
 
-      {/* Confirm Toggle Status Modal */}
-      <ConfirmModal
-        isOpen={isConfirmModalOpen}
-        onClose={() => {
-          setIsConfirmModalOpen(false);
-          setUserToToggle(null);
-        }}
-        onConfirm={handleToggleStatusConfirm}
-        title={userToToggle?.currentStatus ? 'Desactivar Usuario' : 'Activar Usuario'}
-        message={
-          userToToggle?.currentStatus
-            ? `¿Está seguro de desactivar a ${userToToggle.name}? El usuario no podrá iniciar sesión.`
-            : `¿Está seguro de activar a ${userToToggle?.name}?`
-        }
-        confirmText={userToToggle?.currentStatus ? 'Desactivar' : 'Activar'}
-        cancelText="Cancelar"
-        isDestructive={userToToggle?.currentStatus}
-        isLoading={isTogglingStatus}
-      />
+      {/* Tabla */}
+      {!isLoading && !error && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
+              <thead className="bg-gray-50 text-gray-600 uppercase font-semibold text-xs">
+                <tr>
+                  <th className="px-6 py-3 text-left">Usuario</th>
+                  <th className="px-6 py-3 text-left">Rol</th>
+                  <th className="px-6 py-3 text-left">Estado</th>
+                  <th className="px-6 py-3 text-left">Último Login</th>
+                  <th className="px-6 py-3 text-left">Creado</th>
+                  <th className="px-6 py-3 text-right">Acciones</th>
+                </tr>
+              </thead>
 
-      {/* Confirm Delete Modal */}
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setUserToDelete(null);
-        }}
-        onConfirm={handleDeleteConfirm}
-        title="Eliminar Usuario"
-        message={`¿Está seguro de eliminar permanentemente a ${userToDelete?.name}? Esta acción no se puede deshacer y eliminará todos los datos asociados al usuario.`}
-        confirmText="Eliminar Permanentemente"
-        cancelText="Cancelar"
-        isDestructive={true}
-        isLoading={isDeletingUser}
-      />
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {users.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-16 text-center text-gray-500">
+                      <p className="mb-3 text-sm">No hay usuarios aún</p>
+                      <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="text-purple-600 hover:text-purple-700 font-medium text-sm"
+                      >
+                        Crear el primero →
+                      </button>
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                          <span className="text-purple-700 font-bold">
+                            {user.full_name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">{user.full_name}</p>
+                          <p className="text-gray-500 text-xs">{user.email}</p>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          user.role === 'admin'
+                            ? 'bg-purple-100 text-purple-700'
+                            : user.role === 'encoder'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-green-100 text-green-700'
+                        }`}>
+                          {ROLE_LABELS[user.role]}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4 space-y-1">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium inline-flex ${
+                          user.is_active
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-gray-200 text-gray-700'
+                        }`}>
+                          {user.is_active ? 'Activo' : 'Inactivo'}
+                        </span>
+                        {user.must_change_password && (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium inline-flex bg-amber-100 text-amber-700">
+                            🔒 Contraseña temporal
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="px-6 py-4 text-gray-600">{formatDate(user.last_login)}</td>
+                      <td className="px-6 py-4 text-gray-600">{formatDate(user.created_at)}</td>
+
+                      <td className="px-6 py-4 text-right flex gap-3 justify-end">
+                        <button onClick={() => handleEdit(user)} className="text-purple-600 hover:text-purple-800">
+                          ✏️
+                        </button>
+
+                        <button onClick={() => handleToggleStatusClick(user)} className="hover:opacity-75">
+                          {user.is_active ? '🚫' : '✅'}
+                        </button>
+
+                        <button onClick={() => handleDeleteClick(user)} className="text-red-600 hover:text-red-800">
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Stats */}
+      {!isLoading && !error && users.length > 0 && (
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            ["Total Usuarios", users.length, "text-gray-900"],
+            ["Administradores", users.filter(u => u.role === 'admin').length, "text-purple-600"],
+            ["Codificadores", users.filter(u => u.role === 'encoder').length, "text-blue-600"],
+            ["Finanzas", users.filter(u => u.role === 'finance').length, "text-green-600"],
+          ].map(([label, value, color], i) => (
+            <div key={i} className="bg-white p-5 rounded-xl border shadow-sm">
+              <p className="text-sm text-gray-600">{label}</p>
+              <p className={`text-3xl font-bold ${color}`}>{value}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
-  );
+
+    {/* Modales */}
+    <CreateUserModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={handleModalSuccess} />
+    <EditUserModal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); setEditingUser(null); }} onSuccess={handleEditSuccess} user={editingUser} />
+    <ConfirmModal isOpen={isConfirmModalOpen} onClose={() => { setIsConfirmModalOpen(false); setUserToToggle(null); }} onConfirm={handleToggleStatusConfirm} title={userToToggle?.currentStatus ? 'Desactivar Usuario' : 'Activar Usuario'} message={userToToggle?.currentStatus ? `¿Está seguro de desactivar a ${userToToggle.name}?` : `¿Está seguro de activar a ${userToToggle?.name}?`} confirmText={userToToggle?.currentStatus ? 'Desactivar' : 'Activar'} cancelText="Cancelar" isDestructive={userToToggle?.currentStatus} isLoading={isTogglingStatus} />
+    <ConfirmModal isOpen={isDeleteModalOpen} onClose={() => { setIsDeleteModalOpen(false); setUserToDelete(null); }} onConfirm={handleDeleteConfirm} title="Eliminar Usuario" message={`¿Eliminar permanentemente a ${userToDelete?.name}?`} confirmText="Eliminar Permanentemente" cancelText="Cancelar" isDestructive isLoading={isDeletingUser} />
+  </div>
+);
+
 }
 
