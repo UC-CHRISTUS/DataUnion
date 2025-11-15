@@ -73,7 +73,18 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(dashboardUrl);
     }
   }
+  if (isAuthenticated && pathname.startsWith('/upload')) {
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('auth_id', user.id)
+      .single();
 
+    if (userData?.role !== 'encoder') {
+      const dashboardUrl = new URL('/dashboard', req.url);
+      return NextResponse.redirect(dashboardUrl);
+    }
+  }
   return res;
 }
 

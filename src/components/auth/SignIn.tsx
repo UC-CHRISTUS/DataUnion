@@ -29,69 +29,60 @@ export default function SignIn({ onSignUp }: SignInProps) {
   }, [searchParams]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  e.preventDefault();
+  setError('');
+  setIsLoading(true);
 
-    try {
-      // Sign in with Supabase
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+  try {
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      if (authError) {
-        throw new Error(authError.message || 'Credenciales inválidas');
-      }
+    if (authError) throw new Error(authError.message || 'Credenciales inválidas');
+    if (!authData.user) throw new Error('Usuario no encontrado');
 
-      if (!authData.user) {
-        throw new Error('Usuario no encontrado');
-      }
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('auth_id', authData.user.id)
+      .single();
 
-      // Get user data from public.users
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('auth_id', authData.user.id)
-        .single();
+    if (userError || !userData) throw new Error('Error al cargar datos del usuario');
 
-      if (userError || !userData) {
-        throw new Error('Error al cargar datos del usuario');
-      }
+    if (!userData.is_active) {
+      await supabase.auth.signOut();
+      throw new Error('Usuario inactivo. Contacta al administrador.');
+    }
 
-      // Check if user is active
-      if (!userData.is_active) {
-        await supabase.auth.signOut();
-        throw new Error('Usuario inactivo. Contacta al administrador.');
-      }
+    await supabase
+      .from('users')
+      .update({ last_login: new Date().toISOString() })
+      .eq('id', userData.id);
 
-      // Update last_login
-      await supabase
-        .from('users')
-        .update({ last_login: new Date().toISOString() })
-        .eq('id', userData.id);
+    // ✅ IMPORTANTE: NO hacemos setIsLoading(false) aquí.
+    // Dejamos el botón bloqueado hasta terminar la navegación.
 
-      // Check if user must change password
-      if (userData.must_change_password) {
-        router.push('/change-password');
-      } else {
-        // Redirect to dashboard on success
-        router.push('/dashboard/users');
-      }
-      router.refresh();
-    } catch (err) {
-  const rawMessage = err instanceof Error ? err.message : 'Error al iniciar sesión';
+    if (userData.must_change_password) {
+      router.replace('/change-password');
+    } else {
+      router.replace('/dashboard/users');
+    }
 
-  if (/invalid login credentials/i.test(rawMessage)) {
-    setError('Credenciales no válidas. Revisa tu correo y contraseña.');
-  } else {
-    setError(rawMessage);
+  } catch (err) {
+    const rawMessage = err instanceof Error ? err.message : 'Error al iniciar sesión';
+
+    if (/invalid login credentials/i.test(rawMessage)) {
+      setError('Credenciales no válidas. Revisa tu correo y contraseña.');
+    } else {
+      setError(rawMessage);
+    }
+
+    // ✅ SI hubo error → ahora sí reactivamos el botón:
+    setIsLoading(false);
   }
-} finally {
-  setIsLoading(false);
-}
+};
 
-  };
 
 return (
   <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-white">
