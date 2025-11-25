@@ -135,8 +135,12 @@ export class MockSupabaseQueryBuilder<T = any> {
         const recordValue = record[column];
         switch (operator) {
           case 'eq':
+            // Use loose equality for .eq() to match database behavior (handles type coercion)
+            // eslint-disable-next-line eqeqeq
             return recordValue == value;
           case 'neq':
+            // Use loose inequality for .neq() to match database behavior
+            // eslint-disable-next-line eqeqeq
             return recordValue != value;
           case 'gt':
             return recordValue > value;

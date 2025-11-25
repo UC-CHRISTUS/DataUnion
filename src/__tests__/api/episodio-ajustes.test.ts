@@ -79,7 +79,7 @@ describe('POST /api/v1/grd/rows/[episodio]/ajustes', () => {
       const ajustes = [{ id_AT: 1 }, { id_AT: 2 }, { id_AT: 3 }];
       const initialCount = mockSupabaseInstance.getMockData('episodio_AT').length;
 
-      // Act
+      // Act & Assert
       for (const ajuste of ajustes) {
         const request = createMockNextRequest({
           method: 'POST',
@@ -91,17 +91,14 @@ describe('POST /api/v1/grd/rows/[episodio]/ajustes', () => {
         const response = await POST(request, { params });
         const data = await getResponseJson(response);
 
-        // Assert
         expect(response.status).toBe(201);
         expect(data.n_episodio).toBe(1002);
         expect(data.id_AT).toBe(ajuste.id_AT);
       }
 
-      // Verify all 3 ajustes were actually stored in the mock database
       const finalCount = mockSupabaseInstance.getMockData('episodio_AT').length;
       expect(finalCount).toBe(initialCount + 3);
 
-      // Verify the stored data contains our inserted records
       const storedData = mockSupabaseInstance.getMockData('episodio_AT');
       const addedRecords = storedData.filter(record => record.n_episodio === 1002);
       expect(addedRecords.length).toBeGreaterThanOrEqual(3);
@@ -283,11 +280,9 @@ describe('DELETE /api/v1/grd/rows/[episodio]/ajustes/[ajusteId]', () => {
       // Assert
       expect(response.status).toBe(200);
 
-      // Verify the ajuste was actually removed from the mock database
       const finalCount = mockSupabaseInstance.getMockData('episodio_AT').length;
       expect(finalCount).toBe(initialCount - 1);
 
-      // Verify the specific record no longer exists
       const storedData = mockSupabaseInstance.getMockData('episodio_AT');
       const deletedRecord = storedData.find(record => record.id === 1);
       expect(deletedRecord).toBeUndefined();
@@ -379,8 +374,8 @@ describe('DELETE /api/v1/grd/rows/[episodio]/ajustes/[ajusteId]', () => {
 
     it('should return 404 when episodio does not match', async () => {
       // Arrange
-      const episodio = '9999'; // Different episode
-      const ajusteId = '1'; // Valid ajuste ID but for different episode
+      const episodio = '9999';
+      const ajusteId = '1';
 
       const request = createMockNextRequest({
         method: 'DELETE',

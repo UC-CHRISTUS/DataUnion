@@ -74,6 +74,7 @@ describe('POST /api/auth/signin', () => {
 
   describe('Success Cases', () => {
     it('should authenticate user with valid credentials', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/signin',
@@ -83,9 +84,11 @@ describe('POST /api/auth/signin', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.user).toEqual({
@@ -102,6 +105,7 @@ describe('POST /api/auth/signin', () => {
     });
 
     it('should return mustChangePassword flag when set', async () => {
+      // Arrange
       const newUserData = {
         id: 3,
         auth_id: 'auth-789',
@@ -136,14 +140,17 @@ describe('POST /api/auth/signin', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(200);
       expect(data.mustChangePassword).toBe(true);
     });
 
     it('should update last_login timestamp on successful login', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/signin',
@@ -153,8 +160,10 @@ describe('POST /api/auth/signin', () => {
         },
       });
 
+      // Act
       await POST(request);
 
+      // Assert
       const updatedUser = mockSupabaseInstance
         .getMockData('users')
         .find((u: any) => u.email === 'user@test.com');
@@ -165,6 +174,7 @@ describe('POST /api/auth/signin', () => {
 
   describe('Validation Cases', () => {
     it('should reject request without email', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/signin',
@@ -173,14 +183,17 @@ describe('POST /api/auth/signin', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(400);
       expect(data.error).toBe('Email y contraseña son requeridos');
     });
 
     it('should reject request without password', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/signin',
@@ -189,14 +202,17 @@ describe('POST /api/auth/signin', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(400);
       expect(data.error).toBe('Email y contraseña son requeridos');
     });
 
     it('should reject invalid credentials', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/signin',
@@ -206,9 +222,11 @@ describe('POST /api/auth/signin', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(401);
       expect(data.error).toBe('Credenciales inválidas');
     });
@@ -216,6 +234,7 @@ describe('POST /api/auth/signin', () => {
 
   describe('Authorization Cases', () => {
     it('should reject inactive user login', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/signin',
@@ -225,9 +244,11 @@ describe('POST /api/auth/signin', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(403);
       expect(data.error).toBe('Usuario inactivo. Contacta al administrador.');
     });
@@ -235,6 +256,7 @@ describe('POST /api/auth/signin', () => {
 
   describe('Error Cases', () => {
     it('should handle user not found in public.users table', async () => {
+      // Arrange
       mockAuthClient.auth.signInWithPassword = jest.fn(async () => ({
         data: {
           user: { id: 'nonexistent-auth-id', email: 'ghost@test.com' },
@@ -252,23 +274,28 @@ describe('POST /api/auth/signin', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(500);
       expect(data.error).toBe('Error al cargar datos del usuario');
     });
 
     it('should handle malformed JSON body', async () => {
+      // Arrange
       const request = new Request('http://localhost:3000/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: '{invalid-json',
       }) as any;
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(500);
       expect(data.error).toBe('Error interno del servidor');
     });

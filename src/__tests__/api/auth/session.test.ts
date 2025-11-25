@@ -24,6 +24,7 @@ describe('GET /api/auth/session', () => {
 
   describe('Success Cases', () => {
     it('should return user session details for authenticated user', async () => {
+      // Arrange
       const mockUser: authMock.MockAuthUser = {
         id: 1,
         auth_id: 'auth-123',
@@ -43,9 +44,11 @@ describe('GET /api/auth/session', () => {
         url: 'http://localhost:3000/api/auth/session',
       });
 
+      // Act
       const response = await GET(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.user).toEqual({
@@ -61,6 +64,7 @@ describe('GET /api/auth/session', () => {
     });
 
     it('should return admin user session', async () => {
+      // Arrange
       const mockAdmin: authMock.MockAuthUser = {
         id: 2,
         auth_id: 'auth-456',
@@ -80,14 +84,17 @@ describe('GET /api/auth/session', () => {
         url: 'http://localhost:3000/api/auth/session',
       });
 
+      // Act
       const response = await GET(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(200);
       expect(data.user.role).toBe('admin');
     });
 
     it('should return finance user session', async () => {
+      // Arrange
       const mockFinance: authMock.MockAuthUser = {
         id: 3,
         auth_id: 'auth-789',
@@ -107,9 +114,11 @@ describe('GET /api/auth/session', () => {
         url: 'http://localhost:3000/api/auth/session',
       });
 
+      // Act
       const response = await GET(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(200);
       expect(data.user.role).toBe('finance');
     });
@@ -117,6 +126,7 @@ describe('GET /api/auth/session', () => {
 
   describe('Authorization Cases', () => {
     it('should return 401 when no session exists', async () => {
+      // Arrange
       authMock.setMockCurrentUser(null);
 
       const request = createMockNextRequest({
@@ -124,14 +134,17 @@ describe('GET /api/auth/session', () => {
         url: 'http://localhost:3000/api/auth/session',
       });
 
+      // Act
       const response = await GET(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(401);
       expect(data.error).toBe('No hay sesión activa');
     });
 
     it('should return 403 for inactive user', async () => {
+      // Arrange
       const inactiveUser: authMock.MockAuthUser = {
         id: 4,
         auth_id: 'auth-999',
@@ -151,9 +164,11 @@ describe('GET /api/auth/session', () => {
         url: 'http://localhost:3000/api/auth/session',
       });
 
+      // Act
       const response = await GET(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(403);
       expect(data.error).toBe('Usuario inactivo');
     });
@@ -161,6 +176,7 @@ describe('GET /api/auth/session', () => {
 
   describe('Error Cases', () => {
     it('should handle unexpected errors gracefully', async () => {
+      // Arrange
       (authHelpers.getCurrentUser as jest.Mock).mockImplementationOnce(async () => {
         throw new Error('Database connection failed');
       });
@@ -170,9 +186,11 @@ describe('GET /api/auth/session', () => {
         url: 'http://localhost:3000/api/auth/session',
       });
 
+      // Act
       const response = await GET(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(500);
       expect(data.error).toBe('Error interno del servidor');
     });

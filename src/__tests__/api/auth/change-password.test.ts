@@ -79,6 +79,7 @@ describe('POST /api/auth/change-password', () => {
 
   describe('Success Cases', () => {
     it('should successfully change password with valid input', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/change-password',
@@ -87,9 +88,11 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.message).toBe('Contraseña actualizada exitosamente');
@@ -99,6 +102,7 @@ describe('POST /api/auth/change-password', () => {
     });
 
     it('should update must_change_password flag to false', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/change-password',
@@ -107,8 +111,10 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       await POST(request);
 
+      // Assert
       const user = mockSupabaseInstance
         .getMockData('users')
         .find((u: any) => u.email === 'user@test.com');
@@ -116,29 +122,30 @@ describe('POST /api/auth/change-password', () => {
       expect(user.must_change_password).toBe(false);
     });
 
-    it('should accept password with all required characters', async () => {
-      const validPasswords = [
-        'Abcdef12!',
-        'Test123@Password',
-        'Secure#Pass1',
-        'MyP@ssw0rd',
-      ];
+    it.each([
+      'Abcdef12!',
+      'Test123@Password',
+      'Secure#Pass1',
+      'MyP@ssw0rd',
+    ])('should accept password with all required characters: %s', async (password) => {
+      // Arrange
+      const request = createMockNextRequest({
+        method: 'POST',
+        url: 'http://localhost:3000/api/auth/change-password',
+        body: { newPassword: password },
+      });
 
-      for (const password of validPasswords) {
-        const request = createMockNextRequest({
-          method: 'POST',
-          url: 'http://localhost:3000/api/auth/change-password',
-          body: { newPassword: password },
-        });
-
-        const response = await POST(request);
-        expect(response.status).toBe(200);
-      }
+      // Act
+      const response = await POST(request);
+      
+      // Assert
+      expect(response.status).toBe(200);
     });
   });
 
   describe('Validation Cases', () => {
     it('should reject password shorter than 8 characters', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/change-password',
@@ -147,14 +154,17 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(400);
       expect(data.error).toBe('La contraseña debe tener al menos 8 caracteres');
     });
 
     it('should reject password without uppercase letter', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/change-password',
@@ -163,14 +173,17 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(400);
       expect(data.error).toContain('mayúscula');
     });
 
     it('should reject password without lowercase letter', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/change-password',
@@ -179,14 +192,17 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(400);
       expect(data.error).toContain('minúscula');
     });
 
     it('should reject password without number', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/change-password',
@@ -195,14 +211,17 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(400);
       expect(data.error).toContain('número');
     });
 
     it('should reject password without special character', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/change-password',
@@ -211,14 +230,17 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(400);
       expect(data.error).toContain('carácter especial');
     });
 
     it('should reject empty password', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/change-password',
@@ -227,29 +249,34 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(400);
       expect(data.error).toBe('La contraseña debe tener al menos 8 caracteres');
     });
 
     it('should reject missing newPassword field', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/change-password',
         body: {},
       });
 
+      // Act
       const response = await POST(request);
-      const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(400);
     });
   });
 
   describe('Authorization Cases', () => {
     it('should reject unauthenticated request', async () => {
+      // Arrange
       mockAuthClient.auth.getUser = jest.fn(async () => ({
         data: { user: null },
         error: { message: 'Not authenticated' },
@@ -263,14 +290,17 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(401);
       expect(data.error).toBe('No autenticado. Por favor inicie sesión.');
     });
 
     it('should reject if user not found in public.users', async () => {
+      // Arrange
       mockSupabaseInstance.setMockData('users', []);
 
       const request = createMockNextRequest({
@@ -281,9 +311,11 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(404);
       expect(data.error).toBe('Usuario no encontrado');
     });
@@ -291,6 +323,7 @@ describe('POST /api/auth/change-password', () => {
 
   describe('Error Cases', () => {
     it('should handle Supabase auth update error', async () => {
+      // Arrange
       mockSupabaseAdmin.auth.admin.updateUserById = jest.fn(async () => ({
         data: null,
         error: { message: 'Failed to update password' },
@@ -304,14 +337,17 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(400);
       expect(data.error).toContain('Failed to update password');
     });
 
     it('should handle unexpected errors gracefully', async () => {
+      // Arrange
       mockAuthClient.auth.getUser = jest.fn(async () => {
         throw new Error('Unexpected error');
       });
@@ -324,14 +360,17 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(500);
       expect(data.error).toBe('Error interno del servidor');
     });
 
     it('should continue if must_change_password flag update fails', async () => {
+      // Arrange
       const originalFrom = mockSupabaseAdmin.from;
       mockSupabaseAdmin.from = jest.fn(() => ({
         update: jest.fn(() => ({
@@ -350,9 +389,11 @@ describe('POST /api/auth/change-password', () => {
         },
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
 

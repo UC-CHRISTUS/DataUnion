@@ -97,14 +97,17 @@ describe('/api/admin/users', () => {
   describe('GET /api/admin/users', () => {
     describe('Success Cases', () => {
       it('should return all users for admin', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'GET',
           url: 'http://localhost:3000/api/admin/users',
         });
 
+        // Act
         const response = await GET(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(200);
         expect(data.success).toBe(true);
         expect(data.users).toHaveLength(2);
@@ -112,6 +115,7 @@ describe('/api/admin/users', () => {
       });
 
       it('should return empty array when no users exist', async () => {
+        // Arrange
         mockSupabaseInstance.setMockData('users', []);
 
         const request = createMockNextRequest({
@@ -119,9 +123,11 @@ describe('/api/admin/users', () => {
           url: 'http://localhost:3000/api/admin/users',
         });
 
+        // Act
         const response = await GET(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(200);
         expect(data.users).toEqual([]);
       });
@@ -129,6 +135,7 @@ describe('/api/admin/users', () => {
 
     describe('Authorization Cases', () => {
       it('should reject non-admin user', async () => {
+        // Arrange
         (authHelpers.requireAdmin as jest.Mock).mockRejectedValueOnce(
           new Error('Unauthorized: Admin access required')
         );
@@ -138,14 +145,17 @@ describe('/api/admin/users', () => {
           url: 'http://localhost:3000/api/admin/users',
         });
 
+        // Act
         const response = await GET(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(403);
         expect(data.error).toContain('administrador');
       });
 
       it('should reject unauthenticated request', async () => {
+        // Arrange
         (authHelpers.requireAdmin as jest.Mock).mockRejectedValueOnce(
           new Error('Unauthorized: Authentication required')
         );
@@ -155,9 +165,11 @@ describe('/api/admin/users', () => {
           url: 'http://localhost:3000/api/admin/users',
         });
 
+        // Act
         const response = await GET(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(403);
       });
     });
@@ -166,6 +178,7 @@ describe('/api/admin/users', () => {
   describe('POST /api/admin/users', () => {
     describe('Success Cases', () => {
       it('should create new user with valid data', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'POST',
           url: 'http://localhost:3000/api/admin/users',
@@ -176,9 +189,11 @@ describe('/api/admin/users', () => {
           },
         });
 
+        // Act
         const response = await POST(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(201);
         expect(data.success).toBe(true);
         expect(data.user.email).toBe('newuser@test.com');
@@ -187,6 +202,7 @@ describe('/api/admin/users', () => {
       });
 
       it('should create admin user', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'POST',
           url: 'http://localhost:3000/api/admin/users',
@@ -197,14 +213,17 @@ describe('/api/admin/users', () => {
           },
         });
 
+        // Act
         const response = await POST(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(201);
         expect(data.user.role).toBe('admin');
       });
 
       it('should create finance user', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'POST',
           url: 'http://localhost:3000/api/admin/users',
@@ -215,14 +234,17 @@ describe('/api/admin/users', () => {
           },
         });
 
+        // Act
         const response = await POST(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(201);
         expect(data.user.role).toBe('finance');
       });
 
       it('should generate secure password with all required characters', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'POST',
           url: 'http://localhost:3000/api/admin/users',
@@ -233,9 +255,11 @@ describe('/api/admin/users', () => {
           },
         });
 
+        // Act
         const response = await POST(request);
         const data = await getResponseJson(response);
 
+        // Assert
         const password = data.temporaryPassword;
         expect(/[A-Z]/.test(password)).toBe(true);
         expect(/[a-z]/.test(password)).toBe(true);
@@ -246,6 +270,7 @@ describe('/api/admin/users', () => {
 
     describe('Validation Cases', () => {
       it('should reject missing email', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'POST',
           url: 'http://localhost:3000/api/admin/users',
@@ -255,14 +280,17 @@ describe('/api/admin/users', () => {
           },
         });
 
+        // Act
         const response = await POST(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(400);
         expect(data.error).toContain('requeridos');
       });
 
       it('should reject invalid email format', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'POST',
           url: 'http://localhost:3000/api/admin/users',
@@ -273,14 +301,17 @@ describe('/api/admin/users', () => {
           },
         });
 
+        // Act
         const response = await POST(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(400);
         expect(data.error).toContain('email inválido');
       });
 
       it('should reject invalid role', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'POST',
           url: 'http://localhost:3000/api/admin/users',
@@ -291,14 +322,17 @@ describe('/api/admin/users', () => {
           },
         });
 
+        // Act
         const response = await POST(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(400);
         expect(data.error).toContain('Rol inválido');
       });
 
       it('should reject existing email', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'POST',
           url: 'http://localhost:3000/api/admin/users',
@@ -309,9 +343,11 @@ describe('/api/admin/users', () => {
           },
         });
 
+        // Act
         const response = await POST(request);
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(409);
         expect(data.error).toContain('ya está registrado');
       });
@@ -319,6 +355,7 @@ describe('/api/admin/users', () => {
 
     describe('Authorization Cases', () => {
       it('should reject non-admin user', async () => {
+        // Arrange
         (authHelpers.requireAdmin as jest.Mock).mockRejectedValueOnce(
           new Error('Unauthorized: Admin access required')
         );
@@ -333,9 +370,10 @@ describe('/api/admin/users', () => {
           },
         });
 
+        // Act
         const response = await POST(request);
-        const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(403);
       });
     });

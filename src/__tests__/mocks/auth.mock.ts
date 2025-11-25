@@ -3,6 +3,19 @@
  *
  * This provides mock implementations for auth-related functions
  * used across the API routes.
+ *
+ * ## Important: Test Isolation
+ *
+ * This module uses module-level mutable state for `mockCurrentUser` and `mockAuthSession`.
+ * To prevent test pollution, **you MUST call `clearMockAuth()` in your test setup**:
+ *
+ * ```typescript
+ * beforeEach(() => {
+ *   clearMockAuth();
+ * });
+ * ```
+ *
+ * This ensures each test starts with a clean authentication state.
  */
 
 export interface MockAuthUser {
@@ -18,6 +31,11 @@ export interface MockAuthUser {
   updated_at: string;
 }
 
+/**
+ * Module-level state for mock authentication.
+ * These are intentionally mutable to simulate stateful authentication behavior.
+ * Call clearMockAuth() to reset between tests.
+ */
 let mockCurrentUser: MockAuthUser | null = null;
 let mockAuthSession: { user: { id: string; email: string } | null } | null = null;
 
@@ -43,6 +61,20 @@ export function getMockAuthSession() {
   return mockAuthSession;
 }
 
+/**
+ * Clears all mock authentication state.
+ *
+ * **MUST be called in beforeEach() hooks** to prevent test pollution:
+ *
+ * ```typescript
+ * beforeEach(() => {
+ *   clearMockAuth();
+ * });
+ * ```
+ *
+ * This resets both `mockCurrentUser` and `mockAuthSession` to null,
+ * ensuring each test starts with clean authentication state.
+ */
 export function clearMockAuth() {
   mockCurrentUser = null;
   mockAuthSession = null;

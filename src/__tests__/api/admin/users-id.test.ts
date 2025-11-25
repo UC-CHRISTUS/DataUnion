@@ -90,6 +90,7 @@ describe('/api/admin/users/[id]', () => {
   describe('PUT /api/admin/users/[id]', () => {
     describe('Success Cases', () => {
       it('should update user with valid data', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'PUT',
           url: 'http://localhost:3000/api/admin/users/2',
@@ -100,9 +101,11 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '2' });
 
+        // Act
         const response = await PUT(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(200);
         expect(data.success).toBe(true);
         expect(data.user.full_name).toBe('Updated Name');
@@ -110,6 +113,7 @@ describe('/api/admin/users/[id]', () => {
       });
 
       it('should update user role from encoder to admin', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'PUT',
           url: 'http://localhost:3000/api/admin/users/2',
@@ -120,9 +124,11 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '2' });
 
+        // Act
         const response = await PUT(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(200);
         expect(data.user.role).toBe('admin');
       });
@@ -130,6 +136,7 @@ describe('/api/admin/users/[id]', () => {
 
     describe('Validation Cases', () => {
       it('should reject invalid role', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'PUT',
           url: 'http://localhost:3000/api/admin/users/2',
@@ -140,14 +147,17 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '2' });
 
+        // Act
         const response = await PUT(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(400);
         expect(data.error).toContain('Rol inválido');
       });
 
       it('should reject missing fullName', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'PUT',
           url: 'http://localhost:3000/api/admin/users/2',
@@ -157,14 +167,17 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '2' });
 
+        // Act
         const response = await PUT(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(400);
         expect(data.error).toContain('requeridos');
       });
 
       it('should reject nonexistent user', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'PUT',
           url: 'http://localhost:3000/api/admin/users/999',
@@ -175,9 +188,11 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '999' });
 
+        // Act
         const response = await PUT(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(404);
         expect(data.error).toContain('no encontrado');
       });
@@ -187,6 +202,7 @@ describe('/api/admin/users/[id]', () => {
   describe('PATCH /api/admin/users/[id]', () => {
     describe('Success Cases', () => {
       it('should activate inactive user', async () => {
+        // Arrange
         mockSupabaseInstance.getMockData('users')[1].is_active = false;
 
         const request = createMockNextRequest({
@@ -196,9 +212,11 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '2' });
 
+        // Act
         const response = await PATCH(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(200);
         expect(data.success).toBe(true);
         expect(data.message).toContain('activado');
@@ -206,6 +224,7 @@ describe('/api/admin/users/[id]', () => {
       });
 
       it('should deactivate active non-admin user', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'PATCH',
           url: 'http://localhost:3000/api/admin/users/2',
@@ -213,15 +232,18 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '2' });
 
+        // Act
         const response = await PATCH(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(200);
         expect(data.message).toContain('desactivado');
         expect(data.user.is_active).toBe(false);
       });
 
       it('should deactivate admin when multiple admins exist', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'PATCH',
           url: 'http://localhost:3000/api/admin/users/1',
@@ -229,9 +251,11 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '1' });
 
+        // Act
         const response = await PATCH(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(200);
         expect(data.user.is_active).toBe(false);
       });
@@ -239,6 +263,7 @@ describe('/api/admin/users/[id]', () => {
 
     describe('Validation Cases', () => {
       it('should reject invalid is_active type', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'PATCH',
           url: 'http://localhost:3000/api/admin/users/2',
@@ -246,14 +271,17 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '2' });
 
+        // Act
         const response = await PATCH(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(400);
         expect(data.error).toContain('boolean');
       });
 
       it('should prevent deactivating last active admin', async () => {
+        // Arrange
         const onlyAdmin = {
           id: 99,
           auth_id: 'only-admin-auth-id',
@@ -276,9 +304,11 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '99' });
 
+        // Act
         const response = await PATCH(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(400);
         expect(data.error).toContain('único administrador activo');
       });
@@ -288,15 +318,18 @@ describe('/api/admin/users/[id]', () => {
   describe('DELETE /api/admin/users/[id]', () => {
     describe('Success Cases', () => {
       it('should delete non-admin user', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'DELETE',
           url: 'http://localhost:3000/api/admin/users/2',
         });
         const params = createMockParams({ id: '2' });
 
+        // Act
         const response = await DELETE(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(200);
         expect(data.success).toBe(true);
         expect(data.message).toContain('eliminado');
@@ -306,35 +339,42 @@ describe('/api/admin/users/[id]', () => {
       });
 
       it('should delete admin when multiple admins exist', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'DELETE',
           url: 'http://localhost:3000/api/admin/users/1',
         });
         const params = createMockParams({ id: '1' });
 
+        // Act
         const response = await DELETE(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(200);
       });
     });
 
     describe('Validation Cases', () => {
       it('should reject deleting nonexistent user', async () => {
+        // Arrange
         const request = createMockNextRequest({
           method: 'DELETE',
           url: 'http://localhost:3000/api/admin/users/999',
         });
         const params = createMockParams({ id: '999' });
 
+        // Act
         const response = await DELETE(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(404);
         expect(data.error).toContain('no encontrado');
       });
 
       it('should prevent deleting last admin', async () => {
+        // Arrange
         const onlyAdmin = {
           id: 98,
           auth_id: 'only-admin-auth-id-2',
@@ -356,9 +396,11 @@ describe('/api/admin/users/[id]', () => {
         });
         const params = createMockParams({ id: '98' });
 
+        // Act
         const response = await DELETE(request, { params });
         const data = await getResponseJson(response);
 
+        // Assert
         expect(response.status).toBe(400);
         expect(data.error).toContain('único administrador');
       });

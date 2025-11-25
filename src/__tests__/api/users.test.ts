@@ -30,11 +30,9 @@ describe('GET /api/v1/users/[userId]', () => {
       });
     });
 
-    it('should handle different userId values', async () => {
-      // Test with different user IDs
-      const userIds = ['1', '999', 'abc123', 'user-uuid-here'];
-
-      for (const userId of userIds) {
+    it.each(['1', '999', 'abc123', 'user-uuid-here'])(
+      'should handle userId value: %s',
+      async (userId) => {
         const request = createMockNextRequest({
           method: 'GET',
           url: `http://localhost:3000/api/v1/users/${userId}`,
@@ -47,7 +45,7 @@ describe('GET /api/v1/users/[userId]', () => {
         expect(response.status).toBe(200);
         expect(data.message).toBe(`User ID is ${userId}`);
       }
-    });
+    );
   });
 
   describe('Edge Cases', () => {

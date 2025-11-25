@@ -30,14 +30,17 @@ describe('POST /api/auth/signout', () => {
 
   describe('Success Cases', () => {
     it('should successfully sign out user', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/signout',
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.message).toBe('Sesión cerrada exitosamente');
@@ -45,13 +48,16 @@ describe('POST /api/auth/signout', () => {
     });
 
     it('should clear session cookies on signout', async () => {
+      // Arrange
       const request = createMockNextRequest({
         method: 'POST',
         url: 'http://localhost:3000/api/auth/signout',
       });
 
+      // Act
       const response = await POST(request);
 
+      // Assert
       expect(response.status).toBe(200);
       expect(mockSupabaseAuth.signOut).toHaveBeenCalled();
     });
@@ -59,6 +65,7 @@ describe('POST /api/auth/signout', () => {
 
   describe('Error Cases', () => {
     it('should handle Supabase signOut error', async () => {
+      // Arrange
       mockSupabaseAuth.signOut = jest.fn(async () => ({
         error: { message: 'Failed to sign out' },
       }));
@@ -68,14 +75,17 @@ describe('POST /api/auth/signout', () => {
         url: 'http://localhost:3000/api/auth/signout',
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(500);
       expect(data.error).toBe('Error al cerrar sesión');
     });
 
     it('should handle unexpected errors gracefully', async () => {
+      // Arrange
       mockSupabaseAuth.signOut = jest.fn(async () => {
         throw new Error('Unexpected error');
       });
@@ -85,9 +95,11 @@ describe('POST /api/auth/signout', () => {
         url: 'http://localhost:3000/api/auth/signout',
       });
 
+      // Act
       const response = await POST(request);
       const data = await getResponseJson(response);
 
+      // Assert
       expect(response.status).toBe(500);
       expect(data.error).toBe('Error interno del servidor');
     });
