@@ -8,6 +8,7 @@ import { GET, POST } from '@/app/api/admin/users/route';
 import { createMockNextRequest, getResponseJson } from '../../utils/test-helpers';
 import { createMockSupabaseClient, MockSupabaseClient } from '../../mocks/supabase.mock';
 import * as authMock from '../../mocks/auth.mock';
+import * as authHelpers from '@/lib/auth-helpers';
 
 let mockSupabaseAdmin: any;
 
@@ -128,8 +129,7 @@ describe('/api/admin/users', () => {
 
     describe('Authorization Cases', () => {
       it('should reject non-admin user', async () => {
-        const { requireAdmin } = require('@/lib/auth-helpers');
-        requireAdmin.mockRejectedValueOnce(
+        (authHelpers.requireAdmin as jest.Mock).mockRejectedValueOnce(
           new Error('Unauthorized: Admin access required')
         );
 
@@ -146,8 +146,7 @@ describe('/api/admin/users', () => {
       });
 
       it('should reject unauthenticated request', async () => {
-        const { requireAdmin } = require('@/lib/auth-helpers');
-        requireAdmin.mockRejectedValueOnce(
+        (authHelpers.requireAdmin as jest.Mock).mockRejectedValueOnce(
           new Error('Unauthorized: Authentication required')
         );
 
@@ -320,8 +319,7 @@ describe('/api/admin/users', () => {
 
     describe('Authorization Cases', () => {
       it('should reject non-admin user', async () => {
-        const { requireAdmin } = require('@/lib/auth-helpers');
-        requireAdmin.mockRejectedValueOnce(
+        (authHelpers.requireAdmin as jest.Mock).mockRejectedValueOnce(
           new Error('Unauthorized: Admin access required')
         );
 

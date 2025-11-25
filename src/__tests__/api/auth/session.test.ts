@@ -7,6 +7,7 @@
 import { GET } from '@/app/api/auth/session/route';
 import { createMockNextRequest, getResponseJson } from '../../utils/test-helpers';
 import * as authMock from '../../mocks/auth.mock';
+import * as authHelpers from '@/lib/auth-helpers';
 
 jest.mock('@/lib/auth-helpers', () => ({
   getCurrentUser: jest.fn(async () => authMock.getMockCurrentUser()),
@@ -160,8 +161,7 @@ describe('GET /api/auth/session', () => {
 
   describe('Error Cases', () => {
     it('should handle unexpected errors gracefully', async () => {
-      const { getCurrentUser } = require('@/lib/auth-helpers');
-      getCurrentUser.mockImplementationOnce(async () => {
+      (authHelpers.getCurrentUser as jest.Mock).mockImplementationOnce(async () => {
         throw new Error('Database connection failed');
       });
 
