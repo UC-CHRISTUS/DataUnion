@@ -240,6 +240,68 @@ function handleConvenio(convenioCod: string | null, supabase: any, tramo: string
   }
 }
 
+function handlePagoDemoraRescate(convenioCod: string | null , supabase: any,
+  fecha_ingreso: string | null,grd: number | null,
+  peso_grd: number | null,
+  precio_base: number | null,
+  dias_demora_rescate: number | null): Promise<number | null>  {
+
+   if (convenioCod == "FNS012") { 
+    return getPagoDemoraFNS012(supabase, grd, peso_grd, precio_base, dias_demora_rescate)
+
+  } else if (convenioCod == "CH0041") {
+    return getPagoDemoraCH0041(supabase, fecha_ingreso, dias_demora_rescate)
+  }
+  
+  else {
+    return Promise.resolve(null)
+  }
+}
+
+
+async function getPagoDemoraFNS012(
+  supabase: any,
+  grd: number | null,
+  peso_grd: number | null,
+  precio_base: number | null,
+  dias_demora_rescate: number | null
+): Promise<number | null> {
+  if (grd == null) return null
+
+  const grdNum = Number(grd)
+  if (isNaN(grdNum)) return null
+
+  const peso = Number(peso_grd)
+  const precioBase = Number(precio_base)
+  const dias = Number(dias_demora_rescate)
+
+  if ([peso, precioBase, dias].some((v) => isNaN(v))) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('norma_minsal')
+      .select('percentil_75')
+      .eq('GRD', grdNum)
+      .limit(1)
+
+    if (error) {
+      console.error('[getPagoDemoraFNS012] DB error:', error)
+      return null
+    }
+
+    if (!Array.isArray(data) || data.length === 0) return null
+
+    const p75 = Number(data[0].percentil_75)
+    if (isNaN(p75) || p75 === 0) return null
+
+    const numerator = peso * precioBase * dias
+    return numerator / p75
+  } catch (err) {
+    console.error('[getPagoDemoraFNS012] Unexpected error:', err)
+    return null
+  }
+}
+
 
 function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_todos: number | null): string | null {
   if (!tramos || peso_grd_medio_todos == null) return null
@@ -426,6 +488,54 @@ async function getPrecioFNS026(
     return Number.isNaN(precioNum) ? null : precioNum
   } catch (err) {
     console.error('[getPrecioConvenio] Unexpected error:', err)
+    return null
+  }
+}
+
+/**
+ * Calculate pago demora for CH0041: look up montos in `montos_dias_espera` where
+ * fecha_ingreso is between fecha_admision..fecha_fin, get the precio and multiply
+ * by `dias_espera` (integer). Returns number or null.
+ */
+async function getPagoDemoraCH0041(
+  supabase: any,
+  fecha_ingreso: string | null,
+  dias_espera: number | null
+): Promise<number | null> {
+  if (!fecha_ingreso || dias_espera == null) return null
+
+  const dias = Number(dias_espera)
+  if (isNaN(dias) || dias <= 0) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('montos_dias_espera')
+      .select('precio, fecha_admision, fecha_fin')
+
+    if (error) {
+      return null
+    }
+
+    if (!Array.isArray(data) || data.length === 0) return null
+
+    const ingresoDate = parseDateString(fecha_ingreso)
+    if (!ingresoDate) return null
+
+    for (const row of data) {
+      const adm = parseDateString(row.fecha_admision)
+      const fin = parseDateString(row.fecha_fin)
+      if (!adm || !fin) continue
+
+      if (ingresoDate >= adm && ingresoDate <= fin) {
+        const precioNum = row.precio != null ? Number(row.precio) : NaN
+        if (Number.isNaN(precioNum)) return null
+        return precioNum * dias
+      }
+    }
+
+    return null
+  } catch (err) {
+    console.error('[getpagodemorach0041] Unexpected error:', err)
     return null
   }
 }
@@ -662,6 +772,15 @@ export async function POST(request: NextRequest) {
     const joinedPrevision = joinPrevision(row.prevision_codigo || null, row.prevision_desc || null)
     const pesoTramo = findPesoSectionInList(tramosData, row.peso_grd_medio_todos)
     const convenioPrecioPromise = await handleConvenio(row.convenios_cod || null, supabase, pesoTramo, row.fecha_ingreso_completa || null)
+    const pagoDemoraPromise = await handlePagoDemoraRescate(
+      row.convenios_cod || null,
+      supabase,
+      row.fecha_ingreso_completa || null,
+      row.ir_grd || null,
+      row.peso_grd_medio_todos || null,
+      convenioPrecioPromise,
+      row.estancia_real_episodio || null
+    )
 
       return {
         episodio: Number(row.episodio_CMBD),
@@ -681,6 +800,9 @@ export async function POST(request: NextRequest) {
         id_grd_oficial: grdId,
         convenio: joinedPrevision,
         precio_base_tramo: convenioPrecioPromise, 
+        dias_demora_rescate_hospital: row.estancia_real_episodio || null,
+        pago_demora_rescate: pagoDemoraPromise,
+        
         // Platform-managed fields (left as null)
         validado: null,
         estado_rn: null,
@@ -688,8 +810,6 @@ export async function POST(request: NextRequest) {
         AT_detalle: null,
         monto_AT: null,
         monto_rn: null,
-        dias_demora_rescate_hospital: null,
-        pago_demora_rescate: null,
         pago_outlier_superior: null,
         documentacion: null,
         grupo_dentro_norma: null,
