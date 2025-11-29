@@ -207,25 +207,7 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
   return headerMap
 }
 
-/**
- * Parse date string and calculate difference in days
- */
-function calculateDaysDiff(fechaAlta: string | null, fechaIngreso: string | null): number {
-  if (!fechaAlta || !fechaIngreso) return 0
 
-  try {
-    const alta = new Date(fechaAlta)
-    const ingreso = new Date(fechaIngreso)
-
-    if (isNaN(alta.getTime()) || isNaN(ingreso.getTime())) return 0
-
-    const diffTime = Math.abs(alta.getTime() - ingreso.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays
-  } catch {
-    return 0
-  }
-}
 
 // function join columns with - prevision_codigo and previosion_desc
 function joinPrevision(previsionCodigo: string | null, previsionDesc: string | null): string | null 
@@ -237,6 +219,216 @@ function joinPrevision(previsionCodigo: string | null, previsionDesc: string | n
   }
 }
 
+
+function handleConvenio(convenioCod: string | null, supabase: any, tramo: string | null, fecha_ingreso: string | null): Promise<number | null>{
+  if (convenioCod == "FNS012") { 
+    return getPrecioFNS012(supabase, convenioCod, tramo, fecha_ingreso)
+
+  } else if (convenioCod == "CH0041") {
+    return getPrecioCH041(supabase, convenioCod, fecha_ingreso)
+  }
+  else if (convenioCod == "FNS019") {
+    const num = Number(convenioCod)
+    return getPrecioFNS019(supabase, convenioCod)
+  }
+  else if (convenioCod == "FNS026") {
+    return getPrecioFNS026(supabase, convenioCod, tramo)
+  }
+  
+  else {
+    return Promise.resolve(null)
+  }
+}
+
+
+function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_todos: number | null): string | null {
+  if (!tramos || peso_grd_medio_todos == null) return null
+
+  const peso = Number(peso_grd_medio_todos)
+  if (isNaN(peso)) return null
+
+  for (const row of tramos) {
+    const lower = row.limite_inferior != null ? Number(row.limite_inferior) : -Infinity
+    const upper = row.limite_superior != null ? Number(row.limite_superior) : Infinity
+
+    if (isNaN(lower) && isNaN(upper)) continue
+
+    if (peso > lower && peso <= upper) {
+      return row.tramo ?? null
+    }
+  }
+
+  return null
+}
+
+/**
+ * Parse a date string that may be in ISO format (YYYY-MM-DD...) or US format (MM/DD/YYYY[ ...])
+ * Returns a Date object or null if invalid.
+ */
+function parseDateString(dateStr: string | null | undefined): Date | null {
+  if (!dateStr) return null
+
+  // Try native parser first (handles ISO)
+  const iso = new Date(dateStr)
+  if (!isNaN(iso.getTime())) return iso
+
+  // Try MM/DD/YYYY (or M/D/YYYY) optionally with time
+  const mdy = String(dateStr).trim()
+  const mdyMatch = mdy.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T].*)?$/)
+  if (mdyMatch) {
+    const month = Number(mdyMatch[1])
+    const day = Number(mdyMatch[2])
+    const year = Number(mdyMatch[3])
+    if (!Number.isNaN(month) && !Number.isNaN(day) && !Number.isNaN(year)) {
+      const d = new Date(Date.UTC(year, month - 1, day))
+      if (!isNaN(d.getTime())) return d
+    }
+  }
+
+  return null
+}
+
+/**
+ * Get precio for given convenio, tramo and fecha_ingreso.
+ * - Filters `precios_convenios_grd` by `convenio` and `tramo`.
+ * - Parses `fecha_admision`/`fecha_fin` (they may be MM/DD/YYYY) and
+ *   `fecha_ingreso` (ISO) and checks if fecha_ingreso is within the range.
+ * - Returns the numeric `precio` (as number) if a matching row is found, otherwise null.
+ */
+async function getPrecioFNS012(
+  supabase: any,
+  convenio: string | null,
+  tramo: string | null,
+  fecha_ingreso: string | null
+): Promise<number | null> {
+  if (!convenio || !tramo || !fecha_ingreso) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('precios_convenios_grd')
+      .select('precio, fecha_admision, fecha_fin')
+      .eq('convenio', convenio)
+      .eq('tramo', tramo)
+
+    if (error) {
+      console.error('[getPrecioForConvenioTramo] DB error:', error)
+      return null
+    }
+
+    if (!Array.isArray(data) || data.length === 0) return null
+
+    const ingresoDate = parseDateString(fecha_ingreso)
+    if (!ingresoDate) return null
+
+    for (const row of data) {
+      const adm = parseDateString(row.fecha_admision)
+      const fin = parseDateString(row.fecha_fin)
+      if (!adm || !fin) continue
+
+      if (ingresoDate >= adm && ingresoDate <= fin) {
+        const precioNum = row.precio != null ? Number(row.precio) : NaN
+        return Number.isNaN(precioNum) ? null : precioNum
+      }
+    }
+
+    return null
+  } catch (err) {
+    console.error('[getPrecioForConvenioTramo] Unexpected error:', err)
+    return null
+  }
+}
+
+async function getPrecioCH041(
+  supabase: any,
+  convenio: string | null,
+  fecha_ingreso: string | null
+): Promise<number | null> {
+  if (!convenio || !fecha_ingreso) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('precios_convenios_grd')
+      .select('precio, fecha_admision, fecha_fin')
+      .eq('convenio', convenio)
+   
+
+    if (error) {
+      return null
+    }
+
+    if (!Array.isArray(data) || data.length === 0) return null
+
+    const ingresoDate = parseDateString(fecha_ingreso)
+    if (!ingresoDate) return null
+
+    for (const row of data) {
+      const adm = parseDateString(row.fecha_admision)
+      const fin = parseDateString(row.fecha_fin)
+      if (!adm || !fin) continue
+
+      if (ingresoDate >= adm && ingresoDate <= fin) {
+        const precioNum = row.precio != null ? Number(row.precio) : NaN
+        return Number.isNaN(precioNum) ? null : precioNum
+      }
+    }
+
+    return null
+  } catch (err) {
+    return null
+  }
+}
+
+async function getPrecioFNS019(
+  supabase: any,
+  convenio: string | null,
+): Promise<number | null> {
+  if (!convenio) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('precios_convenios_grd')
+      .select('precio')
+      .eq('convenio', convenio)
+      .limit(1)
+
+    if (error || !Array.isArray(data) || data.length === 0) {
+      return null
+    }
+
+    const precioNum = data[0].precio != null ? Number(data[0].precio) : NaN
+    return Number.isNaN(precioNum) ? null : precioNum
+  } catch (err) {
+    console.error('[getPrecioConvenio] Unexpected error:', err)
+    return null
+  }
+}
+
+async function getPrecioFNS026(
+  supabase: any,
+  convenio: string | null,
+  tramo: string | null,
+): Promise<number | null> {
+  if (!convenio) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('precios_convenios_grd')
+      .select('precio')
+      .eq('convenio', convenio)
+      .eq('tramo', tramo)
+      .limit(1)
+
+    if (error || !Array.isArray(data) || data.length === 0) {
+      return null
+    }
+
+    const precioNum = data[0].precio != null ? Number(data[0].precio) : NaN
+    return Number.isNaN(precioNum) ? null : precioNum
+  } catch (err) {
+    console.error('[getPrecioConvenio] Unexpected error:', err)
+    return null
+  }
+}
 
 
 /**
@@ -446,9 +638,30 @@ export async function POST(request: NextRequest) {
       }
     })
 
+    // Fetch tramos_peso_grd once to avoid repeated DB calls per row
+    let tramosData: any[] | null = null
+    try {
+      const { data: _tramos, error: tramosError } = await supabase
+        .from('tramos_peso_grd')
+        .select('limite_inferior, limite_superior, tramo')
+        .order('limite_inferior', { ascending: true })
+
+      if (tramosError) {
+        console.error('[POST] Error fetching tramos_peso_grd:', tramosError)
+        tramosData = null
+      } else {
+        tramosData = Array.isArray(_tramos) ? _tramos : null
+      }
+    } catch (err) {
+      console.error('[POST] Unexpected error fetching tramos:', err)
+      tramosData = null
+    }
+
     // Transform each SIGESA row to GRD row
-    const grdFilaRows = rows.map((row) => {
+    const grdFilaRowsPromises = rows.map(async (row) => {
     const joinedPrevision = joinPrevision(row.prevision_codigo || null, row.prevision_desc || null)
+    const pesoTramo = findPesoSectionInList(tramosData, row.peso_grd_medio_todos)
+    const convenioPrecioPromise = await handleConvenio(row.convenios_cod || null, supabase, pesoTramo, row.fecha_ingreso_completa || null)
 
       return {
         episodio: Number(row.episodio_CMBD),
@@ -467,6 +680,7 @@ export async function POST(request: NextRequest) {
         dias_estadia: row.estancia_real_episodio || null,
         id_grd_oficial: grdId,
         convenio: joinedPrevision,
+        precio_base_tramo: convenioPrecioPromise, 
         // Platform-managed fields (left as null)
         validado: null,
         estado_rn: null,
@@ -479,13 +693,13 @@ export async function POST(request: NextRequest) {
         pago_outlier_superior: null,
         documentacion: null,
         grupo_dentro_norma: null,
-        precio_base_tramo: null,
         valor_GRD: null,
         monto_final: null,
       }
     })
 
     // Insert GRD rows
+    const grdFilaRows = await Promise.all(grdFilaRowsPromises)
     const { error: grdFilaError } = await supabase.from('grd_fila').insert(grdFilaRows)
 
     if (grdFilaError) {
@@ -508,3 +722,4 @@ export async function POST(request: NextRequest) {
     return handleError(error)
   }
 }
+
