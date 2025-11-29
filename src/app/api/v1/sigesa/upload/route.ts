@@ -26,7 +26,9 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
 
   // Define all possible header mappings (normalized form → DB column)
   const columnMappings: Record<string, string> = {
+    'Hospital (descripción)': 'hospital_descripcion',
     'episodio cmbd': 'episodio_CMBD',
+    'ID Derivación': 'id_derivacion',
     'nombre': 'nombre',
     'rut': 'rut',
     'edad en años': 'edad',
@@ -34,9 +36,10 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
     'sexo': 'sexo',
     'sexo desc': 'sexo',
     'conjunto dx': 'conjunto_dx',
+    'tipo_actividad_1': 'tipo_actividad_1',
     'tipo actividad': 'tipo_actividad',
     'tipo ingreso': 'tipo_ingreso',
-    'tipo ingreso descripción': 'tipo_ingreso',
+    'tipo ingreso (Descripción)': 'tipo_ingreso',
     'servicio ingreso': 'servicio_ingreso_descripcion',
     'servicio ingreso descripción': 'servicio_ingreso_descripcion',
     'servicio ingreso código': 'servicio_ingreso_codigo',
@@ -130,7 +133,7 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
     'estancias norma ir': 'estancias_norma_ir',
     'casos norma ir': 'casos_norma_ir',
     'fecha ingreso completa': 'fecha_ingreso_completa',
-    'fecha completa': 'fecha_completa',
+    'fecha completa (egreso)': 'fecha_completa_egreso',
     'conjunto de servicios traslado': 'conjunto_servicios_traslado',
     'fecha tr1': 'fecha_tr1',
     'fecha tr2': 'fecha_tr2',
@@ -167,8 +170,8 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
     'proced 01 principal código': 'proced_01_principal',
     'proced 01 principal codigo': 'proced_01_principal',
     'conjunto procedimientos secundarios': 'conjunto_procedimientos_secundarios',
-    'servicio ingreso código_1': 'servicio_ingreso_codigo_1',
-    'servicio ingreso codigo_1': 'servicio_ingreso_codigo_1',
+    'servicio ingreso código_2': 'servicio_ingreso_codigo_2',
+    'servicio ingreso codigo_2': 'servicio_ingreso_codigo_2',
     'servicio cod tr1': 'servicio_cod_ tr1',
     'serviciocod tr1': 'servicio_cod_ tr1',
     'servicio cod tr2': 'servicio_cod_ tr2',
@@ -189,8 +192,8 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
     'serviciocod tr9': 'servicio_cod_ tr9',
     'servicio cod tr10': 'servicio_cod_ tr10',
     'serviciocod tr10': 'servicio_cod_ tr10',
-    'servicio egreso código_2': 'servicio_egreso_codigo_2',
-    'servicio egreso codigo_2': 'servicio_egreso_codigo_2',
+    'servicio egreso código_3': 'servicio_egreso_codigo_3',
+    'servicio egreso codigo_3': 'servicio_egreso_codigo_3',
   }
 
   excelHeaders.forEach((header, index) => {
@@ -223,6 +226,18 @@ function calculateDaysDiff(fechaAlta: string | null, fechaIngreso: string | null
     return 0
   }
 }
+
+// function join columns with - prevision_codigo and previosion_desc
+function joinPrevision(previsionCodigo: string | null, previsionDesc: string | null): string | null 
+{
+  if (previsionCodigo && previsionDesc) {
+    return `${previsionCodigo} - ${previsionDesc}`
+  } else {
+    return null
+  }
+}
+
+
 
 /**
  * POST /api/v1/sigesa/upload
@@ -433,10 +448,7 @@ export async function POST(request: NextRequest) {
 
     // Transform each SIGESA row to GRD row
     const grdFilaRows = rows.map((row) => {
-      const irGrdCodigo = row.ir_grd_codigo ? Number(row.ir_grd_codigo) : null
-      const peso = irGrdCodigo ? pesoMap.get(irGrdCodigo) || null : null
-
-      const diasEstadia = calculateDaysDiff(row.fecha_completa, row.fecha_ingreso_completa)
+    const joinedPrevision = joinPrevision(row.prevision_codigo || null, row.prevision_desc || null)
 
       return {
         episodio: Number(row.episodio_CMBD),
@@ -444,18 +456,19 @@ export async function POST(request: NextRequest) {
         nombre_paciente: row.nombre || null,
         tipo_episodio: row.tipo_actividad || null,
         fecha_ingreso: row.fecha_ingreso_completa || null,
-        fecha_alta: row.fecha_completa || null,
+        fecha_alta: row.fecha_completa_egreso || null,
         servicios_alta: row.servicio_egreso_codigo || null,
         tipo_alta: row.motivo_egreso || null,
-        'IR-GRD': irGrdCodigo || 0,
-        peso: peso,
+        centro: row.hospital_descripcion || null,
+        n_folio: row.id_derivacion || null,
+        'IR-GRD': row.ir_grd || null,
+        peso: row.peso_grd_medio_todos || null,
         'inlier/outlier': row.ir_alta_inlier_outlier || null,
-        dias_estadia: diasEstadia,
+        dias_estadia: row.estancia_real_episodio || null,
         id_grd_oficial: grdId,
+        convenio: joinedPrevision,
         // Platform-managed fields (left as null)
         validado: null,
-        centro: null,
-        n_folio: null,
         estado_rn: null,
         AT: null,
         AT_detalle: null,
