@@ -303,6 +303,58 @@ async function getPagoDemoraFNS012(
 }
 
 
+async function pagoOutlierSuperior(
+  supabase: any,
+  codigo_convenio: string | null,
+  peso_grd: number | null,
+  precio_base: number | null,
+  grd: number | null,
+  estancia_total: number | null
+): Promise<number > {
+  if (codigo_convenio !== 'FNS012') return 0
+
+  const peso = Number(peso_grd)
+  const precioBase = Number(precio_base)
+  const estancia = Number(estancia_total)
+
+  if ([peso, precioBase, estancia].some((v) => isNaN(v))) return 0
+
+  if (grd == null) return 0
+  const grdNum = Number(grd)
+  if (isNaN(grdNum)) return 0
+  try {
+    const { data, error } = await supabase
+      .from('norma_minsal')
+      .select('percentil_75, percentil_50, punto_corte_superior')
+      .eq('GRD', grdNum)
+      .limit(1)
+
+    if (error) {
+      return 0
+    }
+
+    if (!Array.isArray(data) || data.length === 0) return 0
+
+    const row = data[0]
+    const p75 = Number(row.percentil_75)
+    const p50 = Number(row.percentil_50)
+    const punto = Number(row.punto_corte_superior)
+
+    if ([p75, p50, punto].some((v) => isNaN(v)) || p75 === 0) return 0
+
+    const periodo_carencia = punto + p50
+    const dia_post_carencia = estancia - periodo_carencia
+
+    if (dia_post_carencia <= 0) return 0
+
+    const numerator = dia_post_carencia * peso * precioBase
+    return numerator / p75
+  } catch (err) {
+    return 0
+  }
+}
+
+
 function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_todos: number | null): string | null {
   if (!tramos || peso_grd_medio_todos == null) return null
 
@@ -350,13 +402,7 @@ function parseDateString(dateStr: string | null | undefined): Date | null {
   return null
 }
 
-/**
- * Get precio for given convenio, tramo and fecha_ingreso.
- * - Filters `precios_convenios_grd` by `convenio` and `tramo`.
- * - Parses `fecha_admision`/`fecha_fin` (they may be MM/DD/YYYY) and
- *   `fecha_ingreso` (ISO) and checks if fecha_ingreso is within the range.
- * - Returns the numeric `precio` (as number) if a matching row is found, otherwise null.
- */
+
 async function getPrecioFNS012(
   supabase: any,
   convenio: string | null,
@@ -492,11 +538,7 @@ async function getPrecioFNS026(
   }
 }
 
-/**
- * Calculate pago demora for CH0041: look up montos in `montos_dias_espera` where
- * fecha_ingreso is between fecha_admision..fecha_fin, get the precio and multiply
- * by `dias_espera` (integer). Returns number or null.
- */
+
 async function getPagoDemoraCH0041(
   supabase: any,
   fecha_ingreso: string | null,
@@ -541,10 +583,7 @@ async function getPagoDemoraCH0041(
 }
 
 
-/**
- * POST /api/v1/sigesa/upload
- * Upload and process a SIGESA Excel file
- */
+
 export async function POST(request: NextRequest) {
   try {
     // Create Supabase client with user session from cookies
@@ -782,6 +821,16 @@ export async function POST(request: NextRequest) {
       row.estancia_real_episodio || null
     )
 
+    // Compute pago outlier superior (only for FNS012 per implementation)
+    const pagoOutlier = await pagoOutlierSuperior(
+      supabase,
+      row.convenios_cod || null,
+      row.peso_grd_medio_todos || null,
+      convenioPrecioPromise,
+      row.ir_grd || null,
+      row.estancia_real_episodio || null
+    )
+
       return {
         episodio: Number(row.episodio_CMBD),
         rut_paciente: row.rut ? String(row.rut) : null,
@@ -802,6 +851,7 @@ export async function POST(request: NextRequest) {
         precio_base_tramo: convenioPrecioPromise, 
         dias_demora_rescate_hospital: row.estancia_real_episodio || null,
         pago_demora_rescate: pagoDemoraPromise,
+        pago_outlier_superior: pagoOutlier,
         
         // Platform-managed fields (left as null)
         validado: null,
@@ -810,7 +860,6 @@ export async function POST(request: NextRequest) {
         AT_detalle: null,
         monto_AT: null,
         monto_rn: null,
-        pago_outlier_superior: null,
         documentacion: null,
         grupo_dentro_norma: null,
         valor_GRD: null,
