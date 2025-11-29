@@ -12,7 +12,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_anon_key_aqui
 
 ## ¿Dónde obtener estas credenciales?
 
-1. Ve al dashboard de Supabase: https://supabase.com/dashboard/project/cgjeiyevnlypgghsfemc/settings/api
+1. Ve al dashboard de Supabase: <https://supabase.com/dashboard/project/cgjeiyevnlypgghsfemc/settings/api>
 
 2. Copia los valores:
    - **URL del proyecto**: `https://cgjeiyevnlypgghsfemc.supabase.co`
@@ -33,6 +33,6 @@ npm run dev
 ```
 
 Si las variables están correctas, deberías poder acceder a:
-- Login: http://localhost:3000/login
-- Sign Up: http://localhost:3000/signup
 
+- Login: <http://localhost:3000/login>
+- Sign Up: <http://localhost:3000/signup>

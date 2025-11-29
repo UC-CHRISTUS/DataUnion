@@ -9,6 +9,7 @@
 ## 📋 Pre-requisitos
 
 ### 1. Base de Datos
+
 - ✅ Migración de estados aplicada (`workflow_estado` ENUM)
 - ✅ Tabla `grd_fila` con columna `estado`
 - ✅ Al menos 3 usuarios en la base de datos:
@@ -17,6 +18,7 @@
   - 1 usuario con rol `admin`
 
 ### 2. Datos de Prueba
+
 Necesitas tener UN archivo SIGESA cargado en estado `borrador_encoder`:
 
 ```sql
@@ -39,7 +41,7 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
 **Estado inicial:** `borrador_encoder`  
 **Estado esperado final:** `pendiente_finance`
 
-### Pasos:
+### Pasos
 
 1. **Login como Encoder**
    - Ir a `/login`
@@ -130,12 +132,14 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
       - ✅ Redirección automática a `/dashboard`
 
 13. **Verificar Estado en Base de Datos**
+
     ```sql
     SELECT id_grd_oficial, episodio, estado 
     FROM grd_fila 
     WHERE id_grd_oficial = [ID_DEL_ARCHIVO]
     LIMIT 1;
     ```
+
     - **Verificar:**
       - ✅ Estado cambió a `pendiente_finance`
 
@@ -155,7 +159,7 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
 **Estado inicial:** `pendiente_finance` (resultado del Test 1)  
 **Estado esperado final:** `pendiente_admin`
 
-### Pasos:
+### Pasos
 
 1. **Cerrar Sesión de Encoder**
    - Click en "Cerrar Sesión" en TopNav
@@ -191,7 +195,7 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
    - **Verificar:**
      - ✅ Browser muestra alerta: "Tienes cambios sin guardar"
      - ✅ Cancelar recarga
-   
+
    - Guardar cambios
    - **Verificar:**
      - ✅ Alert de éxito
@@ -221,12 +225,14 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
      - ✅ Redirección a `/dashboard`
 
 10. **Verificar Estado en Base de Datos**
+
     ```sql
     SELECT id_grd_oficial, episodio, estado 
     FROM grd_fila 
     WHERE id_grd_oficial = [ID_DEL_ARCHIVO]
     LIMIT 1;
     ```
+
     - **Verificar:**
       - ✅ Estado cambió a `pendiente_admin`
 
@@ -264,11 +270,13 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
 ### Test 3.3: Botón Solo Visible en Estados Correctos
 
 **Encoder:**
+
 - Login como encoder
 - Solo debe ver botón en estado `borrador_encoder`
 - NO debe ver botón en: `pendiente_finance`, `borrador_finance`, `pendiente_admin`
 
 **Finance:**
+
 - Login como finance
 - Debe ver botón en estados `pendiente_finance` y `borrador_finance`
 - NO debe ver botón en: `borrador_encoder`, `pendiente_admin`
@@ -278,6 +286,7 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
 ## 📊 Checklist Final
 
 ### Bloque 4 - Submit Encoder ✅
+
 - [ ] Botón verde "Entregar a Finanzas" visible en `borrador_encoder`
 - [ ] Modal de 2 pasos funciona correctamente
 - [ ] Validación de cambios sin guardar
@@ -287,6 +296,7 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
 - [ ] Encoder pierde acceso después del submit
 
 ### Bloque 5 - Submit Finance ✅
+
 - [ ] Botón púrpura "Entregar a Administración" visible en `pendiente_finance` y `borrador_finance`
 - [ ] Modal reutiliza SubmitConfirmModal con handler condicional
 - [ ] Finance puede editar sus 5 campos
@@ -296,6 +306,7 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
 - [ ] Finance pierde acceso después del submit
 
 ### Validaciones Generales ✅
+
 - [ ] beforeunload funciona (F5, cerrar tab)
 - [ ] Indicador de cambios sin guardar aparece
 - [ ] Botón Submit solo visible sin cambios pendientes
@@ -307,21 +318,27 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
 ## 🐛 Troubleshooting
 
 ### Error: "No hay ningún archivo en proceso"
+
 **Solución:** Asegúrate de tener un archivo en estado activo (`borrador_encoder`, `pendiente_finance`, etc.)
 
 ### Error: "No se pudo obtener el rol del usuario"
+
 **Solución:** Verifica que el usuario tenga un registro en `public.users` con `auth_id` correcto
 
 ### Botón Submit no aparece
-**Solución:** 
+
+**Solución:**
+
 - Verificar que no hay cambios sin guardar
 - Verificar que el estado es correcto para el rol
 - Abrir DevTools → Console para ver errores
 
 ### Modal no se cierra
+
 **Solución:** Verificar que `isSubmitting` vuelve a `false` después del submit
 
 ### Error 401 en API
+
 **Solución:** Verificar que la sesión está activa y el token es válido
 
 ---
@@ -338,6 +355,7 @@ Si no existe, sube un archivo usando el usuario **encoder** en `/upload`.
 ## ✅ Resultado Esperado
 
 Si todos los tests pasan:
+
 - ✅ Workflow Encoder → Finance funciona correctamente
 - ✅ Finance → Admin funciona correctamente
 - ✅ Validaciones de seguridad funcionan

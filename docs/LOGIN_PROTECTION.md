@@ -1,14 +1,17 @@
 # Protección de Login - DataUnion
 
 ## Resumen
+
 Se ha implementado una protección completa de la aplicación para que usuarios no autenticados solo puedan ver el formulario de login, sin acceso a ningún otro contenido de la plataforma.
 
 ## Cambios Implementados
 
 ### 1. Middleware de Autenticación (`src/middleware.ts`)
+
 **Propósito:** Protección a nivel de servidor de todas las rutas de la aplicación.
 
 **Funcionalidad:**
+
 - ✅ Verifica autenticación usando Supabase SSR en cada request
 - ✅ Redirige usuarios no autenticados a `/login` desde cualquier ruta protegida
 - ✅ Redirige usuarios autenticados desde `/login` o `/signup` a `/dashboard`
@@ -16,25 +19,30 @@ Se ha implementado una protección completa de la aplicación para que usuarios 
 - ✅ Excluye archivos estáticos (_next/static, imágenes, favicon) del middleware
 
 **Configuración del Matcher:**
+
 ```typescript
 matcher: [
   '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
 ]
 ```
+
 - Protege TODAS las rutas excepto archivos estáticos
 - No es necesario listar rutas individuales
 - Maneja automáticamente nuevas páginas agregadas al proyecto
 
 ### 2. Layout Condicional (`src/components/Layout.tsx`)
+
 **Propósito:** Ocultar Sidebar y TopNav en páginas públicas (login/signup).
 
 **Funcionalidad:**
+
 - ✅ Usa `usePathname()` para detectar ruta actual
 - ✅ Define rutas públicas: `['/login', '/signup']`
 - ✅ Si ruta es pública: renderiza solo `children` sin Layout components
 - ✅ Si ruta es protegida: renderiza Layout completo (Sidebar + TopNav + Content)
 
 **Lógica Implementada:**
+
 ```typescript
 if (isPublicRoute) {
   return <>{children}</>;
@@ -51,9 +59,11 @@ return (
 ```
 
 ### 3. Componente SignIn (Sin Cambios)
+
 **Estado:** El componente `SignIn.tsx` ya estaba correctamente implementado.
 
 **Características Actuales:**
+
 - ✅ Diseño centrado con card blanco
 - ✅ Gradiente de fondo: `from-blue-50 via-white to-cyan-50`
 - ✅ Logo de DataUnion con gradiente azul-cyan
@@ -70,6 +80,7 @@ return (
 ## Flujo de Autenticación
 
 ### Usuario NO Autenticado
+
 1. Usuario intenta acceder a cualquier ruta (ej: `/dashboard`)
 2. Middleware detecta falta de sesión
 3. Redirección automática a `/login`
@@ -77,6 +88,7 @@ return (
 5. Usuario ve SOLO el formulario de login
 
 ### Usuario Autenticado
+
 1. Usuario ingresa credenciales en `/login`
 2. SignIn.tsx valida con Supabase Auth
 3. Verifica estado `is_active` en tabla `users`
@@ -86,6 +98,7 @@ return (
 7. Layout muestra Sidebar + TopNav + Content
 
 ### Usuario Autenticado Intenta Acceder a Login
+
 1. Usuario autenticado navega a `/login` directamente
 2. Middleware detecta sesión válida
 3. Redirección automática a `/dashboard`
@@ -94,17 +107,20 @@ return (
 ## Seguridad
 
 ### Nivel 1: Middleware (Server-Side)
+
 - Protección a nivel de servidor
 - Verifica cookies de sesión de Supabase
 - Redirige antes de renderizar cualquier componente
 - Imposible bypassear desde el cliente
 
 ### Nivel 2: Layout (Client-Side)
+
 - Oculta UI navigation en rutas públicas
 - Previene flashes de contenido protegido
 - Mejora UX con renderizado condicional
 
 ### Nivel 3: API Routes (Existing)
+
 - Todas las API routes ya usan `getCurrentUser()`
 - Validación de roles en cada endpoint
 - RLS policies en Supabase
@@ -112,6 +128,7 @@ return (
 ## Testing Manual
 
 ### Test 1: Acceso Directo a Ruta Protegida
+
 ```bash
 # Usuario sin sesión
 1. Abrir navegador en modo incógnito
@@ -122,6 +139,7 @@ return (
 ```
 
 ### Test 2: Login Exitoso
+
 ```bash
 # Usuario sin sesión
 1. Ir a http://localhost:3000/login
@@ -132,6 +150,7 @@ return (
 ```
 
 ### Test 3: Usuario Autenticado en Login
+
 ```bash
 # Usuario CON sesión válida
 1. Estar logueado en la aplicación
@@ -141,6 +160,7 @@ return (
 ```
 
 ### Test 4: Logout y Protección
+
 ```bash
 # Usuario CON sesión válida
 1. Estar en /dashboard
@@ -153,6 +173,7 @@ return (
 ## Rutas Protegidas
 
 Todas las siguientes rutas ahora requieren autenticación:
+
 - ✅ `/dashboard` - Dashboard principal
 - ✅ `/dashboard/users` - Gestión de usuarios (Admin)
 - ✅ `/upload` - Carga de archivos
@@ -165,6 +186,7 @@ Todas las siguientes rutas ahora requieren autenticación:
 ## Rutas Públicas
 
 Solo estas rutas son accesibles sin autenticación:
+
 - ✅ `/login` - Página de inicio de sesión
 - ✅ `/signup` - Página de registro (si se implementa)
 - ✅ Archivos estáticos (imágenes, CSS, JS de Next.js)
@@ -172,7 +194,9 @@ Solo estas rutas son accesibles sin autenticación:
 ## Notas de Implementación
 
 ### Por qué NO se modificó SignIn.tsx
+
 El componente ya cumple con todos los requisitos:
+
 1. **Estilo DataUnion:** Usa el gradiente azul-cyan y colores de la plataforma
 2. **Layout Centrado:** Card centrado con fondo decorativo
 3. **Logo UC Christus:** Logo institucional con gradiente
@@ -209,6 +233,7 @@ La referencia SIL proporcionada por el usuario era para la **disposición** del 
 Esta implementación completa la **Fase Intermedia** del HU-003. Las próximas fases son:
 
 ### FASE 3: Modificación de Componentes (Pendiente)
+
 - UI-002: FileUpload con verificación de workflow activo
 - UI-003: Sidebar con menú dinámico por rol
 - UI-004: ExcelEditor con campos bloqueados y auto-save
@@ -217,12 +242,14 @@ Esta implementación completa la **Fase Intermedia** del HU-003. Las próximas f
 - UI-007: useWorkflowStatus hook
 
 ### FASE 4: Integración de Páginas (Pendiente)
+
 - PAGE-001: /visualizator/page.tsx
 - PAGE-002: /dashboard/page.tsx
 - PAGE-003: /sigesa/page.tsx
 - PAGE-004: /upload/page.tsx
 
 ### FASE 5: Lógica de Exportación (Pendiente)
+
 - EXPORT-001: GET /api/v1/grd/[grdId]/export
 - EXPORT-002: Funcionalidad de re-descarga
 

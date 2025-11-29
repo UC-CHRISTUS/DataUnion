@@ -18,20 +18,29 @@ export type Database = {
         Row: {
           AT: string | null
           codigo: string | null
+          codigo_convenio: string | null
           id: number
           valor: number | null
+          valor_reajuste_1: number | null
+          valor_reajuste_2: number | null
         }
         Insert: {
           AT?: string | null
           codigo?: string | null
+          codigo_convenio?: string | null
           id?: number
           valor?: number | null
+          valor_reajuste_1?: number | null
+          valor_reajuste_2?: number | null
         }
         Update: {
           AT?: string | null
           codigo?: string | null
+          codigo_convenio?: string | null
           id?: number
           valor?: number | null
+          valor_reajuste_1?: number | null
+          valor_reajuste_2?: number | null
         }
         Relationships: []
       }
@@ -73,6 +82,7 @@ export type Database = {
           AT: boolean | null
           AT_detalle: string | null
           centro: string | null
+          convenio: string | null
           dias_demora_rescate_hospital: number | null
           dias_estadia: number | null
           documentacion: string | null
@@ -85,7 +95,7 @@ export type Database = {
           id: number
           id_grd_oficial: number
           "inlier/outlier": string | null
-          "IR-GRD": number
+          "IR-GRD": string | null
           monto_AT: number | null
           monto_final: number | null
           monto_rn: number | null
@@ -99,13 +109,14 @@ export type Database = {
           servicios_alta: string | null
           tipo_alta: string | null
           tipo_episodio: string | null
-          validado: string | null
+          validado: boolean | null
           valor_GRD: number | null
         }
         Insert: {
           AT?: boolean | null
           AT_detalle?: string | null
           centro?: string | null
+          convenio?: string | null
           dias_demora_rescate_hospital?: number | null
           dias_estadia?: number | null
           documentacion?: string | null
@@ -118,7 +129,7 @@ export type Database = {
           id?: number
           id_grd_oficial: number
           "inlier/outlier"?: string | null
-          "IR-GRD": number
+          "IR-GRD"?: string | null
           monto_AT?: number | null
           monto_final?: number | null
           monto_rn?: number | null
@@ -132,13 +143,14 @@ export type Database = {
           servicios_alta?: string | null
           tipo_alta?: string | null
           tipo_episodio?: string | null
-          validado?: string | null
+          validado?: boolean | null
           valor_GRD?: number | null
         }
         Update: {
           AT?: boolean | null
           AT_detalle?: string | null
           centro?: string | null
+          convenio?: string | null
           dias_demora_rescate_hospital?: number | null
           dias_estadia?: number | null
           documentacion?: string | null
@@ -151,7 +163,7 @@ export type Database = {
           id?: number
           id_grd_oficial?: number
           "inlier/outlier"?: string | null
-          "IR-GRD"?: number
+          "IR-GRD"?: string | null
           monto_AT?: number | null
           monto_final?: number | null
           monto_rn?: number | null
@@ -165,7 +177,7 @@ export type Database = {
           servicios_alta?: string | null
           tipo_alta?: string | null
           tipo_episodio?: string | null
-          validado?: string | null
+          validado?: boolean | null
           valor_GRD?: number | null
         }
         Relationships: [
@@ -197,6 +209,30 @@ export type Database = {
         Update: {
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      montos_dias_espera: {
+        Row: {
+          codigo_convenio: string | null
+          fecha_admision: string | null
+          fecha_fin: string | null
+          id: number
+          precio: number | null
+        }
+        Insert: {
+          codigo_convenio?: string | null
+          fecha_admision?: string | null
+          fecha_fin?: string | null
+          id?: number
+          precio?: number | null
+        }
+        Update: {
+          codigo_convenio?: string | null
+          fecha_admision?: string | null
+          fecha_fin?: string | null
+          id?: number
+          precio?: number | null
         }
         Relationships: []
       }
@@ -269,6 +305,48 @@ export type Database = {
         }
         Relationships: []
       }
+      precios_convenios_grd: {
+        Row: {
+          aseguradora: number | null
+          convenio: string | null
+          descr_convenio: string | null
+          fecha_admision: string | null
+          fecha_fin: string | null
+          id: number
+          nombre_aseguradora: string | null
+          precio: number | null
+          tipo_aseguradora: string | null
+          tipo_convenio: string | null
+          tramo: string | null
+        }
+        Insert: {
+          aseguradora?: number | null
+          convenio?: string | null
+          descr_convenio?: string | null
+          fecha_admision?: string | null
+          fecha_fin?: string | null
+          id?: number
+          nombre_aseguradora?: string | null
+          precio?: number | null
+          tipo_aseguradora?: string | null
+          tipo_convenio?: string | null
+          tramo?: string | null
+        }
+        Update: {
+          aseguradora?: number | null
+          convenio?: string | null
+          descr_convenio?: string | null
+          fecha_admision?: string | null
+          fecha_fin?: string | null
+          id?: number
+          nombre_aseguradora?: string | null
+          precio?: number | null
+          tipo_aseguradora?: string | null
+          tipo_convenio?: string | null
+          tramo?: string | null
+        }
+        Relationships: []
+      }
       sigesa: {
         Row: {
           created_at: string
@@ -311,7 +389,7 @@ export type Database = {
           estancias_postquirurgicas_int: number | null
           "estancias_prequirurgicas_int _episodio": number | null
           facturacion_total_episodio: number | null
-          fecha_completa: string | null
+          fecha_completa_egreso: string | null
           fecha_ingreso_completa: string | null
           fecha_tr1: string | null
           fecha_tr10: string | null
@@ -324,8 +402,10 @@ export type Database = {
           fecha_tr8: string | null
           fecha_tr9: string | null
           horas_estancia: number | null
+          hospital_descripcion: string | null
           id: number
           id_archivo_sigesa: number
+          id_derivacion: string | null
           iema_ir_bruto: number | null
           impacto_estancias_evitables_brutas: number | null
           ir_alta_inlier_outlier: string | null
@@ -362,15 +442,16 @@ export type Database = {
           "servicio_cod_ tr8": string | null
           "servicio_cod_ tr9": string | null
           servicio_egreso_codigo: string | null
-          servicio_egreso_codigo_2: string | null
+          servicio_egreso_codigo_3: string | null
           servicio_egreso_descripcion: string | null
           servicio_ingreso_codigo: string | null
-          servicio_ingreso_codigo_1: string | null
+          servicio_ingreso_codigo_2: string | null
           servicio_ingreso_descripcion: string | null
           servicio_salud_cod: number | null
           servicio_salud_des: string | null
           sexo: string | null
           tipo_actividad: string | null
+          tipo_actividad_1: string | null
           tipo_ingreso: string | null
         }
         Insert: {
@@ -399,7 +480,7 @@ export type Database = {
           estancias_postquirurgicas_int?: number | null
           "estancias_prequirurgicas_int _episodio"?: number | null
           facturacion_total_episodio?: number | null
-          fecha_completa?: string | null
+          fecha_completa_egreso?: string | null
           fecha_ingreso_completa?: string | null
           fecha_tr1?: string | null
           fecha_tr10?: string | null
@@ -412,8 +493,10 @@ export type Database = {
           fecha_tr8?: string | null
           fecha_tr9?: string | null
           horas_estancia?: number | null
+          hospital_descripcion?: string | null
           id?: number
           id_archivo_sigesa: number
+          id_derivacion?: string | null
           iema_ir_bruto?: number | null
           impacto_estancias_evitables_brutas?: number | null
           ir_alta_inlier_outlier?: string | null
@@ -450,15 +533,16 @@ export type Database = {
           "servicio_cod_ tr8"?: string | null
           "servicio_cod_ tr9"?: string | null
           servicio_egreso_codigo?: string | null
-          servicio_egreso_codigo_2?: string | null
+          servicio_egreso_codigo_3?: string | null
           servicio_egreso_descripcion?: string | null
           servicio_ingreso_codigo?: string | null
-          servicio_ingreso_codigo_1?: string | null
+          servicio_ingreso_codigo_2?: string | null
           servicio_ingreso_descripcion?: string | null
           servicio_salud_cod?: number | null
           servicio_salud_des?: string | null
           sexo?: string | null
           tipo_actividad?: string | null
+          tipo_actividad_1?: string | null
           tipo_ingreso?: string | null
         }
         Update: {
@@ -487,7 +571,7 @@ export type Database = {
           estancias_postquirurgicas_int?: number | null
           "estancias_prequirurgicas_int _episodio"?: number | null
           facturacion_total_episodio?: number | null
-          fecha_completa?: string | null
+          fecha_completa_egreso?: string | null
           fecha_ingreso_completa?: string | null
           fecha_tr1?: string | null
           fecha_tr10?: string | null
@@ -500,8 +584,10 @@ export type Database = {
           fecha_tr8?: string | null
           fecha_tr9?: string | null
           horas_estancia?: number | null
+          hospital_descripcion?: string | null
           id?: number
           id_archivo_sigesa?: number
+          id_derivacion?: string | null
           iema_ir_bruto?: number | null
           impacto_estancias_evitables_brutas?: number | null
           ir_alta_inlier_outlier?: string | null
@@ -538,15 +624,16 @@ export type Database = {
           "servicio_cod_ tr8"?: string | null
           "servicio_cod_ tr9"?: string | null
           servicio_egreso_codigo?: string | null
-          servicio_egreso_codigo_2?: string | null
+          servicio_egreso_codigo_3?: string | null
           servicio_egreso_descripcion?: string | null
           servicio_ingreso_codigo?: string | null
-          servicio_ingreso_codigo_1?: string | null
+          servicio_ingreso_codigo_2?: string | null
           servicio_ingreso_descripcion?: string | null
           servicio_salud_cod?: number | null
           servicio_salud_des?: string | null
           sexo?: string | null
           tipo_actividad?: string | null
+          tipo_actividad_1?: string | null
           tipo_ingreso?: string | null
         }
         Relationships: [
@@ -557,14 +644,28 @@ export type Database = {
             referencedRelation: "sigesa"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "sigesa_fila_ir_grd_codigo_fkey"
-            columns: ["ir_grd_codigo"]
-            isOneToOne: false
-            referencedRelation: "norma_minsal"
-            referencedColumns: ["GRD"]
-          },
         ]
+      }
+      tramos_peso_grd: {
+        Row: {
+          id: number
+          limite_inferior: number | null
+          limite_superior: number | null
+          tramo: string | null
+        }
+        Insert: {
+          id?: number
+          limite_inferior?: number | null
+          limite_superior?: number | null
+          tramo?: string | null
+        }
+        Update: {
+          id?: number
+          limite_inferior?: number | null
+          limite_superior?: number | null
+          tramo?: string | null
+        }
+        Relationships: []
       }
       users: {
         Row: {
@@ -763,4 +864,3 @@ export const Constants = {
     },
   },
 } as const
-

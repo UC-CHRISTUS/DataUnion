@@ -15,6 +15,7 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
 **Archivo:** `src/app/api/v1/grd/[grdId]/submit-finance/route.ts`
 
 **Mejoras:**
+
 1. ✅ Validación re-habilitada para campo `validado`
 2. ✅ Validación aplicada a TODAS las filas (no solo primera)
 3. ✅ Mensajes de error descriptivos con episodios afectados
@@ -26,10 +27,12 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
 ## 🎯 Objetivo
 
 **Validar que Finance NO pueda hacer Submit si:**
+
 - Existen filas sin el campo `validado` completado
 - El campo `validado` está vacío o solo contiene espacios
 
 **Validar que Finance SÍ pueda hacer Submit si:**
+
 - TODAS las filas tienen el campo `validado` completado
 
 ---
@@ -39,11 +42,13 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
 ### CASO 1: Submit exitoso - Todas las filas válidas ✅
 
 **Pre-condiciones:**
+
 - Usuario: `finance@test.com`
 - Archivo en estado: `borrador_finance` o `pendiente_finance`
 - TODAS las filas tienen campo `validado` completado
 
 **Pasos:**
+
 1. Login como Finance
 2. Navegar a `/visualizator`
 3. Completar campo `validado` en TODAS las filas (ejemplo: "Sí")
@@ -52,6 +57,7 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
 6. Confirmar en modal
 
 **Resultado Esperado:**
+
 ```json
 {
   "success": true,
@@ -64,6 +70,7 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
   }
 }
 ```
+
 - ✅ Alert: "Archivo entregado a Administración exitosamente"
 - ✅ Redirección a `/dashboard`
 - ✅ Estado en DB: `pendiente_admin`
@@ -73,11 +80,13 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
 ### CASO 2: Submit fallido - Algunas filas sin validar ❌
 
 **Pre-condiciones:**
+
 - Usuario: `finance@test.com`
 - Archivo en estado: `borrador_finance`
 - 5 filas tienen campo `validado` vacío
 
 **Pasos:**
+
 1. Login como Finance
 2. Navegar a `/visualizator`
 3. Completar campo `validado` SOLO en algunas filas (dejar 5 vacías)
@@ -86,6 +95,7 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
 6. Confirmar en modal
 
 **Resultado Esperado:**
+
 ```json
 {
   "success": false,
@@ -99,6 +109,7 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
   }
 }
 ```
+
 - ❌ Alert rojo: "Faltan campos obligatorios en algunas filas"
 - ❌ Mensaje descriptivo con episodios afectados
 - ❌ NO cambia estado (permanece en `borrador_finance`)
@@ -108,11 +119,13 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
 ### CASO 3: Submit fallido - Todas las filas sin validar ❌
 
 **Pre-condiciones:**
+
 - Usuario: `finance@test.com`
 - Archivo con 50 filas
 - NINGUNA fila tiene campo `validado` completado
 
 **Pasos:**
+
 1. Login como Finance
 2. Navegar a `/visualizator`
 3. NO completar campo `validado` en ninguna fila
@@ -120,6 +133,7 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
 5. Confirmar en modal
 
 **Resultado Esperado:**
+
 ```json
 {
   "success": false,
@@ -133,6 +147,7 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
   }
 }
 ```
+
 - ❌ Alert rojo con mensaje descriptivo
 - ❌ Muestra "Primeros 5 episodios... Y 45 más"
 - ❌ NO cambia estado
@@ -142,10 +157,12 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
 ### CASO 4: Submit fallido - Campo con solo espacios ❌
 
 **Pre-condiciones:**
+
 - Usuario: `finance@test.com`
 - Algunas filas tienen campo `validado` con solo espacios: `"   "`
 
 **Pasos:**
+
 1. Login como Finance
 2. Navegar a `/visualizator`
 3. Completar campo `validado` con solo espacios en algunas filas
@@ -153,6 +170,7 @@ Se re-habilitaron las validaciones de campos obligatorios en la API `POST /api/v
 5. Click en "📊 Entregar a Administración"
 
 **Resultado Esperado:**
+
 - ❌ Validación debe fallar (espacios no son válidos)
 - ❌ Mensaje: "Faltan campos obligatorios en algunas filas"
 - ❌ Filas con espacios contadas como inválidas
@@ -207,12 +225,14 @@ RETURNING id, episodio, validado;
 ## 📊 Checklist de Validación
 
 ### Funcionalidad
+
 - [ ] **Caso 1:** Submit exitoso con todas las filas válidas
 - [ ] **Caso 2:** Submit fallido con 5 filas sin validar
 - [ ] **Caso 3:** Submit fallido con todas las filas sin validar
 - [ ] **Caso 4:** Submit fallido con campo con solo espacios
 
 ### Mensajes de Error
+
 - [ ] Error muestra campo faltante: "validado"
 - [ ] Error muestra total de filas afectadas
 - [ ] Error muestra primeros 5 episodios
@@ -220,12 +240,14 @@ RETURNING id, episodio, validado;
 - [ ] Mensaje es claro y descriptivo
 
 ### Comportamiento del Sistema
+
 - [ ] Estado NO cambia si validación falla
 - [ ] Estado SÍ cambia a `pendiente_admin` si validación pasa
 - [ ] Finance recibe feedback visual (alert)
 - [ ] No se pierden datos al fallar validación
 
 ### Edge Cases
+
 - [ ] Archivo con 1 fila sin validado
 - [ ] Archivo con 100+ filas sin validado (performance)
 - [ ] Campo validado con caracteres especiales
@@ -248,14 +270,17 @@ RETURNING id, episodio, validado;
 ## 🐛 Posibles Issues
 
 ### Issue 1: Validación muy lenta con archivos grandes
+
 **Síntoma:** Submit tarda >5 segundos con 500+ filas  
 **Solución:** Optimizar query o mover validación a procedimiento SQL
 
 ### Issue 2: Mensaje de error no se muestra en UI
+
 **Síntoma:** API retorna error pero UI no muestra alert  
 **Solución:** Verificar manejo de errores en `ExcelEditor.tsx`
 
 ### Issue 3: Campo validado acepta valores inválidos
+
 **Síntoma:** Valores como "???" o "N/A" son aceptados  
 **Solución:** Agregar validación de valores permitidos: "Sí" / "No"
 
@@ -266,10 +291,12 @@ RETURNING id, episodio, validado;
 ### Campos Obligatorios por Rol
 
 **Encoder:**
+
 - `AT` (boolean) - Opcional
 - `AT_detalle` (string) - Obligatorio si AT = true
 
 **Finance:**
+
 - `validado` (string) - **OBLIGATORIO** ✅ (TECH-006)
 - `n_folio` (número) - Opcional
 - `estado_rn` (string) - Opcional
@@ -277,14 +304,17 @@ RETURNING id, episodio, validado;
 - `documentacion` (string) - Opcional
 
 **Admin:**
+
 - No edita campos (solo visualiza)
 
 ### Valores Válidos para Campo 'validado'
 
 **Actualmente aceptados:**
+
 - Cualquier string no vacío (ejemplo: "Sí", "No", "Pendiente")
 
 **Recomendación futura:**
+
 - Restringir a valores específicos: "Sí" / "No"
 - Agregar validación en Zod schema
 

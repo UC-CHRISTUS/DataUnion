@@ -20,15 +20,18 @@
 ## 🎯 Contexto General
 
 ### Objetivo del Sistema
+
 Generar el Excel de prefacturación por episodios de pacientes clínicos para FONASA (Chile).
 
 ### Equipo de Trabajo
+
 - **2 Encoders** (Codificadores)
 - **3 Finance** (Finanzas)
 - **1 Admin** (Administrador)
 - **Total:** 6 personas trabajando sobre UN SOLO ARCHIVO
 
 ### Frecuencia de Uso
+
 - **Periodicidad:** Mensual
 - **Proceso:** Un archivo único por mes que pasa por todos los roles secuencialmente
 
@@ -36,7 +39,7 @@ Generar el Excel de prefacturación por episodios de pacientes clínicos para FO
 
 ## 🔄 Flujo Principal de Trabajo
 
-```
+```plaintext
 ┌──────────────────────────────────────────────────────────────────┐
 │  1. ENCODER: Upload desde SIGESA                                 │
 │     Estado: borrador_encoder                                     │
@@ -92,6 +95,7 @@ Generar el Excel de prefacturación por episodios de pacientes clínicos para FO
 ### 🔵 ENCODER (Codificador)
 
 #### Permisos de Edición
+
 - ✅ **Puede editar:**
   - Ajustes Tecnológicos (AT) - dropdown con múltiples opciones
   - Campos clínicos específicos (a definir según codebase existente)
@@ -101,6 +105,7 @@ Generar el Excel de prefacturación por episodios de pacientes clínicos para FO
   - Campos inmutables de SIGESA (RUT, fecha egreso, etc.)
 
 #### Supuestos Clave
+
 1. **Upload único:** Solo UN encoder del equipo sube el archivo inicial desde SIGESA
 2. **Archivo base:** El archivo de SIGESA tiene columnas fijas y conocidas (parser automático)
 3. **Submit irreversible:** Una vez que hace submit, **NO puede volver a editar**
@@ -113,6 +118,7 @@ Generar el Excel de prefacturación por episodios de pacientes clínicos para FO
 ### 💚 FINANCE (Finanzas)
 
 #### Permisos de Edición
+
 - ✅ **Puede editar:**
   - N° Folio (campo manual)
   - Validación (campo de texto - **POR DEFINIR**)
@@ -123,6 +129,7 @@ Generar el Excel de prefacturación por episodios de pacientes clínicos para FO
   - Campos inmutables de SIGESA
 
 #### Supuestos Clave
+
 1. **Recibe notificación:** Cuando encoder hace submit, Finance recibe alerta en la app
 2. **Campos bloqueados:** Los campos editados por Encoder quedan **read-only** para Finance
 3. **Submit irreversible:** Una vez que hace submit, **NO puede volver a editar**
@@ -136,9 +143,11 @@ Generar el Excel de prefacturación por episodios de pacientes clínicos para FO
 ### 🔴 ADMIN (Administrador)
 
 #### Permisos de Edición
+
 - ❌ **NO puede editar nada:** Admin es solo revisor/aprobador
 
 #### Permisos de Revisión
+
 - ✅ **Puede revisar:**
   - Todo el archivo completo
   - Todas las columnas (Encoder + Finance + SIGESA)
@@ -148,17 +157,20 @@ Generar el Excel de prefacturación por episodios de pacientes clínicos para FO
   - Tipo filtro Excel para facilitar revisión
 
 #### Permisos de Aprobación
+
 - ✅ **Puede aprobar:** Todo el archivo pasa a estado `aprobado`
 - ✅ **Puede rechazar:** (Feature Sprint futuro)
   - Si rechaza columna de Encoder → Vuelve a `borrador_encoder`
   - Si rechaza columna de Finance → Vuelve a `borrador_finance`
 
 #### Permisos de Exportación
+
 - ✅ **Exporta TODO el archivo completo** (no por filas)
 - ✅ **Descarga local:** Botón de descarga → archivo .xlsx en PC
 - ✅ **No hay envío automático:** Admin descarga y luego sube manualmente a FONASA
 
 #### Supuestos Clave
+
 1. **Solo revisión:** Admin NO edita, solo aprueba/rechaza
 2. **Export completo:** Siempre exporta el archivo completo (no parcial)
 3. **Export local:** No hay integración directa con FONASA (por ahora)
@@ -172,6 +184,7 @@ Generar el Excel de prefacturación por episodios de pacientes clínicos para FO
 ### ⚠️ CRÍTICO: Trabajo Colaborativo Simultáneo
 
 #### Escenario Real
+
 - **2 Encoders** trabajando simultáneamente en el mismo archivo
 - **3 Finance** trabajando simultáneamente en el mismo archivo
 - **1 Admin** revisando (no edita)
@@ -179,7 +192,8 @@ Generar el Excel de prefacturación por episodios de pacientes clínicos para FO
 #### Supuestos de Implementación
 
 ##### 1. **Concurrencia a Nivel de Fila (Episodio)**
-```
+
+```plaintext
 Supuesto: Cada usuario trabaja en FILAS diferentes al mismo tiempo
 
 Ejemplo:
@@ -189,26 +203,29 @@ Ejemplo:
 ```
 
 **Ventajas:**
+
 - ✅ No hay conflictos de versión
 - ✅ Trabajo paralelo real
 - ✅ Fácil de implementar
 
 **Desventajas:**
+
 - ❌ Necesita sistema de bloqueo de filas
 - ❌ Necesita indicador visual de "quién está editando qué"
-
 
 ---
 
 #### ⭐ Recomendación: **Opción 1 - Bloqueo de Filas**
 
 **Implementación propuesta:**
+
 1. Cuando usuario empieza a editar una fila → se bloquea automáticamente
 2. Otros usuarios ven indicador visual: "🔒 Editando: [Nombre Usuario]"
 3. Cuando usuario sale de la fila → se desbloquea automáticamente
 4. Timeout de 10 minutos: si usuario no guarda, fila se desbloquea automáticamente
 
 **Ventajas para UC Christus:**
+
 - ✅ Evita conflictos entre los 2 encoders
 - ✅ Evita conflictos entre los 3 finance
 - ✅ Trabajo paralelo eficiente
@@ -219,18 +236,21 @@ Ejemplo:
 ### Supuestos Adicionales de Concurrencia
 
 #### Durante Estado `borrador_encoder`
+
 - ✅ Los 2 encoders pueden trabajar simultáneamente
 - ✅ Sistema bloquea filas en edición activa
 - ✅ Auto-guardado cada 30 segundos (sin submit)
 - ⚠️ Solo UN encoder puede hacer el submit final
 
 #### Durante Estado `borrador_finance`
+
 - ✅ Los 3 finance pueden trabajar simultáneamente
 - ✅ Sistema bloquea filas en edición activa
 - ✅ Auto-guardado cada 30 segundos (sin submit)
 - ⚠️ Solo UN finance puede hacer el submit final
 
 #### Durante Estado `pendiente_admin`
+
 - ✅ Admin solo lee, no hay conflictos de concurrencia
 - ❌ Nadie más puede editar (archivo bloqueado)
 
@@ -251,7 +271,7 @@ Ejemplo:
 
 ### Transiciones de Estado
 
-```
+```plaintext
 borrador_encoder
     ↓ [Encoder hace Submit con doble confirmación]
 pendiente_finance (estado transitorio automático)
@@ -337,6 +357,7 @@ exportado (estado final)
 ### Campos de Encoder
 
 **⚠️ POR REVISAR:** Necesario revisar codebase existente y estructura de Supabase para definir:
+
 - Campos específicos editables por Encoder
 - Campos inmutables de SIGESA
 - Estructura actual de tablas
@@ -346,6 +367,7 @@ exportado (estado final)
 ### Estructura de Tablas (Por Confirmar)
 
 **Tablas Existentes en Supabase:**
+
 - ✅ `sigesa` - Archivos SIGESA
 - ✅ `sigesa_fila` - Datos de egresos/episodios
 - ✅ `norma_minsal` - Tabla normativa GRD
@@ -353,7 +375,8 @@ exportado (estado final)
 - ✅ `ajustes_tecnologias` - Ajustes tecnológicos
 - ✅ `users` - Usuarios del sistema
 
-**⚠️ IMPORTANTE:** 
+**⚠️ IMPORTANTE:**
+
 - Revisar estructura actual con MCP Supabase
 - Entender relaciones entre tablas
 - Construir sobre base existente (no reinventar)
@@ -390,4 +413,3 @@ Este documento debe actualizarse cada vez que se defina un supuesto nuevo o se c
 **Próxima revisión:** Después de revisar Excel y Supabase
 
 ---
-

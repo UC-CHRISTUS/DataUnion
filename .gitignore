@@ -45,4 +45,8 @@ next-env.d.ts
 .cursor/
 /planning
 
+# files
 /Archivos
+
+# supabase
+.temp
