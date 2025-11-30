@@ -23,7 +23,6 @@ import type {
 } from "@/types/ag-grid.types";
 
 // Constants
-const YES_NO_OPTIONS = ["Sí", "No"];
 
 const FIELD_TYPES: Record<string, FieldType> = {
   validado: 'string',
@@ -110,7 +109,8 @@ interface ATMultiSelectValue {
 interface ATMultiSelectEditorProps {
   options: ATOption[];
   value: string | null;
-  stopEditing: (suppressNavigateAfterEdit?: boolean) => void;
+  stopEditing: (cancel?: boolean) => void;
+  onValueChange: (value: ATMultiSelectValue) => void;  // AG-Grid v34+ API
 }
 
 interface ColumnDefinition {
@@ -194,24 +194,29 @@ const AgGridReact = dynamic<any>(
   { ssr: false }
 );
 
+// Separator for multiple AT labels - using " | " since AT names contain commas
+const AT_SEPARATOR = " | ";
+
 const AtMultiSelectEditor = React.forwardRef<
   { getValue: () => ATMultiSelectValue; isPopup: () => boolean },
   ATMultiSelectEditorProps
 >((props, ref) => {
-  const { options = [], value } = props;
+  const { options = [], value, onValueChange } = props;
 
-  const initial = String(value ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  // Parse initial value - split by separator and match against valid options
+  const initial = React.useMemo(() => {
+    if (!value) return [];
+    const parts = String(value).split(AT_SEPARATOR).map(s => s.trim()).filter(Boolean);
+    const validLabels = options.map(o => o.label);
+    return parts.filter(p => validLabels.includes(p));
+  }, [value, options]);
 
   const [selected, setSelected] = React.useState<string[]>(initial);
 
-  const toggle = (label: string) => {
-    setSelected(prev =>
-      prev.includes(label) ? prev.filter(x => x !== label) : [...prev, label]
-    );
-  };
+  // Reset selected when initial changes (e.g., when reopening editor with new value)
+  React.useEffect(() => {
+    setSelected(initial);
+  }, [initial]);
 
   const totalValor = React.useMemo(() => {
     return selected.reduce((acc, label) => {
@@ -220,18 +225,28 @@ const AtMultiSelectEditor = React.forwardRef<
     }, 0);
   }, [selected, options]);
 
+  const toggle = (label: string) => {
+    setSelected(prev =>
+      prev.includes(label) ? prev.filter(x => x !== label) : [...prev, label]
+    );
+  };
+
   React.useImperativeHandle(ref, () => ({
-    getValue: () => ({
-      labels: selected.join(", "),
-      monto: totalValor,
-    }),
+    getValue: () => ({ labels: selected.join(AT_SEPARATOR), monto: totalValor }),
     isPopup: () => true,
-  }));
+  }), [selected, totalValor]);
 
   const applyAndClose = (e?: React.MouseEvent) => {
     e?.stopPropagation();
+
+    // AG-Grid v34+: Use onValueChange to pass the value BEFORE stopping edit
+    const result = { labels: selected.join(AT_SEPARATOR), monto: totalValor };
+    if (typeof onValueChange === "function") {
+      onValueChange(result);
+    }
+
     if (typeof props.stopEditing === "function") {
-      props.stopEditing(true);
+      props.stopEditing();
     }
   };
 
@@ -239,7 +254,7 @@ const AtMultiSelectEditor = React.forwardRef<
     e.stopPropagation();
     if (e.key === "Enter") applyAndClose();
     if (e.key === "Escape" && typeof props.stopEditing === "function") {
-      props.stopEditing(false);
+      props.stopEditing(true);  // true = cancel the edit
     }
   };
 
@@ -252,7 +267,7 @@ const AtMultiSelectEditor = React.forwardRef<
     >
       {options.map((opt) => (
         <label
-          key={opt.label}
+          key={opt.id}
           className="flex items-center gap-2 p-1 hover:bg-gray-100 cursor-pointer"
           onMouseDown={(e) => e.stopPropagation()}
         >
@@ -717,19 +732,27 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
           const v = params.newValue as ATMultiSelectValue | string | null;
 
           if (params.data) {
+            let newATDetalle = "";
+            let newMontoAT = params.data.monto_AT ?? 0;
+
             if (v && typeof v === "object" && 'labels' in v) {
-              params.data.AT_detalle = v.labels ?? "";
-              params.data.monto_AT = v.monto ?? 0;
+              newATDetalle = v.labels ?? "";
+              newMontoAT = v.monto ?? 0;
             } else {
-              params.data.AT_detalle = (v as string) ?? "";
+              newATDetalle = (v as string) ?? "";
             }
+
+            params.data.AT_detalle = newATDetalle;
+            params.data.monto_AT = newMontoAT;
 
             if (params.data.episodio) {
               setModifiedRows(prev => ({
                 ...prev,
                 [params.data!.episodio!]: {
                   ...(prev[params.data!.episodio!] || {}),
-                  ...params.data
+                  ...params.data,
+                  AT_detalle: newATDetalle,
+                  monto_AT: newMontoAT
                 }
               }));
             }
@@ -750,7 +773,8 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
       if (["AT", "validado", "documentacion"].includes(c.field)) {
         base.cellEditor = "agSelectCellEditor";
         base.cellEditorParams = {
-          values: ["", ...YES_NO_OPTIONS]
+          values: [true, false],  // Only Sí and No, no blank option
+          useFormatter: true      // Display formatted values (Sí/No) in dropdown
         };
         base.singleClickEdit = true;
 

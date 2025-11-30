@@ -7,7 +7,7 @@ import { idSchema } from '@/lib/api/validation'
 interface GrdFilaWithAjustes {
   id: number
   episodio: number
-  validado: string | null
+  validado: boolean | null
   centro: string | null
   n_folio: number | null
   rut_paciente: string | null
@@ -21,7 +21,8 @@ interface GrdFilaWithAjustes {
   AT_detalle: string | null
   monto_AT: number | null
   tipo_alta: string | null
-  'IR-GRD': number
+  convenio: string | null
+  'IR-GRD': string | null
   peso: number | null
   monto_rn: number | null
   dias_demora_rescate_hospital: number | null
