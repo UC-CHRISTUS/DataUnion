@@ -1,11 +1,19 @@
 // Jest setup file for global test configuration
 
 // Polyfill File for Node.js test environment (File is a Web API not available in Node.js global scope)
-// undici is bundled with Node.js 18+
 if (typeof globalThis.File === 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { File } = require('undici');
-  globalThis.File = File;
+  // Simple File polyfill extending Blob
+  class FilePolyfill extends Blob {
+    name: string;
+    lastModified: number;
+    
+    constructor(chunks: BlobPart[], filename: string, options?: FilePropertyBag) {
+      super(chunks, options);
+      this.name = filename;
+      this.lastModified = options?.lastModified ?? Date.now();
+    }
+  }
+  globalThis.File = FilePolyfill as unknown as typeof File;
 }
 
 // Suppress Node.js warnings (e.g., --localstorage-file warning from Supabase)
