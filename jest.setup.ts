@@ -11,7 +11,7 @@ const originalError = console.error;
 const originalWarn = console.warn;
 
 beforeAll(() => {
-  console.error = (...args: any[]) => {
+  console.error = (...args) => {
     // Suppress common expected errors in tests
     const message = typeof args[0] === 'string' ? args[0] : '';
     const suppressPatterns = [
@@ -36,7 +36,7 @@ beforeAll(() => {
     originalError.call(console, ...args);
   };
 
-  console.warn = (...args: any[]) => {
+  console.warn = (...args) => {
     // Suppress expected warnings in tests
     const message = typeof args[0] === 'string' ? args[0] : '';
     const suppressPatterns = [
