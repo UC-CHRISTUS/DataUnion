@@ -12,7 +12,6 @@ import { Console } from 'console'
  * - Remove content in parentheses
  */
 function normalizeHeader(header: string): string {
-  console.log('[normalizeHeader] original header:', header)
 
   const normalized = header
     .normalize('NFD')
@@ -24,7 +23,6 @@ function normalizeHeader(header: string): string {
     .replace(/\s+/g, ' ')
     .trimEnd()
 
-  console.log('[normalizeHeader] normalized header:', `(${normalized})`)
   return normalized
 }
 
@@ -166,7 +164,10 @@ function joinPrevision(previsionCodigo: string | null, previsionDesc: string | n
 }
 
 
+// function handleConvenio(convenioCod: string | null, supabase: any, tramo: string | null, fecha_ingreso: string | null): Promise<number | null>{
+//   Console.log("handleConvenio", convenioCod, tramo, fecha_ingreso)
 function handleConvenio(convenioCod: string | null, supabase: any, tramo: string | null, fecha_ingreso: string | null): Promise<number | null>{
+  console.log("handleConvenio", convenioCod, tramo, fecha_ingreso)
   if (convenioCod == "FNS012") { 
     return getPrecioFNS012(supabase, convenioCod, tramo, fecha_ingreso)
 
@@ -306,14 +307,21 @@ function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_
 
   const peso = Number(peso_grd_medio_todos)
   if (isNaN(peso)) return null
+  // print peso 
+  console.log("Peso:", peso)
 
   for (const row of tramos) {
+    console.log("Checking row:", row)
+
     const lower = row.limite_inferior != null ? Number(row.limite_inferior) : -Infinity
+    console.log("Lower limit:", lower)
     const upper = row.limite_superior != null ? Number(row.limite_superior) : Infinity
+    console.log("Upper limit:", upper)
 
     if (isNaN(lower) && isNaN(upper)) continue
 
     if (peso > lower && peso <= upper) {
+      console.log("Peso is within range:", lower, upper)
       return row.tramo ?? null
     }
   }
@@ -327,6 +335,7 @@ function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_
  */
 function parseDateString(dateStr: string | null | undefined): Date | null {
   if (!dateStr) return null
+  console.log("Parsing date string:", dateStr)
 
   // Try native parser first (handles ISO)
   const iso = new Date(dateStr)
@@ -339,11 +348,14 @@ function parseDateString(dateStr: string | null | undefined): Date | null {
     const month = Number(mdyMatch[1])
     const day = Number(mdyMatch[2])
     const year = Number(mdyMatch[3])
+    console.log("Parsed MM/DD/YYYY:", month, day, year)
+
     if (!Number.isNaN(month) && !Number.isNaN(day) && !Number.isNaN(year)) {
       const d = new Date(Date.UTC(year, month - 1, day))
       if (!isNaN(d.getTime())) return d
     }
   }
+  console.log("Date string could not be parsed:", dateStr)
 
   return null
 }
@@ -734,23 +746,47 @@ export async function POST(request: NextRequest) {
     })
 
     // Fetch tramos_peso_grd once to avoid repeated DB calls per row
-    let tramosData: any[] | null = null
+    // let tramosData: any[] = []
+    // try {
+    //   console.log('[POST] Fetching tramos_peso_grd data')
+    //   const { data: _tramos, error: tramosError } = await supabase
+    //     .from('tramos_peso_grd')
+    //     .select('limite_inferior, limite_superior, tramo')
+    //     .order('limite_inferior', { ascending: true })
+      
+
+    //   if (tramosError) {
+    //     console.error('[POST] Error fetching tramos_peso_grd:', tramosError)
+    //     tramosData = null
+    //   } else {
+    //     tramosData = Array.isArray(_tramos) ? _tramos : null
+    //   }
+    // } catch (err) {
+    //   console.error('[POST] Unexpected error fetching tramos:', err)
+    //   tramosData = null
+    // }
+    // console.log('[POST] tramosData:', tramosData)
+
+    let tramosData: any[] = []
+
     try {
-      const { data: _tramos, error: tramosError } = await supabase
+      console.log('[POST] Fetching tramos_peso_grd data')
+      const { data, error } = await supabase
         .from('tramos_peso_grd')
         .select('limite_inferior, limite_superior, tramo')
         .order('limite_inferior', { ascending: true })
 
-      if (tramosError) {
-        console.error('[POST] Error fetching tramos_peso_grd:', tramosError)
-        tramosData = null
-      } else {
-        tramosData = Array.isArray(_tramos) ? _tramos : null
+      if (error) {
+        console.error('[POST] Error fetching tramos_peso_grd:', error)
+      } else if (Array.isArray(data)) {
+        tramosData = data
       }
+
     } catch (err) {
       console.error('[POST] Unexpected error fetching tramos:', err)
-      tramosData = null
     }
+
+    console.log('[POST] tramosData:', tramosData)
 
     // Transform each SIGESA row to GRD row
     const grdFilaRowsPromises = rows.map(async (row) => {
