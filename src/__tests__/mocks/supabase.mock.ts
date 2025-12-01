@@ -17,6 +17,7 @@ export class MockSupabaseQueryBuilder<T = any> {
   private mockCount: number | null = null;
   private filterConditions: Array<{ column: string; operator: string; value: any }> = [];
   private pendingOperation: { type: 'insert' | 'update' | 'delete'; data?: any } | null = null;
+  private wantSingle: boolean = false;
 
   constructor(
     private tableName: string,
@@ -59,6 +60,21 @@ export class MockSupabaseQueryBuilder<T = any> {
     return this;
   }
 
+  // IN filter (for array of values)
+  in(column: string, values: any[]): this {
+    this.filterConditions.push({ column, operator: 'in', value: values });
+    return this;
+  }
+
+  // LIMIT
+  limit(count: number): this {
+    const tableData = this.mockDatabase.get(this.tableName) || [];
+    const filtered = this.applyFilters(tableData);
+    this.mockData = filtered.slice(0, count) as any;
+    this.mockCount = filtered.length;
+    return this;
+  }
+
   // ORDERING
   order(_column: string, _options?: { ascending?: boolean }): this {
     return this;
@@ -80,6 +96,9 @@ export class MockSupabaseQueryBuilder<T = any> {
 
   // SINGLE RECORD
   single(): this {
+    // Set flag so that then() applies single transformation after pending operations
+    this.wantSingle = true;
+    
     // If mockData is already set (e.g., from insert/update), keep it as single
     if (this.mockData !== null) {
       // If it's an array, take the first element
@@ -150,6 +169,8 @@ export class MockSupabaseQueryBuilder<T = any> {
             return recordValue < value;
           case 'lte':
             return recordValue <= value;
+          case 'in':
+            return Array.isArray(value) && value.includes(recordValue);
           default:
             return true;
         }
@@ -179,6 +200,11 @@ export class MockSupabaseQueryBuilder<T = any> {
         this.mockData = tableData as any;
         this.mockCount = tableData.length;
       }
+    }
+
+    // Apply single() transformation if requested (after pending operations have set mockData)
+    if (this.wantSingle && Array.isArray(this.mockData)) {
+      this.mockData = this.mockData[0] || null;
     }
 
     const response: MockSupabaseResponse<T> = {
@@ -231,7 +257,8 @@ export class MockSupabaseQueryBuilder<T = any> {
         }
       });
       this.mockDatabase.set(this.tableName, allData);
-      this.mockData = (updated.length === 1 ? updated[0] : updated) as T;
+      // Always return array - wantSingle flag in then() handles .single() conversion
+      this.mockData = updated as any;
     }
 
     if (type === 'delete') {
