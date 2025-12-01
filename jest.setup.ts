@@ -1,21 +1,5 @@
 // Jest setup file for global test configuration
 
-// Polyfill File for Node.js test environment (File is a Web API not available in Node.js global scope)
-if (typeof globalThis.File === 'undefined') {
-  // Simple File polyfill extending Blob
-  class FilePolyfill extends Blob {
-    name: string;
-    lastModified: number;
-    
-    constructor(chunks: BlobPart[], filename: string, options?: FilePropertyBag) {
-      super(chunks, options);
-      this.name = filename;
-      this.lastModified = options?.lastModified ?? Date.now();
-    }
-  }
-  globalThis.File = FilePolyfill as unknown as typeof File;
-}
-
 // Suppress Node.js warnings (e.g., --localstorage-file warning from Supabase)
 const originalEmit = process.emit;
 // @ts-expect-error - Overriding process.emit for warning suppression

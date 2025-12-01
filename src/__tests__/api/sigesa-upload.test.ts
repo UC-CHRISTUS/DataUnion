@@ -157,16 +157,15 @@ async function createTestExcelBuffer(rows: Array<Record<string, any>>): Promise<
 }
 
 // Helper to create FormData with file
+// Uses Blob with filename parameter instead of File class for Node.js compatibility
 async function createFormDataWithFile(buffer: ArrayBuffer, filename: string): Promise<FormData> {
   const blob = new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
-  const file = new File([blob], filename, {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  });
 
   const formData = new FormData();
-  formData.append('file', file);
+  // FormData.append() accepts a third parameter for filename, which works in Node.js
+  formData.append('file', blob, filename);
   return formData;
 }
 
@@ -361,9 +360,9 @@ describe('POST /api/v1/sigesa/upload', () => {
     it('should return 400 for non-Excel file', async () => {
       // Arrange
       const blob = new Blob(['not an excel file'], { type: 'text/plain' });
-      const file = new File([blob], 'test.txt', { type: 'text/plain' });
       const formData = new FormData();
-      formData.append('file', file);
+      // Use Blob with filename parameter for Node.js compatibility
+      formData.append('file', blob, 'test.txt');
 
       const request = new NextRequest('http://localhost:3000/api/v1/sigesa/upload', {
         method: 'POST',
