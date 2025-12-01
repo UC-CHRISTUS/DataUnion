@@ -30,10 +30,21 @@ jest.mock('ag-grid-community', () => ({
 }));
 
 // Mock next/dynamic to bypass SSR
-jest.mock('next/dynamic', () => () => {
-  const { AgGridReact } = require('ag-grid-react');
-  return AgGridReact;
-});
+jest.mock('next/dynamic', () => () =>
+  function MockDynamicAgGrid({ rowData, columnDefs }: { rowData?: Array<{ GRD?: string }>; columnDefs?: unknown[] }) {
+    return (
+      <div data-testid="ag-grid-mock">
+        <div data-testid="row-count">{rowData?.length || 0} rows</div>
+        <div data-testid="column-count">{columnDefs?.length || 0} columns</div>
+        {rowData?.map((row, i) => (
+          <div key={i} data-testid={`row-${i}`}>
+            {row.GRD && <span data-testid={`grd-${i}`}>{row.GRD}</span>}
+          </div>
+        ))}
+      </div>
+    );
+  }
+);
 
 describe('NormaMinsal Component', () => {
   beforeEach(() => {

@@ -27,10 +27,19 @@ jest.mock('ag-grid-community', () => ({
 }));
 
 // Mock next/dynamic
-jest.mock('next/dynamic', () => () => {
-  const { AgGridReact } = require('ag-grid-react');
-  return AgGridReact;
-});
+jest.mock('next/dynamic', () => () =>
+  function MockDynamicAgGrid({ rowData, columnDefs, datasource }: { rowData?: Array<unknown>; columnDefs?: Array<unknown>; datasource?: unknown }) {
+    const rowCount = rowData?.length ?? 0;
+    const colCount = columnDefs?.length ?? 0;
+    return (
+      <div data-testid="ag-grid-mock">
+        <div data-testid="row-count">{rowCount} rows</div>
+        <div data-testid="column-count">{colCount} columns</div>
+        {!!datasource && <div data-testid="has-datasource">infinite scroll enabled</div>}
+      </div>
+    );
+  }
+);
 
 // Mock xlsx
 jest.mock('xlsx', () => ({

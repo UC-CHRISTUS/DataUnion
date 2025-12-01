@@ -37,7 +37,7 @@ jest.mock('@supabase/ssr', () => ({
 
 // Helper to create mock query builder
 function createMockQueryBuilder(tableName: string) {
-  let filterConditions: Array<{ column: string; value: any }> = [];
+  const filterConditions: Array<{ column: string; value: any }> = [];
   let insertData: any = null;
 
   const builder: any = {
