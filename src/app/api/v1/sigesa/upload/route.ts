@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import ExcelJS from 'exceljs'
 import { successResponse, errorResponse, handleError } from '@/lib/api/response'
-import { Console } from 'console'
+import { get } from 'http'
 
 /**
  * Normalize header string for flexible matching
@@ -164,10 +164,7 @@ function joinPrevision(previsionCodigo: string | null, previsionDesc: string | n
 }
 
 
-// function handleConvenio(convenioCod: string | null, supabase: any, tramo: string | null, fecha_ingreso: string | null): Promise<number | null>{
-//   Console.log("handleConvenio", convenioCod, tramo, fecha_ingreso)
 function handleConvenio(convenioCod: string | null, supabase: any, tramo: string | null, fecha_ingreso: string | null): Promise<number | null>{
-  console.log("handleConvenio", convenioCod, tramo, fecha_ingreso)
   if (convenioCod == "FNS012") { 
     return getPrecioFNS012(supabase, convenioCod, tramo, fecha_ingreso)
 
@@ -201,7 +198,7 @@ function handlePagoDemoraRescate(convenioCod: string | null , supabase: any,
   }
   
   else {
-    return Promise.resolve(null)
+    return Promise.resolve(0)
   }
 }
 
@@ -232,7 +229,6 @@ async function getPagoDemoraFNS012(
       .limit(1)
 
     if (error) {
-      console.error('[getPagoDemoraFNS012] DB error:', error)
       return null
     }
 
@@ -240,11 +236,9 @@ async function getPagoDemoraFNS012(
 
     const p75 = Number(data[0].percentil_75)
     if (isNaN(p75) || p75 === 0) return null
-
     const numerator = peso * precioBase * dias
     return numerator / p75
   } catch (err) {
-    console.error('[getPagoDemoraFNS012] Unexpected error:', err)
     return null
   }
 }
@@ -258,7 +252,8 @@ async function pagoOutlierSuperior(
   grd: number | null,
   estancia_total: number | null
 ): Promise<number > {
-  if (codigo_convenio !== 'FNS012') return 0
+  if (codigo_convenio !== 'FNS012') 
+    return 0
 
   const peso = Number(peso_grd)
   const precioBase = Number(precio_base)
@@ -272,7 +267,7 @@ async function pagoOutlierSuperior(
   try {
     const { data, error } = await supabase
       .from('norma_minsal')
-      .select('percentil_75, percentil_50, punto_corte_superior')
+      .select('percentil_75, tab_1430_d_perct_50_g, punto_corte_superior')
       .eq('GRD', grdNum)
       .limit(1)
 
@@ -280,17 +275,21 @@ async function pagoOutlierSuperior(
       return 0
     }
 
-    if (!Array.isArray(data) || data.length === 0) return 0
+    if (!Array.isArray(data) || data.length === 0) {
+      return 0
+    }
 
     const row = data[0]
     const p75 = Number(row.percentil_75)
-    const p50 = Number(row.percentil_50)
+    const p50 = Number(row.tab_1430_d_perct_50_g)
     const punto = Number(row.punto_corte_superior)
 
-    if ([p75, p50, punto].some((v) => isNaN(v)) || p75 === 0) return 0
+    if ([p75, p50, punto].some((v) => isNaN(v)) || p75 === 0) {
+      return 0
+    }
 
     const periodo_carencia = punto + p50
-    const dia_post_carencia = estancia - periodo_carencia
+    const dia_post_carencia = 10*estancia - periodo_carencia
 
     if (dia_post_carencia <= 0) return 0
 
@@ -307,21 +306,15 @@ function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_
 
   const peso = Number(peso_grd_medio_todos)
   if (isNaN(peso)) return null
-  // print peso 
-  console.log("Peso:", peso)
 
   for (const row of tramos) {
-    console.log("Checking row:", row)
 
     const lower = row.limite_inferior != null ? Number(row.limite_inferior) : -Infinity
-    console.log("Lower limit:", lower)
     const upper = row.limite_superior != null ? Number(row.limite_superior) : Infinity
-    console.log("Upper limit:", upper)
 
     if (isNaN(lower) && isNaN(upper)) continue
 
     if (peso > lower && peso <= upper) {
-      console.log("Peso is within range:", lower, upper)
       return row.tramo ?? null
     }
   }
@@ -335,7 +328,6 @@ function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_
  */
 function parseDateString(dateStr: string | null | undefined): Date | null {
   if (!dateStr) return null
-  console.log("Parsing date string:", dateStr)
 
   // Try native parser first (handles ISO)
   const iso = new Date(dateStr)
@@ -348,14 +340,12 @@ function parseDateString(dateStr: string | null | undefined): Date | null {
     const month = Number(mdyMatch[1])
     const day = Number(mdyMatch[2])
     const year = Number(mdyMatch[3])
-    console.log("Parsed MM/DD/YYYY:", month, day, year)
 
     if (!Number.isNaN(month) && !Number.isNaN(day) && !Number.isNaN(year)) {
       const d = new Date(Date.UTC(year, month - 1, day))
       if (!isNaN(d.getTime())) return d
     }
   }
-  console.log("Date string could not be parsed:", dateStr)
 
   return null
 }
@@ -377,7 +367,6 @@ async function getPrecioFNS012(
       .eq('tramo', tramo)
 
     if (error) {
-      console.error('[getPrecioForConvenioTramo] DB error:', error)
       return null
     }
 
@@ -399,7 +388,6 @@ async function getPrecioFNS012(
 
     return null
   } catch (err) {
-    console.error('[getPrecioForConvenioTramo] Unexpected error:', err)
     return null
   }
 }
@@ -464,7 +452,6 @@ async function getPrecioFNS019(
     const precioNum = data[0].precio != null ? Number(data[0].precio) : NaN
     return Number.isNaN(precioNum) ? null : precioNum
   } catch (err) {
-    console.error('[getPrecioConvenio] Unexpected error:', err)
     return null
   }
 }
@@ -491,7 +478,6 @@ async function getPrecioFNS026(
     const precioNum = data[0].precio != null ? Number(data[0].precio) : NaN
     return Number.isNaN(precioNum) ? null : precioNum
   } catch (err) {
-    console.error('[getPrecioConvenio] Unexpected error:', err)
     return null
   }
 }
@@ -535,9 +521,16 @@ async function getPagoDemoraCH0041(
 
     return null
   } catch (err) {
-    console.error('[getpagodemorach0041] Unexpected error:', err)
     return null
   }
+}
+
+function computeValorGRD(precioBaseRounded: number | null, peso: number | null): number | null {
+  if (precioBaseRounded == null) return null
+  const precio = Number(precioBaseRounded)
+  const pesoNum = peso != null ? Number(peso) : NaN
+  if (isNaN(precio) || isNaN(pesoNum)) return null
+  return Math.round(precio * pesoNum)
 }
 
 
@@ -609,7 +602,6 @@ export async function POST(request: NextRequest) {
       .limit(1)
 
     if (workflowError) {
-      console.error('[POST /api/v1/sigesa/upload] Workflow check error:', workflowError)
       return errorResponse('Error al verificar workflow activo', 500)
     }
 
@@ -745,48 +737,23 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Fetch tramos_peso_grd once to avoid repeated DB calls per row
-    // let tramosData: any[] = []
-    // try {
-    //   console.log('[POST] Fetching tramos_peso_grd data')
-    //   const { data: _tramos, error: tramosError } = await supabase
-    //     .from('tramos_peso_grd')
-    //     .select('limite_inferior, limite_superior, tramo')
-    //     .order('limite_inferior', { ascending: true })
-      
-
-    //   if (tramosError) {
-    //     console.error('[POST] Error fetching tramos_peso_grd:', tramosError)
-    //     tramosData = null
-    //   } else {
-    //     tramosData = Array.isArray(_tramos) ? _tramos : null
-    //   }
-    // } catch (err) {
-    //   console.error('[POST] Unexpected error fetching tramos:', err)
-    //   tramosData = null
-    // }
-    // console.log('[POST] tramosData:', tramosData)
 
     let tramosData: any[] = []
 
     try {
-      console.log('[POST] Fetching tramos_peso_grd data')
       const { data, error } = await supabase
         .from('tramos_peso_grd')
         .select('limite_inferior, limite_superior, tramo')
         .order('limite_inferior', { ascending: true })
 
       if (error) {
-        console.error('[POST] Error fetching tramos_peso_grd:', error)
       } else if (Array.isArray(data)) {
         tramosData = data
       }
 
     } catch (err) {
-      console.error('[POST] Unexpected error fetching tramos:', err)
     }
 
-    console.log('[POST] tramosData:', tramosData)
 
     // Transform each SIGESA row to GRD row
     const grdFilaRowsPromises = rows.map(async (row) => {
@@ -797,7 +764,7 @@ export async function POST(request: NextRequest) {
       row.convenios_cod || null,
       supabase,
       row.fecha_ingreso_completa || null,
-      row.ir_grd || null,
+      row.ir_grd_codigo || null,
       row.peso_grd_medio_todos || null,
       convenioPrecioPromise,
       row.estancia_real_episodio || null
@@ -809,9 +776,10 @@ export async function POST(request: NextRequest) {
       row.convenios_cod || null,
       row.peso_grd_medio_todos || null,
       convenioPrecioPromise,
-      row.ir_grd || null,
+      row.ir_grd_codigo || null,
       row.estancia_real_episodio || null
     )
+
 
       return {
         episodio: Number(row.episodio_CMBD),
@@ -830,10 +798,11 @@ export async function POST(request: NextRequest) {
         dias_estadia: row.estancia_real_episodio || null,
         id_grd_oficial: grdId,
         convenio: joinedPrevision,
-        precio_base_tramo: convenioPrecioPromise, 
+        precio_base_tramo: convenioPrecioPromise != null ? Math.round(convenioPrecioPromise) : null,
         dias_demora_rescate_hospital: row.estancia_real_episodio || null,
-        pago_demora_rescate: pagoDemoraPromise,
-        pago_outlier_superior: pagoOutlier,
+        
+        pago_demora_rescate: pagoDemoraPromise != null ? Math.round(pagoDemoraPromise) : null,
+        pago_outlier_superior: pagoOutlier != null ? Math.round(pagoOutlier) : null,
         
         // Platform-managed fields (left as null)
         validado: null,
@@ -844,7 +813,7 @@ export async function POST(request: NextRequest) {
         monto_rn: null,
         documentacion: null,
         grupo_dentro_norma: null,
-        valor_GRD: null,
+        valor_GRD: computeValorGRD(convenioPrecioPromise != null ? Math.round(convenioPrecioPromise) : null, row.peso_grd_medio_todos || null),
         monto_final: null,
       }
     })
