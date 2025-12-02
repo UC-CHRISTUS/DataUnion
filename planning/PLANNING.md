@@ -28,6 +28,7 @@
 ### Contexto
 
 El sistema reemplazará el proceso actual manual de codificación de egresos hospitalarios que se realiza en Excel. Actualmente:
+
 - Los codificadores descargan datos desde SIGESA (Sistema de Gestión de Salud)
 - Cruzan manualmente con la Norma MINSAL para obtener GRD (Grupos Relacionados por Diagnóstico)
 - Calculan montos, ajustes tecnológicos y preparan archivos para facturación a FONASA
@@ -43,6 +44,7 @@ El sistema reemplazará el proceso actual manual de codificación de egresos hos
 ### Solución Propuesta
 
 Plataforma web que automatice:
+
 1. Carga de datos desde SIGESA (Excel)
 2. Cruce automático con Norma MINSAL
 3. Cálculo automático de montos y ajustes
@@ -57,6 +59,7 @@ Plataforma web que automatice:
 ### ✅ Sprint 3-4 Completado
 
 **HU-003: Workflow y Acceso por Rol**
+
 - ✅ Sistema de workflow con 7 estados implementado
 - ✅ Flujo end-to-end funcional: Encoder → Finance → Admin
 - ✅ Restricción de archivo único en proceso
@@ -64,11 +67,13 @@ Plataforma web que automatice:
 - ⏳ Pendiente: BLOQUE 8 (Testing manual E2E)
 
 **TECH-006: Validaciones Re-habilitadas**
+
 - ✅ Campo `validado` obligatorio en todas las filas
 - ✅ Mensajes descriptivos con episodios afectados
 - ✅ Validación mejorada para revisar todas las filas
 
 **TECH-007: FASE 1 - Admin UX Fix**
+
 - ✅ Eliminada redirección después de aprobar/rechazar
 - ✅ Admin se queda en página con archivo aprobado
 - ✅ Botón "Descargar" aparece automáticamente
@@ -76,6 +81,7 @@ Plataforma web que automatice:
 - ✅ Mejora de UX: de 6 pasos a 2 pasos para descargar
 
 **TECH-008: FASE 2 - Lista de Archivos Aprobados**
+
 - ✅ Nueva página `/dashboard/archivos` para Admin
 - ✅ API GET `/api/v1/admin/approved-files`
 - ✅ Grid responsive con cards de archivos
@@ -84,12 +90,14 @@ Plataforma web que automatice:
 - ✅ Ítem "Archivos" agregado al Sidebar (solo admin)
 
 **Bugs Corregidos:**
+
 - ✅ Sidebar: useEffect duplicado eliminado
 - ✅ Layout: Componente Layout duplicado eliminado (causaba dos navbars)
 - ✅ ExcelEditor: Botón "Descargar" ahora condicional según estado
 - ✅ APIs submit: Cambiado `.single()` por actualización masiva de filas
 
 **Próximos Pasos (Sprint 5):**
+
 - Testing manual E2E del workflow completo
 - Cruce automático con Norma MINSAL
 - Cálculo automático de montos
@@ -160,7 +168,9 @@ Plataforma web que automatice:
 ### Flujo de Datos Principal (Con Workflow de Estados) - ACTUALIZADO 3/Nov/2025
 
 #### **Regla de Archivo Único en Flujo**
+
 ⚠️ **RESTRICCIÓN CRÍTICA:** Solo puede existir UN archivo en proceso a la vez.
+
 - **Estados en flujo activo:** `borrador_encoder`, `pendiente_finance`, `borrador_finance`, `pendiente_admin`
 - **Estados que liberan el sistema:** `exportado`, `rechazado`
 - Si existe un archivo en flujo activo, NO se puede subir otro hasta completar o rechazar el actual
@@ -237,6 +247,7 @@ Plataforma web que automatice:
 ## 💻 Stack Tecnológico
 
 ### Frontend
+
 - **Framework:** Next.js 14+ (App Router)
 - **Lenguaje:** TypeScript
 - **UI Components:** shadcn/ui (Radix UI + Tailwind CSS)
@@ -246,6 +257,7 @@ Plataforma web que automatice:
 - **HTTP Client:** fetch nativo de Next.js
 
 ### Backend
+
 - **Runtime:** Next.js API Routes (serverless)
 - **Database:** Supabase (PostgreSQL)
 - **Authentication:** Supabase Auth
@@ -253,6 +265,7 @@ Plataforma web que automatice:
 - **ORM:** Prisma o Supabase Client directo
 
 ### DevOps & Tools
+
 - **Hosting:** Vercel
 - **Version Control:** Git + GitHub
 - **CI/CD:** GitHub Actions + Vercel
@@ -261,6 +274,7 @@ Plataforma web que automatice:
 - **Package Manager:** pnpm
 
 ### Integraciones Externas
+
 - **Excel Processing:** xlsx / exceljs
 - **PDF Generation:** jsPDF / pdfkit
 - **Logging:** Winston o Pino
@@ -270,10 +284,12 @@ Plataforma web que automatice:
 ## 🎭 Épicas y Features
 
 ### EP-01: Administración de Perfiles y Permisos 🚧 (Sprint 3-4)
+
 **Estado:** 75% completado - En desarrollo activo  
 **Valor de Negocio:** Asegura seguridad y confidencialidad de datos clínicos
 
 **Features:**
+
 - ✅ HU-001: Creación y gestión de usuarios (CRUD completo)
 - ✅ HU-002: Asignación de roles y permisos (admin, encoder, finance)
 - 🚧 **HU-003: Acceso restringido por rol (EN DESARROLLO ACTIVO)**
@@ -318,6 +334,7 @@ Plataforma web que automatice:
   - ⏳ Sistema de liberación de workflow
 
 **Criterios de Aceptación:**
+
 - ✅ Admin puede crear/eliminar usuarios
 - ✅ Sistema de roles: Admin, Encoder, Finance
 - ✅ RLS policies en Supabase correctamente configuradas
@@ -331,15 +348,18 @@ Plataforma web que automatice:
 ---
 
 ### EP-02: Carga Estructurada de Egresos 🚧 (Sprint 3-4)
+
 **Estado:** En desarrollo  
 **Valor de Negocio:** Estandariza y agiliza el proceso de codificación
 
 **Features:**
+
 - 🚧 HU-005: Carga inicial de Excel desde SIGESA
 - ⏳ HU-006: Validación de datos automática
 - 🚧 HU-007: Cruce automático con Norma MINSAL
 
 **Criterios de Aceptación:**
+
 - Parser de Excel robusto (maneja 1,000+ registros)
 - Validación de campos críticos: RUT, fechas, códigos
 - Cruce con tabla `norma_minsal` por GRD
@@ -349,10 +369,12 @@ Plataforma web que automatice:
 ---
 
 ### EP-03: Visualizador y Enriquecimiento de Datos ⏳ (Sprint 5)
+
 **Estado:** No iniciado  
 **Valor de Negocio:** Facilita revisión y completado de datos clínicos
 
 **Features:**
+
 - ⏳ HU-008: Cálculo automático de montos
 - ⏳ HU-009: Visualización tipo Excel editable
 - ⏳ HU-010: Registro de Ajustes Tecnológicos (AT)
@@ -361,6 +383,7 @@ Plataforma web que automatice:
 - ⏳ HU-013: Complemento financiero
 
 **Criterios de Aceptación:**
+
 - Interfaz Excel-like responsive y performante
 - Celdas editables con validación en tiempo real
 - Dropdown de AT desde tabla maestra
@@ -370,16 +393,19 @@ Plataforma web que automatice:
 ---
 
 ### EP-04: Motor de Validación y Alertas ⏳ (Sprint 5-6)
+
 **Estado:** No iniciado  
 **Valor de Negocio:** Previene errores y mejora calidad de datos
 
 **Features:**
+
 - ⏳ HU-014: Validación automática de outliers
 - ⏳ HU-015: Validación de campos obligatorios
 - ⏳ HU-016: Alertas de valores fuera de rango
 - ⏳ HU-019: Notificaciones de inconsistencias en tarifas
 
 **Criterios de Aceptación:**
+
 - Sistema de alertas por prioridad (error, warning, info)
 - Notificaciones en tiempo real
 - Dashboard de alertas pendientes
@@ -388,10 +414,12 @@ Plataforma web que automatice:
 ---
 
 ### EP-05: Revisión Administrativa y Exportación ⏳ (Sprint 6)
+
 **Estado:** No iniciado  
 **Valor de Negocio:** Control de calidad final antes de facturación
 
 **Features:**
+
 - ⏳ HU-017: Visualización administrativa final
 - ⏳ HU-018: Aprobación/rechazo de registros
 - ⏳ HU-019: Filtrado de usuarios con AT vigente
@@ -399,6 +427,7 @@ Plataforma web que automatice:
 - ⏳ HU-021: Revisión de archivo SIGESA original
 
 **Criterios de Aceptación:**
+
 - Vista consolidada de todos los egresos
 - Workflow de aprobación con estados
 - Exportación en formato FONASA oficial
@@ -409,7 +438,9 @@ Plataforma web que automatice:
 ## 👥 Roles de Usuario (Actualizado según HU-003)
 
 ### 1. Administrador (Admin)
+
 **Permisos:**
+
 - ✅ Gestión completa de usuarios (CRUD)
 - ✅ Asignación de roles y permisos
 - 🚧 **Acceso a página `/dashboard/users` (Gestión de Usuarios)**
@@ -428,11 +459,13 @@ Plataforma web que automatice:
 - Acceso a logs y auditoría
 
 **Restricciones:**
+
 - No puede eliminar su propio usuario
 - Debe existir siempre al menos un admin
 - 🚧 **No puede editar ningún dato** (visualización únicamente)
 
 **Workflow:**
+
 ```
 1. Admin recibe notificación: "🔔 Archivo pendiente de aprobación" → Estado: pendiente_admin
 2. Admin revisa archivo en modo lectura
@@ -447,7 +480,9 @@ Plataforma web que automatice:
 ---
 
 ### 2. Codificador (Encoder)
+
 **Permisos:**
+
 - ✅ Carga de archivos Excel desde SIGESA (vía `/api/v1/sigesa/upload`)
 - 🚧 **Solo puede cargar si NO existe archivo en flujo activo**
 - 🚧 **Acceso a página `/upload` (Subir Archivo)**
@@ -462,11 +497,13 @@ Plataforma web que automatice:
 - Visualización de alertas y validaciones
 
 **Campos Editables:**
+
 - `AT` (Ajustes Tecnológicos - boolean)
 - `AT_detalle` (Detalle de AT - dropdown desde tabla `ajuste_tecnologico`)
 - Cálculo automático de `monto_AT`
 
 **Restricciones:**
+
 - 🚧 **NO puede editar después de Submit** (campos bloqueados)
 - 🚧 **NO puede editar columnas** (solo filas)
 - 🚧 **NO puede editar datos clínicos originales de SIGESA** (83 columnas bloqueadas)
@@ -476,6 +513,7 @@ Plataforma web que automatice:
 - No puede ver archivos en otros estados
 
 **Workflow:**
+
 ```
 1. Encoder valida que NO exista archivo en flujo → Si existe: Error, no puede cargar
 2. Encoder carga Excel → Estado: borrador_encoder
@@ -487,7 +525,9 @@ Plataforma web que automatice:
 ---
 
 ### 3. Usuario de Finanzas (Finance)
+
 **Permisos:**
+
 - 🚧 **Acceso a página `/sigesa` (Visualización SIGESA en modo lectura)**
 - 🚧 **Acceso a página `/visualizator` (Editor) - solo si hay archivo en `pendiente_finance`**
 - 🚧 **Visualiza archivos en estado: `pendiente_finance`, `borrador_finance`**
@@ -500,6 +540,7 @@ Plataforma web que automatice:
 - Notificaciones de inconsistencias en tarifas
 
 **Campos Editables:**
+
 - `validado` (Sí/No - texto)
 - `n_folio` (N° de Folio - número)
 - `estado_rn` (Estado RN - texto)
@@ -507,10 +548,12 @@ Plataforma web que automatice:
 - `documentacion` (Observaciones - texto)
 
 **Campos de Solo Lectura (Bloqueados):**
+
 - Todos los campos de SIGESA (83 columnas)
 - Todos los campos editados por Encoder (AT, AT_detalle, monto_AT)
 
 **Restricciones:**
+
 - 🚧 **NO puede editar después de Submit** (campos bloqueados)
 - 🚧 **NO puede editar columnas** (solo filas)
 - No puede modificar datos clínicos ni de Encoder
@@ -520,6 +563,7 @@ Plataforma web que automatice:
 - 🚧 **Pierde acceso si archivo es rechazado por Admin**
 
 **Workflow:**
+
 ```
 1. Finance recibe notificación: "🔔 Archivo pendiente" → Estado: pendiente_finance
 2. Finance edita sus campos en filas → Auto-guardado cada 5s
@@ -587,6 +631,7 @@ Plataforma web que automatice:
 #### Control de Permisos por Rol
 
 **Administrador:**
+
 - CRUD completo de usuarios
 - Generación de contraseñas temporales
 - Visualización de todos los módulos
@@ -595,12 +640,14 @@ Plataforma web que automatice:
 - Acceso a logs de auditoría
 
 **Codificador:**
+
 - Solo lectura de su propio perfil
 - No puede crear usuarios
 - No puede ver otros usuarios
 - Acceso limitado a sus egresos asignados
 
 **Usuario de Finanzas:**
+
 - Solo lectura de su propio perfil
 - No puede crear usuarios
 - No puede ver otros usuarios
@@ -645,6 +692,7 @@ USING (auth.uid() = auth_id);
 #### Información Registrada
 
 Para cada acción crítica se registra:
+
 - `user_id`: Usuario que ejecuta la acción
 - `action`: Tipo de acción (create_user, change_password, etc.)
 - `table_name`: Tabla afectada
@@ -687,6 +735,7 @@ Para cada acción crítica se registra:
 ### Tablas Principales
 
 #### `users`
+
 ```sql
 id: uuid (PK)
 auth_id: uuid (FK -> auth.users.id) UNIQUE
@@ -699,9 +748,11 @@ created_at: timestamp
 updated_at: timestamp
 last_login: timestamp
 ```
+
 **Nota:** Esta tabla se sincroniza automáticamente con `auth.users` mediante trigger.
 
 #### `egresos_raw` (Datos originales de SIGESA)
+
 ```sql
 id: uuid (PK)
 file_upload_id: uuid (FK -> file_uploads)
@@ -717,6 +768,7 @@ created_at: timestamp
 ```
 
 #### `egresos_enriched` (Datos enriquecidos)
+
 ```sql
 id: uuid (PK)
 egreso_raw_id: uuid (FK -> egresos_raw)
@@ -737,6 +789,7 @@ updated_at: timestamp
 ```
 
 #### `norma_minsal`
+
 ```sql
 id: uuid (PK)
 grd: varchar(10) UNIQUE
@@ -751,6 +804,7 @@ updated_at: timestamp
 ```
 
 #### `ajustes_tecnologicos`
+
 ```sql
 id: uuid (PK)
 codigo: varchar(20) UNIQUE
@@ -762,6 +816,7 @@ updated_at: timestamp
 ```
 
 #### `file_uploads`
+
 ```sql
 id: uuid (PK)
 user_id: uuid (FK -> users)
@@ -777,6 +832,7 @@ completed_at: timestamp (nullable)
 ```
 
 #### `exportaciones`
+
 ```sql
 id: uuid (PK)
 user_id: uuid (FK -> users)
@@ -789,6 +845,7 @@ created_at: timestamp
 ```
 
 #### `audit_log`
+
 ```sql
 id: uuid (PK)
 user_id: uuid (FK -> users)
@@ -807,6 +864,7 @@ created_at: timestamp
 ## 📅 Roadmap y Sprints
 
 ### Sprint 1: Setup y Fundamentos (Completado - 22/sep/2025)
+
 - ✅ Configuración inicial del proyecto Next.js
 - ✅ Setup de Supabase y variables de entorno
 - ✅ Estructura base de carpetas
@@ -814,19 +872,24 @@ created_at: timestamp
 - ✅ Primeros componentes UI
 
 ### Sprint 2: Iteración 2 (En Curso - hasta 29/sep/2025)
+
 - 🚧 Refinamiento de arquitectura
 - 🚧 Ajustes de diseño UX/UI
 - 🚧 Testing inicial
 
 ### Sprint 3: Auth y Carga de Datos (6/oct/2025)
+
 **HU Comprometidas:** HU-005, HU-009
+
 - Sistema de autenticación (Login/Logout)
 - Carga de archivos Excel
 - Parser de SIGESA
 - Vista tipo Excel básica
 
 ### Sprint 4: Gestión de Usuarios y Validación (20/oct/2025 - 5/nov/2025) ✅ COMPLETADO
+
 **HU Comprometidas:** HU-001, HU-002, HU-003, HU-004
+
 - ✅ CRUD de usuarios (HU-001)
 - ✅ Sistema de roles y permisos (HU-002)
 - ✅ Workflow completo por roles (HU-003) - 7/8 bloques completados
@@ -836,6 +899,7 @@ created_at: timestamp
 - ✅ TECH-008: FASE 2 - Lista de archivos aprobados para Admin
 
 **Logros principales:**
+
 - Workflow end-to-end funcional: Encoder → Finance → Admin
 - Estados implementados: borrador_encoder, pendiente_finance, borrador_finance, pendiente_admin, aprobado, exportado, rechazado
 - Admin puede aprobar/rechazar sin perder contexto
@@ -843,6 +907,7 @@ created_at: timestamp
 - Sistema de archivo único en proceso (restricción implementada)
 
 **Pendientes para Sprint 5:**
+
 - BLOQUE 8: Testing manual E2E completo
 - HU-007: Cruce con Norma MINSAL
 - HU-012: Guardado de progreso
@@ -850,7 +915,9 @@ created_at: timestamp
 - HU-020: Exportación básica
 
 ### Sprint 5: Enriquecimiento y Validaciones (10/nov/2025 - estimado)
+
 **HU Comprometidas:** HU-006, HU-007, HU-008, HU-010, HU-011, HU-012, HU-013, HU-014, HU-016, HU-018, HU-019, HU-020
+
 - Testing end-to-end del workflow (BLOQUE 8 de HU-003)
 - Cruce con Norma MINSAL (HU-007)
 - Validación automática de datos (HU-006)
@@ -867,7 +934,9 @@ created_at: timestamp
 **⚠️ ACTUALIZACIÓN 5/Nov/2025:** Sprint 4 completado exitosamente. Admin UX mejorada significativamente con FASE 1+2.
 
 ### Sprint 6: Revisión Final y Exportación (17/nov/2025)
+
 **HU Comprometidas:** HU-015, HU-017
+
 - Validación de campos obligatorios
 - Vista administrativa final
 - Exportación formato FONASA oficial
@@ -879,6 +948,7 @@ created_at: timestamp
 ## 🛡️ Requisitos No Funcionales
 
 ### RNF-01: Seguridad de Acceso y Autenticación
+
 - **Métrica:** 100% de accesos validados contra permisos de rol
 - **Implementación:**
   - Supabase Auth con JWT
@@ -888,6 +958,7 @@ created_at: timestamp
   - Logs de auditoría de todos los accesos
 
 ### RNF-02: Mantenibilidad del Código
+
 - **Métrica:** Deploy < 30 minutos
 - **Implementación:**
   - Código documentado con JSDoc/TSDoc
@@ -897,6 +968,7 @@ created_at: timestamp
   - CI/CD automatizado
 
 ### RNF-03: Exportación de Datos
+
 - **Métrica:** 100% de reportes exportables sin pérdida de datos
 - **Implementación:**
   - Soporte Excel, PDF, CSV
@@ -905,6 +977,7 @@ created_at: timestamp
   - Validación de integridad post-exportación
 
 ### RNF-04: Rendimiento de Carga de Archivos
+
 - **Métrica:** 1,000 registros procesados en < 30 segundos
 - **Implementación:**
   - Procesamiento batch asíncrono
@@ -913,6 +986,7 @@ created_at: timestamp
   - Caching de Norma MINSAL
 
 ### RNF-06: Tiempo de Respuesta de Interfaz
+
 - **Métrica:** Acciones críticas < 5 segundos
 - **Implementación:**
   - Server-side rendering para first load
@@ -922,6 +996,7 @@ created_at: timestamp
   - Virtual scrolling para tablas grandes
 
 ### RNF-07: Integridad de Datos
+
 - **Métrica:** 0% pérdida o corrupción de datos
 - **Implementación:**
   - Transacciones ACID en PostgreSQL
@@ -937,8 +1012,10 @@ created_at: timestamp
 ### Riesgos Críticos (Alto Impacto)
 
 #### R-05: Llenado inconsistente de planillas Excel
+
 **Impacto:** ALTO | **Probabilidad:** MEDIA  
 **Mitigación:**
+
 - Definir y documentar formato estándar de Excel SIGESA
 - Validación estricta en el parser
 - Feedback claro de errores al usuario
@@ -947,8 +1024,10 @@ created_at: timestamp
 - Herramienta de corrección de formato
 
 #### R-06: Exposición de datos sensibles
+
 **Impacto:** ALTO | **Probabilidad:** BAJA  
 **Mitigación:**
+
 - Cifrado end-to-end de datos sensibles
 - RLS policies estrictas en Supabase
 - Logs de acceso y auditoría
@@ -958,8 +1037,10 @@ created_at: timestamp
 - Suspensión inmediata de accesos comprometidos
 
 #### R-10: Fallos en integración Next.js/Supabase
+
 **Impacto:** ALTO | **Probabilidad:** MEDIA  
 **Mitigación:**
+
 - Tests de integración automatizados
 - Monitoring de logs y errores
 - Manejo robusto de errores
@@ -1196,6 +1277,7 @@ Este documento debe ser revisado y actualizado al menos una vez por sprint duran
 ## 📝 Changelog
 
 ### Versión 1.3 - 3 de Noviembre, 2025
+
 **Actualización Mayor: Plan Completo de HU-003 Definido**
 
 - ✅ **Flujo de Workflow Completamente Detallado:**
@@ -1231,7 +1313,7 @@ Este documento debe ser revisado y actualizado al menos una vez por sprint duran
   - Progreso actual: 35% (FASE 1 al 60%)
 
 **Próximos Pasos Inmediatos:**
+
 1. Crear migración para agregar estado `rechazado` (BLOQUEANTE)
 2. Implementar APIs de workflow (FASE 2)
 3. Modificar componentes existentes (FASE 3)
-

@@ -6,7 +6,7 @@ import { episodioSchema } from '@/lib/api/validation'
  * All fields are optional except id and episodio which cannot be updated
  */
 export const updateGrdRowSchema = z.object({
-  validado: z.string().nullable().optional(),
+  validado: z.boolean().nullable().optional(),
   centro: z.string().nullable().optional(),
   n_folio: z.number().nullable().optional(),
   rut_paciente: z.string().nullable().optional(),
@@ -20,7 +20,7 @@ export const updateGrdRowSchema = z.object({
   AT_detalle: z.string().nullable().optional(),
   monto_AT: z.number().nullable().optional(),
   tipo_alta: z.string().nullable().optional(),
-  'IR-GRD': z.number().optional(),
+  'IR-GRD': z.string().nullable().optional(),
   peso: z.number().nullable().optional(),
   monto_rn: z.number().nullable().optional(),
   dias_demora_rescate_hospital: z.number().nullable().optional(),

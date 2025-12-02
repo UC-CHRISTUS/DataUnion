@@ -69,12 +69,14 @@ graph LR
 ### 1. Base de Datos
 
 **Estado actual:**
+
 - ✅ Tabla `grd_fila` con campo `estado` (tipo ENUM `workflow_estado`)
 - ✅ 7 estados disponibles: `borrador_encoder`, `pendiente_finance`, `borrador_finance`, `pendiente_admin`, `aprobado`, `exportado`, `rechazado`
 - ✅ RLS policies configuradas por rol
 - ✅ Índices para optimización de queries por estado
 
 **Verificar:**
+
 ```sql
 -- Ver estados disponibles
 SELECT unnest(enum_range(NULL::workflow_estado));
@@ -92,11 +94,12 @@ GROUP BY id_grd_oficial, estado;
 
 | Email | Password | Rol | Propósito |
 |-------|----------|-----|-----------|
-| admin@test.com | Admin123! | admin | Aprobar/Rechazar archivos |
-| encoder@test.com | Encoder123! | encoder | Subir y editar AT |
-| finance@test.com | Finance123! | finance | Agregar datos financieros |
+| <admin@test.com> | Admin123! | admin | Aprobar/Rechazar archivos |
+| <encoder@test.com> | Encoder123! | encoder | Subir y editar AT |
+| <finance@test.com> | Finance123! | finance | Agregar datos financieros |
 
 **Verificar usuarios:**
+
 ```sql
 SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
 ```
@@ -104,6 +107,7 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
 ### 3. Archivo Excel de Prueba
 
 **Requisitos del archivo SIGESA:**
+
 - Formato: `.xlsx`
 - Estructura: Mínimo 83 columnas (formato SIGESA oficial)
 - Columnas críticas: `episodio_CMBD`, `IR-GRD`, `peso`, `fecha_ingreso`, `fecha_alta`
@@ -118,11 +122,13 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
 **Archivo:** `src/app/api/v1/grd/[grdId]/submit-finance/route.ts`
 
 **Validación activa:**
+
 - Campo `validado` es OBLIGATORIO en TODAS las filas
 - Finance NO puede hacer Submit si hay filas sin completar
 - Validación muestra episodios afectados y contador total
 
 **Para testing:**
+
 - Asegurarse de completar campo `validado` en todas las filas
 - Valores aceptados: Cualquier string no vacío (ej: "Sí", "No")
 - Si falta alguna fila: Error descriptivo con episodios
@@ -136,6 +142,7 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
 ### Permisos por Rol
 
 #### **Encoder**
+
 - **Acceso:** `/upload`, `/visualizator`, `/sigesa` (lectura), `/norma` (lectura)
 - **Estados visibles:** `borrador_encoder`, `rechazado`
 - **Campos editables:** `at` (boolean), `at_detalle` (multi-select dropdown)
@@ -148,6 +155,7 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
   - ✅ Reenviar si Admin rechaza
 
 #### **Finance**
+
 - **Acceso:** `/visualizator`, `/sigesa` (lectura)
 - **Estados visibles:** `pendiente_finance`, `borrador_finance`
 - **Campos editables:** `validado`, `n_folio`, `estado_rn`, `monto_rn`, `documentacion`
@@ -160,6 +168,7 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
   - ❌ Pierde acceso si Admin rechaza
 
 #### **Admin**
+
 - **Acceso:** `/dashboard/users`, `/visualizator`, `/sigesa` (lectura)
 - **Estados visibles:** `pendiente_admin`, `aprobado`, `exportado`
 - **Campos editables:** **NINGUNO** (modo lectura total)
@@ -190,24 +199,27 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
 
 ### PASO 1: Encoder sube archivo 📤
 
-**Usuario:** encoder@test.com  
+**Usuario:** <encoder@test.com>  
 **Objetivo:** Subir archivo SIGESA y crear nuevo GRD
 
-#### Acciones:
+#### Acciones
 
 1. **Login como Encoder**
-   ```
-   URL: http://localhost:3000/login
-   Email: encoder@test.com
-   Password: Encoder123!
-   ```
+
+    ```plaintext
+    URL: http://localhost:3000/login
+    Email: encoder@test.com
+    Password: Encoder123!
+    ```
 
 2. **Navegar a Upload**
-   ```
-   URL: http://localhost:3000/upload
-   ```
+
+  ```plaintext
+  URL: http://localhost:3000/upload
+  ```
 
 3. **Verificar validación de archivo único**
+
    - Si hay archivo en proceso: Error "Ya existe un archivo en proceso"
    - Si no hay archivo: Permitir carga
 
@@ -215,10 +227,12 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
    - Drag & drop o seleccionar archivo
    - Esperar parsing (puede tomar 10-30 segundos)
 
-#### Resultado Esperado:
+#### Resultado Esperado
+
 - ✅ Alert: "Archivo subido exitosamente"
 - ✅ Redirección a `/dashboard`
 - ✅ En base de datos:
+
   ```sql
   SELECT id_grd_oficial, estado FROM grd_fila LIMIT 1;
   -- Resultado: estado = 'borrador_encoder'
@@ -228,13 +242,14 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
 
 ### PASO 2: Encoder edita AT y entrega ✏️
 
-**Usuario:** encoder@test.com  
+**Usuario:** <encoder@test.com>  
 **Objetivo:** Editar Ajustes Tecnológicos y entregar a Finance
 
-#### Acciones:
+#### Acciones
 
 1. **Navegar a Visualizator**
-   ```
+
+   ```plaintext
    URL: http://localhost:3000/visualizator
    ```
 
@@ -262,26 +277,30 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
      - Lista de verificación
    - Click "✅ Confirmar Entrega"
 
-#### Resultado Esperado:
+#### Resultado Esperado
+
 - ✅ Alert: "Archivo entregado a Finanzas exitosamente"
 - ✅ Redirección a `/dashboard`
 - ✅ En base de datos:
+
   ```sql
   SELECT estado FROM grd_fila WHERE id_grd_oficial = [ID];
   -- Resultado: estado = 'pendiente_finance'
   ```
+
 - ✅ Encoder pierde acceso al archivo (ya no lo ve en `/visualizator`)
 
 ---
 
 ### PASO 3: Finance edita datos financieros y entrega 💼
 
-**Usuario:** finance@test.com  
+**Usuario:** <finance@test.com>  
 **Objetivo:** Agregar información financiera y entregar a Admin
 
-#### Acciones:
+#### Acciones
 
 1. **Logout Encoder y Login Finance**
+
    ```
    Email: finance@test.com
    Password: Finance123!
@@ -291,6 +310,7 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
    - ✅ Banner: "🔔 Tienes archivo pendiente"
 
 3. **Navegar a Visualizator**
+
    ```
    URL: http://localhost:3000/visualizator
    ```
@@ -313,26 +333,30 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
    - Se abre modal de confirmación
    - Click "✅ Confirmar Entrega"
 
-#### Resultado Esperado:
+#### Resultado Esperado
+
 - ✅ Alert: "Archivo entregado a Administración exitosamente"
 - ✅ Redirección a `/dashboard`
 - ✅ En base de datos:
+
   ```sql
   SELECT estado FROM grd_fila WHERE id_grd_oficial = [ID];
   -- Resultado: estado = 'pendiente_admin'
   ```
+
 - ✅ Finance pierde acceso al archivo
 
 ---
 
 ### PASO 4: Admin aprueba y exporta ✅
 
-**Usuario:** admin@test.com  
+**Usuario:** <admin@test.com>  
 **Objetivo:** Revisar, aprobar y exportar archivo final
 
-#### Acciones:
+#### Acciones
 
 1. **Logout Finance y Login Admin**
+
    ```
    Email: admin@test.com
    Password: Admin123!
@@ -342,6 +366,7 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
    - ✅ Banner: "🔔 Tienes archivo pendiente de aprobación"
 
 3. **Navegar a Visualizator**
+
    ```
    URL: http://localhost:3000/visualizator
    ```
@@ -361,10 +386,12 @@ SELECT email, role, is_active FROM users WHERE email LIKE '%@test.com';
    - Click "✅ Aprobar Archivo"
    - Esperar loading state
 
-#### Resultado Esperado:
+#### Resultado Esperado
+
 - ✅ Alert: "Archivo aprobado exitosamente. Ahora puedes exportarlo."
 - ✅ Redirección a `/dashboard`
 - ✅ En base de datos:
+
   ```sql
   SELECT estado FROM grd_fila WHERE id_grd_oficial = [ID];
   -- Resultado: estado = 'aprobado'
@@ -387,12 +414,13 @@ Seguir **Flujo 1** pasos 1-3 hasta que archivo esté en `pendiente_admin`.
 
 ### PASO 4: Admin rechaza archivo ❌
 
-**Usuario:** admin@test.com  
+**Usuario:** <admin@test.com>  
 **Objetivo:** Rechazar archivo con razón y devolver a Encoder
 
-#### Acciones:
+#### Acciones
 
 1. **Navegar a Visualizator**
+
    ```
    URL: http://localhost:3000/visualizator
    Estado actual: pendiente_admin
@@ -406,6 +434,7 @@ Seguir **Flujo 1** pasos 1-3 hasta que archivo esté en `pendiente_admin`.
    - ❌ Menos de 10 caracteres → Error: "La razón debe tener al menos 10 caracteres"
 
 4. **Escribir razón válida**
+
    ```
    Ejemplo: "Faltan datos en episodios 1234, 5678. Por favor completar campo AT_detalle antes de reenviar."
    ```
@@ -414,10 +443,12 @@ Seguir **Flujo 1** pasos 1-3 hasta que archivo esté en `pendiente_admin`.
    - Click "❌ Rechazar Archivo" (botón del modal)
    - Esperar loading state
 
-#### Resultado Esperado:
+#### Resultado Esperado
+
 - ✅ Alert: "Archivo rechazado. El Encoder ha sido notificado."
 - ✅ Redirección a `/dashboard`
 - ✅ En base de datos:
+
   ```sql
   SELECT estado FROM grd_fila WHERE id_grd_oficial = [ID];
   -- Resultado: estado = 'rechazado'
@@ -427,29 +458,33 @@ Seguir **Flujo 1** pasos 1-3 hasta que archivo esté en `pendiente_admin`.
 
 ### PASO 5: Encoder corrige y reenvía 🔄
 
-**Usuario:** encoder@test.com  
+**Usuario:** <encoder@test.com>  
 **Objetivo:** Ver razón de rechazo, corregir y reenviar
 
-#### Acciones:
+#### Acciones
 
 1. **Login como Encoder**
+
    ```
    Email: encoder@test.com
    Password: Encoder123!
    ```
 
 2. **Navegar a Visualizator**
+
    ```
    URL: http://localhost:3000/visualizator
    ```
 
 3. **Verificar alerta de rechazo**
    - ✅ Alerta roja en la parte superior:
+
      ```
      ⚠️ Archivo Rechazado por el Administrador
      Este archivo fue rechazado. Por favor revisa los comentarios del 
      administrador, realiza las correcciones necesarias y vuelve a enviarlo.
      ```
+
    - ✅ Estado muestra: "rechazado"
 
 4. **Verificar permisos de edición**
@@ -467,10 +502,12 @@ Seguir **Flujo 1** pasos 1-3 hasta que archivo esté en `pendiente_admin`.
    - Click "✅ Reenviar a Finanzas" (texto cambia a "Reenviar")
    - Confirmar en modal
 
-#### Resultado Esperado:
+#### Resultado Esperado
+
 - ✅ Alert: "Archivo entregado a Finanzas exitosamente"
 - ✅ Redirección a `/dashboard`
 - ✅ En base de datos:
+
   ```sql
   SELECT estado FROM grd_fila WHERE id_grd_oficial = [ID];
   -- Resultado: estado = 'pendiente_finance'
@@ -653,11 +690,13 @@ Repetir **Flujo 1** pasos 3-4 para completar el ciclo de corrección.
 **Síntoma:** Mensaje de error al entrar a `/visualizator`
 
 **Causas posibles:**
+
 1. No se ha subido ningún archivo
 2. Archivo está en estado no permitido para el rol
 3. Archivo fue exportado (estado `exportado`)
 
 **Solución:**
+
 ```sql
 -- Ver estado actual del archivo
 SELECT id_grd_oficial, estado FROM grd_fila ORDER BY id DESC LIMIT 1;
@@ -673,10 +712,12 @@ UPDATE grd_fila SET estado = 'borrador_encoder' WHERE id_grd_oficial = [ID];
 **Síntoma:** Error al intentar subir nuevo archivo en `/upload`
 
 **Causas posibles:**
+
 1. Hay un archivo en estado activo
 2. Archivo anterior no fue exportado ni rechazado
 
 **Solución:**
+
 ```sql
 -- Ver archivo en proceso
 SELECT id_grd_oficial, estado, COUNT(*) 
@@ -695,18 +736,23 @@ UPDATE grd_fila SET estado = 'exportado' WHERE id_grd_oficial = [ID];
 **Síntoma:** No se ven los botones "Entregar a Finanzas" o "Entregar a Administración"
 
 **Causas posibles:**
+
 1. Hay cambios sin guardar (contador > 0)
 2. Estado del archivo no es el correcto
 3. Rol del usuario no coincide
 
 **Solución:**
+
 1. Verificar contador de cambios (debe ser 0)
 2. Click "💾 Guardar cambios" primero
 3. Verificar estado en DB:
+
    ```sql
    SELECT estado FROM grd_fila WHERE id_grd_oficial = [ID];
    ```
+
 4. Verificar rol del usuario:
+
    ```sql
    SELECT email, role FROM users WHERE email = 'encoder@test.com';
    ```
@@ -718,10 +764,12 @@ UPDATE grd_fila SET estado = 'exportado' WHERE id_grd_oficial = [ID];
 **Síntoma:** Todos los campos aparecen bloqueados con 🔒
 
 **Causas posibles:**
+
 1. Estado del archivo no permite edición para ese rol
 2. Archivo ya fue enviado (estado avanzó)
 
 **Solución:**
+
 1. Verificar estado del archivo
 2. Encoder: debe estar en `borrador_encoder` o `rechazado`
 3. Finance: debe estar en `pendiente_finance` o `borrador_finance`
@@ -737,6 +785,7 @@ UPDATE grd_fila SET estado = 'exportado' WHERE id_grd_oficial = [ID];
 
 **Solución temporal (solo testing):**
 Las validaciones están comentadas en:
+
 ```
 src/app/api/v1/grd/[grdId]/submit-finance/route.ts
 Líneas 102-110
@@ -751,10 +800,12 @@ Si están descomentadas, completar el campo `validado` en todas las filas.
 **Síntoma:** Botón "Rechazar" siempre deshabilitado
 
 **Causas posibles:**
+
 1. Razón tiene menos de 10 caracteres
 2. Campo está vacío
 
 **Solución:**
+
 - Escribir al menos 10 caracteres en el campo de razón
 - Ejemplo válido: "Faltan datos en AT de episodio 1234"
 
@@ -765,14 +816,18 @@ Si están descomentadas, completar el campo `validado` en todas las filas.
 **Síntoma:** Encoder no ve alerta roja después de rechazo
 
 **Causas posibles:**
+
 1. Estado no es `rechazado`
 2. Cache del navegador
 
 **Solución:**
+
 1. Verificar estado:
+
    ```sql
    SELECT estado FROM grd_fila WHERE id_grd_oficial = [ID];
    ```
+
 2. Refrescar página (Ctrl+F5)
 3. Verificar en `/visualizator` con login de encoder
 

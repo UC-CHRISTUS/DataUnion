@@ -102,9 +102,9 @@ export async function POST(
     }
 
     // ✅ VALIDACIÓN DE CAMPOS OBLIGATORIOS (TECH-006 - Re-habilitada 5/nov/2025)
-    // Validar que TODAS las filas tengan el campo 'validado' completado
-    const rowsWithoutValidado = grdFiles.filter(row => 
-      !row.validado || row.validado.trim() === ''
+    // Validar que TODAS las filas tengan el campo 'validado' marcado como true
+    const rowsWithoutValidado = grdFiles.filter(row =>
+      row.validado !== true
     );
 
     if (rowsWithoutValidado.length > 0) {

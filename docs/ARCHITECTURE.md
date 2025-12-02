@@ -20,6 +20,7 @@ El sistema utiliza **dos tablas diferentes** para manejar usuarios:
 | `last_sign_in_at` | `timestamptz` | Último login |
 
 **Características:**
+
 - ✅ Tabla **nativa de Supabase** (no modificable)
 - 🔐 Maneja autenticación, tokens, sesiones
 - 🚫 **NO se debe consultar directamente desde el frontend**
@@ -43,6 +44,7 @@ El sistema utiliza **dos tablas diferentes** para manejar usuarios:
 | `last_login` | `timestamptz` | Último login registrado |
 
 **Características:**
+
 - ✅ Tabla **100% personalizable**
 - 📝 Almacena datos de negocio
 - 🔍 Se consulta desde el frontend con RLS
@@ -103,7 +105,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 ### **Enum: `user_role` (en inglés)**
 
-**¿Por qué en inglés?** 
+**¿Por qué en inglés?**
+
 - ✅ **Estándar de la industria**
 - ✅ Evita problemas de encoding (tildes, ñ)
 - ✅ Consistencia con APIs y librerías externas
@@ -159,6 +162,7 @@ if (user.role === 'admin') { ... }
 ### **SELECT (Ver usuarios)**
 
 1. **Usuarios pueden ver su propio perfil:**
+
 ```sql
 CREATE POLICY "Allow authenticated users to view their own profile"
 ON public.users FOR SELECT
@@ -166,6 +170,7 @@ USING (auth.uid() = auth_id);
 ```
 
 2. **Admins pueden ver todos los perfiles:**
+
 ```sql
 CREATE POLICY "Allow admins to view all user profiles"
 ON public.users FOR SELECT
@@ -183,6 +188,7 @@ WITH CHECK (EXISTS (SELECT 1 FROM public.users WHERE auth_id = auth.uid() AND ro
 ### **UPDATE (Actualizar usuarios)**
 
 1. **Admins pueden actualizar cualquier usuario:**
+
 ```sql
 CREATE POLICY "Allow admins to update any user profile"
 ON public.users FOR UPDATE
@@ -190,6 +196,7 @@ USING (EXISTS (SELECT 1 FROM public.users WHERE auth_id = auth.uid() AND role = 
 ```
 
 2. **Usuarios pueden actualizar su propio perfil:**
+
 ```sql
 CREATE POLICY "Allow users to update their own profile"
 ON public.users FOR UPDATE
@@ -294,4 +301,3 @@ src/
 
 **Última actualización:** 30 de Octubre, 2025  
 **Responsable:** Joaquín Peralta
-

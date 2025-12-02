@@ -21,6 +21,7 @@
 ## 🎯 Resumen del Sprint Actual
 
 **Sprint 3-4** (4/nov/2025 - ACTUALIZADO)
+
 - **Objetivo:** Completar HU-03 (Workflow y Acceso por Rol) con flujo end-to-end funcional ✅
 - **Duración:** 2-3 semanas estimadas
 - **Progreso General:** 87.5% completado (7/8 bloques)
@@ -29,6 +30,7 @@
 - **Tareas Pendientes:** 1 bloque (Testing Manual E2E)
 
 **Bloques Completados:**
+
 - ✅ **BLOQUE 1:** Migración estado 'rechazado' - Base de datos
 - ✅ **BLOQUE 2:** API validar archivo único - Control de workflow
 - ✅ **BLOQUE 3:** API Review (Aprobar/Rechazar) - Admin actions
@@ -38,6 +40,7 @@
 - ✅ **BLOQUE 7:** Integración completa con /visualizator - Estado rechazado
 
 **Bloque Pendiente:**
+
 - ⏳ **BLOQUE 8:** Testing Manual Completo - Validación E2E
 
 **Regla Crítica del Flujo:**
@@ -50,6 +53,7 @@
 ### Sprint 1 - Setup Inicial (Completadas: 22/sep/2025)
 
 #### SETUP-001: Configuración inicial del proyecto
+
 - **Estado:** ✅ Completado
 - **Fecha:** 15/sep/2025
 - **Asignado:** Equipo completo
@@ -62,6 +66,7 @@
   - ✅ Setup de pnpm
 
 #### SETUP-002: Configuración de Supabase
+
 - **Estado:** ✅ Completado
 - **Fecha:** 16/sep/2025
 - **Asignado:** Cristóbal Cuneo
@@ -73,6 +78,7 @@
   - ✅ Crear archivo `.env.local.example`
 
 #### SETUP-003: CI/CD en Vercel
+
 - **Estado:** ✅ Completado
 - **Fecha:** 17/sep/2025
 - **Asignado:** Sebastián Rosselot
@@ -84,6 +90,7 @@
   - ✅ Configurar dominios
 
 #### SETUP-004: Estructura base de carpetas
+
 - **Estado:** ✅ Completado
 - **Fecha:** 18/sep/2025
 - **Asignado:** María Trinidad Gil
@@ -95,6 +102,7 @@
   - ✅ Setup de `types/` y `constants/`
 
 #### DOC-001: Actualizar Excel de RF
+
 - **Estado:** ✅ Completado (En Revisión)
 - **Fecha:** 12/dic/2024 (VENCIDA)
 - **Asignado:** Joaquín Peralta, Alexandra San Martín
@@ -103,6 +111,7 @@
 - **Nota:** Tarea marcada en revisión en ClickUp
 
 #### DOC-002: Cambiar HU y épicas en Excel
+
 - **Estado:** ✅ Completado (En Revisión)
 - **Fecha:** 12/dic/2024 (VENCIDA)
 - **Asignado:** Joaquín Peralta, Alexandra San Martín
@@ -117,6 +126,7 @@
 ### Sprint 2 - Iteración y Refinamiento (En Curso)
 
 #### ARCH-001: Cambiar arquitectura del sistema
+
 - **Estado:** 🚧 En Progreso (En Revisión)
 - **Fecha Inicio:** 10/oct/2025
 - **Asignado:** Cristóbal Cuneo
@@ -129,6 +139,7 @@
   - ⏳ Validar con equipo
 
 #### DATA-001: Cambiar modelo de datos
+
 - **Estado:** 🚧 En Progreso (En Revisión)
 - **Fecha Inicio:** 12/oct/2025
 - **Asignado:** Cristóbal Cuneo, María Trinidad Gil, Matías Adauy, Sebastián Rosselot
@@ -143,6 +154,7 @@
   - ⏳ Deploy a staging
 
 #### DOC-003: Revisar descripción general del proyecto
+
 - **Estado:** 🚧 En Progreso
 - **Fecha Inicio:** 15/oct/2025
 - **Asignado:** Sebastián Rosselot
@@ -150,6 +162,7 @@
 - **Progreso:** 50%
 
 #### UI-001: Actualización vista de procesos
+
 - **Estado:** 🚧 En Progreso
 - **Fecha Inicio:** 18/oct/2025
 - **Asignado:** Alexandra San Martín
@@ -158,6 +171,7 @@
 - **Progreso:** 40%
 
 #### DOC-004: Actualización metodología
+
 - **Estado:** 🚧 En Progreso (En Revisión)
 - **Fecha Inicio:** 16/oct/2025
 - **Asignado:** Alexandra San Martín
@@ -167,6 +181,7 @@
 - **Fecha de vencimiento:** 16/oct/2025
 
 #### BACK-001: Tests Endpoints Backend
+
 - **Estado:** 🚧 En Progreso
 - **Fecha Inicio:** 27/oct/2025
 - **Asignado:** Sebastián Rosselot
@@ -181,6 +196,7 @@
 ### Sprint 3 - Auth y Carga de Datos (6/oct/2025)
 
 #### AUTH-001: Sistema de autenticación (Login/Logout)
+
 - **Estado:** ✅ Completado - 100%
 - **Sprint:** 3
 - **Asignado:** Joaquín Peralta
@@ -209,6 +225,7 @@
   - ⏳ Tests unitarios de auth
 
 #### AUTH-002: Sistema de roles y permisos
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 3
 - **Asignado:** Por asignar
@@ -229,6 +246,7 @@
   - ⏳ Tests de permisos
 
 #### HU-005: Carga inicial de Excel desde SIGESA
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 3
 - **Asignado:** Por asignar
@@ -251,6 +269,7 @@
   - ⏳ Tests unitarios del parser
 
 #### HU-009: Visualización tipo Excel
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 3
 - **Asignado:** Por asignar
@@ -277,11 +296,12 @@
 ### Sprint 4 - Gestión de Usuarios y Validación (20/oct/2025)
 
 #### HU-001: Creación y gestión de usuarios
+
 - **Estado:** 🚧 En Progreso (ACTIVO) - 70% Completado
 - **Sprint:** 2-4
 - **Asignado:** Joaquín Peralta
 - **Fecha Actualización:** 30/oct/2025
-- **ClickUp URL:** https://app.clickup.com/t/86acn64dk
+- **ClickUp URL:** <https://app.clickup.com/t/86acn64dk>
 - **Prioridad:** 🔴 ALTA
 - **Épica:** EP-01
 - **Estimación:** 8 puntos
@@ -304,11 +324,12 @@
   - ⏳ Tests E2E
 
 #### HU-002: Asignación de roles y permisos
+
 - **Estado:** 🚧 En Progreso (ACTIVO)
 - **Sprint:** 2-4
 - **Asignado:** Joaquín Peralta
 - **Fecha Actualización:** 30/oct/2025
-- **ClickUp URL:** https://app.clickup.com/t/86acn64dx
+- **ClickUp URL:** <https://app.clickup.com/t/86acn64dx>
 - **Prioridad:** 🔴 ALTA
 - **Épica:** EP-01
 - **Estimación:** 5 puntos
@@ -324,12 +345,13 @@
   - ⏳ Tests de permisos
 
 #### HU-003: Acceso restringido por rol + Workflow de Estados ✅ **CASI COMPLETADO**
+
 - **Estado:** 🚧 En Testing Manual - 87.5% Completado (7/8 bloques)
 - **Sprint:** 3-4
 - **Asignado:** Joaquín Peralta
 - **Fecha Actualización:** 4 de noviembre, 2025 (21:00 hrs)
 - **Fecha Inicio:** 31/oct/2025
-- **ClickUp URL:** https://app.clickup.com/t/86acn64fw
+- **ClickUp URL:** <https://app.clickup.com/t/86acn64fw>
 - **Prioridad:** 🔴 URGENTE (CRÍTICO)
 - **Épica:** EP-01
 - **Estimación:** 18-20 horas totales (distribuidas en 5 fases)
@@ -337,18 +359,19 @@
 - **Objetivo:** Lograr flujo end-to-end: Encoder → Finance → Admin → Export con restricción de archivo único
 
 **Criterios de Aceptación:**
-  - ✅ Sistema de usuarios con 3 roles funcionando (admin, encoder, finance)
-  - ✅ Estado `rechazado` agregado al ENUM (migración aplicada)
-  - ✅ Encoder solo puede subir archivo si NO hay uno en flujo activo
-  - ✅ Encoder edita solo campos AT en filas, auto-guardado cada 5s
-  - ✅ Encoder hace Submit con doble confirmación → pasa a Finance
-  - ✅ Finance recibe notificación y edita sus campos en filas
-  - ✅ Finance hace Submit con doble confirmación → pasa a Admin
-  - ✅ Admin puede aprobar, rechazar (vuelve a Encoder) o exportar
-  - ✅ Sistema permite re-descarga de archivos exportados
-  - ✅ Sidebar muestra opciones según rol del usuario
-  - ✅ Campos bloqueados dinámicamente según estado y rol
-  - ✅ Sistema de notificaciones simples (banners) entre roles
+
+- ✅ Sistema de usuarios con 3 roles funcionando (admin, encoder, finance)
+- ✅ Estado `rechazado` agregado al ENUM (migración aplicada)
+- ✅ Encoder solo puede subir archivo si NO hay uno en flujo activo
+- ✅ Encoder edita solo campos AT en filas, auto-guardado cada 5s
+- ✅ Encoder hace Submit con doble confirmación → pasa a Finance
+- ✅ Finance recibe notificación y edita sus campos en filas
+- ✅ Finance hace Submit con doble confirmación → pasa a Admin
+- ✅ Admin puede aprobar, rechazar (vuelve a Encoder) o exportar
+- ✅ Sistema permite re-descarga de archivos exportados
+- ✅ Sidebar muestra opciones según rol del usuario
+- ✅ Campos bloqueados dinámicamente según estado y rol
+- ✅ Sistema de notificaciones simples (banners) entre roles
 
 **Plan de Implementación Completo - 8 BLOQUES:**
 
@@ -358,27 +381,30 @@
 
 ### **BLOQUE 1: Migración Estado 'rechazado' - ⏰ 30 min** - ✅ **COMPLETADO**
 
-  - ✅ **WORKFLOW-001B**: Agregar estado `rechazado` al ENUM
-    - **Fecha Completado:** 3/nov/2025
-    - **Estado:** ✅ COMPLETADO
-    - **Archivo:** `supabase/migrations/20251103_add_rechazado_state.sql`
-    - **Detalles:**
+- ✅ **WORKFLOW-001B**: Agregar estado `rechazado` al ENUM
+  - **Fecha Completado:** 3/nov/2025
+  - **Estado:** ✅ COMPLETADO
+  - **Archivo:** `supabase/migrations/20251103_add_rechazado_state.sql`
+  - **Detalles:**
+
       ```sql
       ALTER TYPE workflow_estado ADD VALUE IF NOT EXISTS 'rechazado';
       ```
-    - **Resultado:** 7 estados disponibles en total
+
+  - **Resultado:** 7 estados disponibles en total
 
 ---
 
 ### **BLOQUE 2: API Validar Archivo Único - ⏰ 1 hora** - ✅ **COMPLETADO**
 
-  - ✅ **WORKFLOW-002**: API GET `/api/v1/grd/active-workflow`
-    - **Fecha Completado:** 3/nov/2025
-    - **Estado:** ✅ COMPLETADO
-    - **Archivo:** `src/app/api/v1/grd/active-workflow/route.ts`
-    - **Descripción:** Verifica si existe archivo en flujo activo
-    - **Estados bloqueantes:** `borrador_encoder`, `pendiente_finance`, `borrador_finance`, `pendiente_admin`, `rechazado`
-    - **Response:**
+- ✅ **WORKFLOW-002**: API GET `/api/v1/grd/active-workflow`
+  - **Fecha Completado:** 3/nov/2025
+  - **Estado:** ✅ COMPLETADO
+  - **Archivo:** `src/app/api/v1/grd/active-workflow/route.ts`
+  - **Descripción:** Verifica si existe archivo en flujo activo
+  - **Estados bloqueantes:** `borrador_encoder`, `pendiente_finance`, `borrador_finance`, `pendiente_admin`, `rechazado`
+  - **Response:**
+
       ```json
       {
         "hasActiveWorkflow": true,
@@ -391,134 +417,136 @@
 
 ### **BLOQUE 3: API Review (Aprobar/Rechazar) - ⏰ 2 horas** - ✅ **COMPLETADO**
 
-  - ✅ **WORKFLOW-003**: API POST `/api/v1/grd/[grdId]/review`
-    - **Fecha Completado:** 4/nov/2025
-    - **Estado:** ✅ COMPLETADO
-    - **Archivo:** `src/app/api/v1/grd/[grdId]/review/route.ts`
-    - **Descripción:** Admin aprueba o rechaza archivo
-    - **Request body:**
+- ✅ **WORKFLOW-003**: API POST `/api/v1/grd/[grdId]/review`
+  - **Fecha Completado:** 4/nov/2025
+  - **Estado:** ✅ COMPLETADO
+  - **Archivo:** `src/app/api/v1/grd/[grdId]/review/route.ts`
+  - **Descripción:** Admin aprueba o rechaza archivo
+  - **Request body:**
+
       ```json
       { 
         "action": "approve" | "reject",
         "reason": "Razón del rechazo (opcional para approve, obligatorio para reject)"
       }
       ```
-    - **Validaciones:**
-      - Usuario debe ser `admin`
-      - Estado debe ser `pendiente_admin`
-      - Approve → `aprobado`
-      - Reject → `rechazado`
-      - Reason obligatoria para reject (mínimo 10 caracteres)
-    - **Bug Fix:** Cambio de `.single()` a `.limit(1)` para actualización masiva
+
+  - **Validaciones:**
+    - Usuario debe ser `admin`
+    - Estado debe ser `pendiente_admin`
+    - Approve → `aprobado`
+    - Reject → `rechazado`
+    - Reason obligatoria para reject (mínimo 10 caracteres)
+  - **Bug Fix:** Cambio de `.single()` a `.limit(1)` para actualización masiva
 
 ---
 
 ### **BLOQUE 4: Botón Submit Encoder - ⏰ 2 horas** - ✅ **COMPLETADO**
 
-  - ✅ **WORKFLOW-004**: Implementar botón "Entregar a Finanzas"
-    - **Fecha Completado:** 4/nov/2025
-    - **Estado:** ✅ COMPLETADO
-    - **Archivo:** `src/components/ExcelEditor.tsx`
-    - **Funcionalidad:**
-      - Botón visible solo en estados: `borrador_encoder`, `rechazado`
-      - Texto: "Entregar" o "Reenviar" según estado
-      - Doble confirmación con modal `SubmitConfirmModal`
-      - Handler: `handleSubmitToFinance()`
-      - API llamada: `POST /api/v1/grd/[grdId]/submit-encoder`
-      - Transición: `borrador_encoder` → `pendiente_finance`
+- ✅ **WORKFLOW-004**: Implementar botón "Entregar a Finanzas"
+  - **Fecha Completado:** 4/nov/2025
+  - **Estado:** ✅ COMPLETADO
+  - **Archivo:** `src/components/ExcelEditor.tsx`
+  - **Funcionalidad:**
+    - Botón visible solo en estados: `borrador_encoder`, `rechazado`
+    - Texto: "Entregar" o "Reenviar" según estado
+    - Doble confirmación con modal `SubmitConfirmModal`
+    - Handler: `handleSubmitToFinance()`
+    - API llamada: `POST /api/v1/grd/[grdId]/submit-encoder`
+    - Transición: `borrador_encoder` → `pendiente_finance`
 
 ---
 
 ### **BLOQUE 5: Botón Submit Finance - ⏰ 1.5 horas** - ✅ **COMPLETADO**
 
-  - ✅ **WORKFLOW-005**: Implementar botón "Entregar a Administración"
-    - **Fecha Completado:** 4/nov/2025
-    - **Estado:** ✅ COMPLETADO
-    - **Archivo:** `src/components/ExcelEditor.tsx`
-    - **Funcionalidad:**
-      - Botón visible solo en estados: `pendiente_finance`, `borrador_finance`
-      - Doble confirmación con modal `SubmitConfirmModal`
-      - Handler: `handleSubmitToAdmin()`
-      - API llamada: `POST /api/v1/grd/[grdId]/submit-finance`
-      - Transición: `borrador_finance` → `pendiente_admin`
-    - **Nota:** Validación de campo `validado` temporalmente comentada para testing
+- ✅ **WORKFLOW-005**: Implementar botón "Entregar a Administración"
+  - **Fecha Completado:** 4/nov/2025
+  - **Estado:** ✅ COMPLETADO
+  - **Archivo:** `src/components/ExcelEditor.tsx`
+  - **Funcionalidad:**
+    - Botón visible solo en estados: `pendiente_finance`, `borrador_finance`
+    - Doble confirmación con modal `SubmitConfirmModal`
+    - Handler: `handleSubmitToAdmin()`
+    - API llamada: `POST /api/v1/grd/[grdId]/submit-finance`
+    - Transición: `borrador_finance` → `pendiente_admin`
+  - **Nota:** Validación de campo `validado` temporalmente comentada para testing
 
 ---
 
 ### **BLOQUE 6: Botones Admin (Aprobar/Rechazar) - ⏰ 2 horas** - ✅ **COMPLETADO**
 
-  - ✅ **WORKFLOW-006**: Implementar botones Admin con RejectModal
-    - **Fecha Completado:** 4/nov/2025 (20:30 hrs)
-    - **Estado:** ✅ COMPLETADO
-    - **Archivos:**
-      - `src/components/ExcelEditor.tsx` (handlers y UI)
-      - `src/components/RejectModal.tsx` (modal completo)
-    - **Funcionalidad:**
-      - Botones visibles solo si: `role='admin'` AND `estado='pendiente_admin'`
-      - **Botón "✅ Aprobar Archivo":**
-        - Handler: `handleApprove()`
-        - API: `POST /api/v1/grd/[grdId]/review` con `{ action: 'approve' }`
-        - Transición: `pendiente_admin` → `aprobado`
-      - **Botón "❌ Rechazar Archivo":**
-        - Handler: `handleReject(reason: string)`
-        - Abre modal `RejectModal`
-        - Validación: razón mínimo 10 caracteres
-        - API: `POST /api/v1/grd/[grdId]/review` con `{ action: 'reject', reason }`
-        - Transición: `pendiente_admin` → `rechazado`
-      - Estados: `isApproving`, `isRejecting`, `approveError`
-      - Loading states con spinners
-      - Error handling con mensajes descriptivos
-    - **Git:** Commit 48b6c9f - "feat: Add Admin approve/reject buttons with RejectModal (BLOQUE 6)"
+- ✅ **WORKFLOW-006**: Implementar botones Admin con RejectModal
+  - **Fecha Completado:** 4/nov/2025 (20:30 hrs)
+  - **Estado:** ✅ COMPLETADO
+  - **Archivos:**
+    - `src/components/ExcelEditor.tsx` (handlers y UI)
+    - `src/components/RejectModal.tsx` (modal completo)
+  - **Funcionalidad:**
+    - Botones visibles solo si: `role='admin'` AND `estado='pendiente_admin'`
+    - **Botón "✅ Aprobar Archivo":**
+      - Handler: `handleApprove()`
+      - API: `POST /api/v1/grd/[grdId]/review` con `{ action: 'approve' }`
+      - Transición: `pendiente_admin` → `aprobado`
+    - **Botón "❌ Rechazar Archivo":**
+      - Handler: `handleReject(reason: string)`
+      - Abre modal `RejectModal`
+      - Validación: razón mínimo 10 caracteres
+      - API: `POST /api/v1/grd/[grdId]/review` con `{ action: 'reject', reason }`
+      - Transición: `pendiente_admin` → `rechazado`
+    - Estados: `isApproving`, `isRejecting`, `approveError`
+    - Loading states con spinners
+    - Error handling con mensajes descriptivos
+  - **Git:** Commit 48b6c9f - "feat: Add Admin approve/reject buttons with RejectModal (BLOQUE 6)"
 
 ---
 
 ### **BLOQUE 7: Integración con /visualizator - ⏰ 1 hora** - ✅ **COMPLETADO**
 
-  - ✅ **WORKFLOW-007**: Soportar estado 'rechazado' en visualizador
-    - **Fecha Completado:** 4/nov/2025 (20:45 hrs)
-    - **Estado:** ✅ COMPLETADO
-    - **Archivos:**
-      - `src/app/visualizator/page.tsx` (query y allowedStates)
-      - `src/components/ExcelEditor.tsx` (isFieldEditable y alerta)
-    - **Funcionalidad:**
-      - **Query actualizado:** incluye estado `rechazado` en `IN` clause
-      - **allowedStates para encoder:** `['borrador_encoder', 'rechazado']`
-      - **Alerta de rechazo:** Banner rojo cuando `estado='rechazado'`
-        - Título: "⚠️ Archivo Rechazado por el Administrador"
-        - Descripción: Instrucciones para corregir y reenviar
-      - **isFieldEditable():** permite edición de AT cuando `estado='rechazado'`
-      - **Botón Submit:** cambia texto a "Reenviar" cuando `estado='rechazado'`
-      - **TypeScript:** actualizado tipo `estado` para incluir 'rechazado'
-    - **Git:** Commit f0c0cce - "feat: Add 'rechazado' state support in visualizator (BLOQUE 7)"
+- ✅ **WORKFLOW-007**: Soportar estado 'rechazado' en visualizador
+  - **Fecha Completado:** 4/nov/2025 (20:45 hrs)
+  - **Estado:** ✅ COMPLETADO
+  - **Archivos:**
+    - `src/app/visualizator/page.tsx` (query y allowedStates)
+    - `src/components/ExcelEditor.tsx` (isFieldEditable y alerta)
+  - **Funcionalidad:**
+    - **Query actualizado:** incluye estado `rechazado` en `IN` clause
+    - **allowedStates para encoder:** `['borrador_encoder', 'rechazado']`
+    - **Alerta de rechazo:** Banner rojo cuando `estado='rechazado'`
+      - Título: "⚠️ Archivo Rechazado por el Administrador"
+      - Descripción: Instrucciones para corregir y reenviar
+    - **isFieldEditable():** permite edición de AT cuando `estado='rechazado'`
+    - **Botón Submit:** cambia texto a "Reenviar" cuando `estado='rechazado'`
+    - **TypeScript:** actualizado tipo `estado` para incluir 'rechazado'
+  - **Git:** Commit f0c0cce - "feat: Add 'rechazado' state support in visualizator (BLOQUE 7)"
 
 ---
 
 ### **BLOQUE 8: Testing Manual E2E - ⏰ 2-3 horas** - ⏳ **PENDIENTE**
 
-  - ⏳ **WORKFLOW-008**: Testing end-to-end completo
-    - **Fecha Inicio:** Por definir
-    - **Estado:** ⏳ NO INICIADO
-    - **Documento:** `TEST-FLUJO-E2E.md` (creado)
-    - **Descripción:** Ejecutar testing manual de ambos flujos
-    - **Flujos a testear:**
+- ⏳ **WORKFLOW-008**: Testing end-to-end completo
+  - **Fecha Inicio:** Por definir
+  - **Estado:** ⏳ NO INICIADO
+  - **Documento:** `TEST-FLUJO-E2E.md` (creado)
+  - **Descripción:** Ejecutar testing manual de ambos flujos
+  - **Flujos a testear:**
       1. **FLUJO 1 (Happy Path):** Encoder → Finance → Admin → Approve → Export
       2. **FLUJO 2 (Rechazo):** Admin Reject → Encoder Fix → Resubmit → Approve
-    - **Validaciones críticas:**
-      - ✅ Archivo único (no permite carga si hay uno en proceso)
-      - ✅ Permisos de edición por rol y estado
-      - ✅ Transiciones de estado correctas
-      - ✅ Modales de confirmación funcionando
-      - ✅ Alerta de rechazo visible para encoder
-      - ✅ Botones visibles según rol y estado
-      - ✅ Loading states y error handling
-    - **Prerequisitos:**
-      - Usuarios de testing: admin@test.com, encoder@test.com, finance@test.com
-      - Archivo Excel de prueba (10-50 filas)
-      - Base de datos limpia
-    - **Entregables:**
-      - Screenshots de cada paso
-      - Reporte de bugs encontrados
-      - Validación de criterios de aceptación
+  - **Validaciones críticas:**
+    - ✅ Archivo único (no permite carga si hay uno en proceso)
+    - ✅ Permisos de edición por rol y estado
+    - ✅ Transiciones de estado correctas
+    - ✅ Modales de confirmación funcionando
+    - ✅ Alerta de rechazo visible para encoder
+    - ✅ Botones visibles según rol y estado
+    - ✅ Loading states y error handling
+  - **Prerequisitos:**
+    - Usuarios de testing: <admin@test.com>, <encoder@test.com>, <finance@test.com>
+    - Archivo Excel de prueba (10-50 filas)
+    - Base de datos limpia
+  - **Entregables:**
+    - Screenshots de cada paso
+    - Reporte de bugs encontrados
+    - Validación de criterios de aceptación
 
 ---
 
@@ -559,34 +587,34 @@
 
 ### **FASE 3: Modificación de Componentes Existentes - ⏰ 5-6 horas** - **0% COMPLETADO**
 
-  - ⏳ **UI-002**: Modificar `FileUpload.tsx` - Validación de archivo único
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 1.5 horas
-    - **Archivo:** `src/components/FileUpload.tsx`
-    - **Cambios:**
-      - Agregar `useEffect` para llamar a `GET /api/v1/grd/active-workflow`
-      - Si `hasActiveWorkflow === true`:
-        - Mostrar banner: "⚠️ Ya existe un archivo en proceso (Estado: {estado})"
-        - Deshabilitar dropzone y botón de carga
-      - Si `hasActiveWorkflow === false`: permitir carga normal
+- ⏳ **UI-002**: Modificar `FileUpload.tsx` - Validación de archivo único
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 1.5 horas
+  - **Archivo:** `src/components/FileUpload.tsx`
+  - **Cambios:**
+    - Agregar `useEffect` para llamar a `GET /api/v1/grd/active-workflow`
+    - Si `hasActiveWorkflow === true`:
+      - Mostrar banner: "⚠️ Ya existe un archivo en proceso (Estado: {estado})"
+      - Deshabilitar dropzone y botón de carga
+    - Si `hasActiveWorkflow === false`: permitir carga normal
 
-  - ⏳ **UI-003**: Modificar `Sidebar.tsx` - Menú dinámico por rol
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 2 horas
-    - **Archivo:** `src/components/Sidebar.tsx`
-    - **Cambios:**
-      - Agregar `useEffect` para obtener rol (`GET /api/auth/session`)
-      - Crear lógica condicional de menú según rol:
-        - **Encoder:** Dashboard, Subir Archivo, SIGESA, Editor, Norma
-        - **Finance:** Dashboard, SIGESA, Editor (solo si hay archivo pendiente)
-        - **Admin:** Dashboard, Usuarios, SIGESA, Visualizador
-      - Páginas ya existen, solo cambiar visibilidad
+- ⏳ **UI-003**: Modificar `Sidebar.tsx` - Menú dinámico por rol
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 2 horas
+  - **Archivo:** `src/components/Sidebar.tsx`
+  - **Cambios:**
+    - Agregar `useEffect` para obtener rol (`GET /api/auth/session`)
+    - Crear lógica condicional de menú según rol:
+      - **Encoder:** Dashboard, Subir Archivo, SIGESA, Editor, Norma
+      - **Finance:** Dashboard, SIGESA, Editor (solo si hay archivo pendiente)
+      - **Admin:** Dashboard, Usuarios, SIGESA, Visualizador
+    - Páginas ya existen, solo cambiar visibilidad
 
-  - ⏳ **UI-004**: Modificar `ExcelEditor.tsx` - Campos editables dinámicos + Auto-guardado
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 3 horas
-    - **Archivo:** `src/components/ExcelEditor.tsx`
-    - **Cambios:**
+- ⏳ **UI-004**: Modificar `ExcelEditor.tsx` - Campos editables dinámicos + Auto-guardado
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 3 horas
+  - **Archivo:** `src/components/ExcelEditor.tsx`
+  - **Cambios:**
       1. **Agregar prop `role`** para saber qué campos bloquear
       2. **Lógica de bloqueo por rol:**
          - **Encoder:** Solo `AT`, `AT_detalle`, `monto_AT` editables
@@ -603,116 +631,119 @@
          - `PUT /api/v1/grd/rows/[episodio]`
       5. **Botón "Entregar"** (solo Encoder y Finance)
 
-  - ⏳ **UI-005**: Crear `SubmitConfirmModal.tsx` - Modal doble confirmación
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 1.5 horas
-    - **Archivo a crear:** `src/components/SubmitConfirmModal.tsx`
-    - **Funcionalidad:**
-      - Modal con 2 pasos de confirmación
-      - Paso 1: "¿Estás seguro de entregar?"
-      - Paso 2: "⚠️ No podrás editar hasta que finalice"
-      - Al confirmar:
-        - Si `role === 'encoder'`: `POST /api/v1/grd/[grdId]/submit-encoder`
-        - Si `role === 'finance'`: `POST /api/v1/grd/[grdId]/submit-finance`
+- ⏳ **UI-005**: Crear `SubmitConfirmModal.tsx` - Modal doble confirmación
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 1.5 horas
+  - **Archivo a crear:** `src/components/SubmitConfirmModal.tsx`
+  - **Funcionalidad:**
+    - Modal con 2 pasos de confirmación
+    - Paso 1: "¿Estás seguro de entregar?"
+    - Paso 2: "⚠️ No podrás editar hasta que finalice"
+    - Al confirmar:
+      - Si `role === 'encoder'`: `POST /api/v1/grd/[grdId]/submit-encoder`
+      - Si `role === 'finance'`: `POST /api/v1/grd/[grdId]/submit-finance`
 
-  - ⏳ **UI-006**: Crear `WorkflowAlert.tsx` - Notificaciones simples
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 1 hora
-    - **Archivo a crear:** `src/components/WorkflowAlert.tsx`
-    - **Funcionalidad:**
-      - Banner en dashboard
-      - Llamar a `GET /api/v1/grd/active-workflow`
-      - Mostrar mensaje según rol:
-        - **Finance:** "🔔 Tienes archivo pendiente"
-        - **Admin:** "🔔 Tienes archivo pendiente de aprobación"
-        - **Encoder:** "⚠️ Admin rechazó tu archivo"
+- ⏳ **UI-006**: Crear `WorkflowAlert.tsx` - Notificaciones simples
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 1 hora
+  - **Archivo a crear:** `src/components/WorkflowAlert.tsx`
+  - **Funcionalidad:**
+    - Banner en dashboard
+    - Llamar a `GET /api/v1/grd/active-workflow`
+    - Mostrar mensaje según rol:
+      - **Finance:** "🔔 Tienes archivo pendiente"
+      - **Admin:** "🔔 Tienes archivo pendiente de aprobación"
+      - **Encoder:** "⚠️ Admin rechazó tu archivo"
 
-  - ⏳ **UI-007**: Crear hook `useWorkflowStatus.ts`
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 30 min
-    - **Archivo a crear:** `src/hooks/useWorkflowStatus.ts`
-    - **Funcionalidad:** Hook compartido para obtener estado de workflow
+- ⏳ **UI-007**: Crear hook `useWorkflowStatus.ts`
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 30 min
+  - **Archivo a crear:** `src/hooks/useWorkflowStatus.ts`
+  - **Funcionalidad:** Hook compartido para obtener estado de workflow
 
 ---
 
 ### **FASE 4: Integración en Páginas Existentes - ⏰ 3-4 horas** - **0% COMPLETADO**
 
-  - ⏳ **PAGE-001**: Modificar `/visualizator/page.tsx`
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 2 horas
-    - **Archivo:** `src/app/visualizator/page.tsx`
-    - **Cambios:**
-      - Obtener rol del usuario
-      - Pasar prop `role` a `ExcelEditor`
-      - Agregar botón "Entregar" (encoder/finance)
-      - Agregar botones "Aprobar"/"Rechazar" (admin, si `pendiente_admin`)
-      - Agregar filtro "Solo AT = 'S'" (admin, filtro visual)
-      - Botón "Exportar" (admin, si `aprobado`)
+- ⏳ **PAGE-001**: Modificar `/visualizator/page.tsx`
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 2 horas
+  - **Archivo:** `src/app/visualizator/page.tsx`
+  - **Cambios:**
+    - Obtener rol del usuario
+    - Pasar prop `role` a `ExcelEditor`
+    - Agregar botón "Entregar" (encoder/finance)
+    - Agregar botones "Aprobar"/"Rechazar" (admin, si `pendiente_admin`)
+    - Agregar filtro "Solo AT = 'S'" (admin, filtro visual)
+    - Botón "Exportar" (admin, si `aprobado`)
 
-  - ⏳ **PAGE-002**: Modificar `/dashboard/page.tsx`
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 1 hora
-    - **Archivo:** `src/app/dashboard/page.tsx`
-    - **Cambios:**
-      - Agregar `<WorkflowAlert />` al inicio
-      - Mostrar tarjetas según rol
+- ⏳ **PAGE-002**: Modificar `/dashboard/page.tsx`
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 1 hora
+  - **Archivo:** `src/app/dashboard/page.tsx`
+  - **Cambios:**
+    - Agregar `<WorkflowAlert />` al inicio
+    - Mostrar tarjetas según rol
 
-  - ⏳ **PAGE-003**: Modificar `/sigesa/page.tsx`
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 30 min
-    - **Archivo:** `src/app/sigesa/page.tsx`
-    - **Cambios:**
-      - Asegurar modo read-only estricto
-      - Mostrar solo archivo activo en workflow
+- ⏳ **PAGE-003**: Modificar `/sigesa/page.tsx`
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 30 min
+  - **Archivo:** `src/app/sigesa/page.tsx`
+  - **Cambios:**
+    - Asegurar modo read-only estricto
+    - Mostrar solo archivo activo en workflow
 
-  - ⏳ **PAGE-004**: Modificar `/upload/page.tsx`
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 30 min
-    - **Archivo:** `src/app/upload/page.tsx`
-    - **Cambios:**
-      - Integrar validación de archivo único de `FileUpload` modificado
+- ⏳ **PAGE-004**: Modificar `/upload/page.tsx`
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 30 min
+  - **Archivo:** `src/app/upload/page.tsx`
+  - **Cambios:**
+    - Integrar validación de archivo único de `FileUpload` modificado
 
 ---
 
 ### **FASE 5: Exportación y Cierre de Flujo - ⏰ 2-3 horas** - **0% COMPLETADO**
 
-  - ⏳ **EXPORT-001**: Crear/Modificar API GET `/api/v1/grd/[grdId]/export`
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 2 horas
-    - **Archivo:** `src/app/api/v1/grd/[grdId]/export/route.ts` (puede existir)
-    - **Funcionalidad:**
-      - Validar que usuario sea `admin`
-      - Validar que archivo esté en estado `aprobado`
-      - Generar Excel con 29 columnas formato FONASA
-      - Cambiar estado a `exportado` (solo primera vez)
-      - Permitir re-descarga sin cambiar estado
-      - Retornar archivo para download
+- ⏳ **EXPORT-001**: Crear/Modificar API GET `/api/v1/grd/[grdId]/export`
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 2 horas
+  - **Archivo:** `src/app/api/v1/grd/[grdId]/export/route.ts` (puede existir)
+  - **Funcionalidad:**
+    - Validar que usuario sea `admin`
+    - Validar que archivo esté en estado `aprobado`
+    - Generar Excel con 29 columnas formato FONASA
+    - Cambiar estado a `exportado` (solo primera vez)
+    - Permitir re-descarga sin cambiar estado
+    - Retornar archivo para download
 
-  - ⏳ **EXPORT-002**: Testing del flujo completo end-to-end
-    - **Estado:** ⏳ NO INICIADO
-    - **Estimación:** 1 hora
-    - **Descripción:** Probar flujo completo: Encoder → Finance → Admin → Export
+- ⏳ **EXPORT-002**: Testing del flujo completo end-to-end
+  - **Estado:** ⏳ NO INICIADO
+  - **Estimación:** 1 hora
+  - **Descripción:** Probar flujo completo: Encoder → Finance → Admin → Export
 
 ---
 
 **Bloqueadores:**
-  - ⚠️ **BLOQUEANTE:** Migración para agregar estado `rechazado` (WORKFLOW-001B)
+
+- ⚠️ **BLOQUEANTE:** Migración para agregar estado `rechazado` (WORKFLOW-001B)
 
 **Notas Técnicas:**
-  - ⚠️ **VALIDACIONES DE CAMPOS OBLIGATORIOS DESHABILITADAS** (actualizado 4/nov/2025)
-    - **APIs modificadas:** `/api/v1/grd/[grdId]/submit-finance` (líneas comentadas)
-    - **Objetivo:** Permitir flujo end-to-end sin bloqueos por validaciones
-    - **Razón:** Focus en implementar workflow completo primero, validaciones estrictas después
-    - **Tech Debt creado:** TECH-006 (ver sección Tech Debt)
-  - ✅ Páginas ya existen: `/sigesa`, `/norma`, `/upload`, `/visualizator`, `/dashboard`
-  - ✅ Componentes ya existen: `SigesaPreview`, `ExcelEditor`, `NormaMinsal`, `FileUpload`, `Sidebar`
-  - ✅ Focus en modificar lo existente, NO duplicar trabajo
-  - ✅ Guardado manual con protección beforeunload (auto-guardado ELIMINADO por UX)
-  - ✅ Doble confirmación en Submit (2 pasos)
-  - ✅ Notificaciones simples con banners (no emails)
-  - ✅ Filtro visual de AT no afecta exportación
+
+- ⚠️ **VALIDACIONES DE CAMPOS OBLIGATORIOS DESHABILITADAS** (actualizado 4/nov/2025)
+  - **APIs modificadas:** `/api/v1/grd/[grdId]/submit-finance` (líneas comentadas)
+  - **Objetivo:** Permitir flujo end-to-end sin bloqueos por validaciones
+  - **Razón:** Focus en implementar workflow completo primero, validaciones estrictas después
+  - **Tech Debt creado:** TECH-006 (ver sección Tech Debt)
+- ✅ Páginas ya existen: `/sigesa`, `/norma`, `/upload`, `/visualizator`, `/dashboard`
+- ✅ Componentes ya existen: `SigesaPreview`, `ExcelEditor`, `NormaMinsal`, `FileUpload`, `Sidebar`
+- ✅ Focus en modificar lo existente, NO duplicar trabajo
+- ✅ Guardado manual con protección beforeunload (auto-guardado ELIMINADO por UX)
+- ✅ Doble confirmación en Submit (2 pasos)
+- ✅ Notificaciones simples con banners (no emails)
+- ✅ Filtro visual de AT no afecta exportación
 
 **Resumen de Archivos a Modificar (NO crear nuevos):**
+
 - `src/components/FileUpload.tsx`
 - `src/components/Sidebar.tsx`
 - `src/components/ExcelEditor.tsx`
@@ -725,6 +756,7 @@
 - `src/app/api/v1/grd/[grdId]/export/route.ts` (si existe)
 
 **Archivos Nuevos a Crear:**
+
 - `supabase/migrations/20251103_add_rechazado_state.sql`
 - `src/app/api/v1/grd/active-workflow/route.ts`
 - `src/app/api/v1/grd/[grdId]/submit-encoder/route.ts`
@@ -735,35 +767,39 @@
 - `src/hooks/useWorkflowStatus.ts`
 
 ### **FASE 5: Exportación Final - DÍA 3** ⏰ 1-2 horas
-  - ⏳ **EXPORT-001**: Crear API POST `/api/v1/grd/[grdId]/export`
-    - Valida que usuario sea admin
-    - Valida que estado sea `aprobado`
-    - Genera Excel con 29 columnas formato FONASA
-    - Cambia estado a `exportado`
-    - Retorna URL de descarga
-  - ⏳ **EXPORT-002**: Integrar botón Export en dashboard admin
-    - Solo visible si estado === `aprobado`
-    - Descarga archivo automáticamente
-    - Feedback de éxito
+
+- ⏳ **EXPORT-001**: Crear API POST `/api/v1/grd/[grdId]/export`
+  - Valida que usuario sea admin
+  - Valida que estado sea `aprobado`
+  - Genera Excel con 29 columnas formato FONASA
+  - Cambia estado a `exportado`
+  - Retorna URL de descarga
+- ⏳ **EXPORT-002**: Integrar botón Export en dashboard admin
+  - Solo visible si estado === `aprobado`
+  - Descarga archivo automáticamente
+  - Feedback de éxito
 
 **Bloqueadores:**
-  - Ninguno actual
+
+- Ninguno actual
 
 **Notas Técnicas:**
-  - ⚠️ **VALIDACIONES DE CAMPOS OBLIGATORIOS DESHABILITADAS** (actualizado 4/nov/2025)
-  - ⚠️ No implementaremos concurrencia/bloqueo de filas (Sprint futuro)
-  - ✅ Focus en flujo end-to-end funcional primero
-  - ⚠️ No implementaremos cálculos de `precio_base_tramo` (Sprint futuro)
-  - ✅ Priorizar funcionalidad sobre perfección
-  - ✅ Focus en flujo end-to-end funcional
+
+- ⚠️ **VALIDACIONES DE CAMPOS OBLIGATORIOS DESHABILITADAS** (actualizado 4/nov/2025)
+- ⚠️ No implementaremos concurrencia/bloqueo de filas (Sprint futuro)
+- ✅ Focus en flujo end-to-end funcional primero
+- ⚠️ No implementaremos cálculos de `precio_base_tramo` (Sprint futuro)
+- ✅ Priorizar funcionalidad sobre perfección
+- ✅ Focus en flujo end-to-end funcional
 
 #### HU-004: Visualización de usuarios
+
 - **Estado:** ✅ Completado (Básico) - 100%
 - **Sprint:** 2-4
 - **Asignado:** Joaquín Peralta
 - **Fecha Actualización:** 30/oct/2025
 - **Fecha Completado:** 30/oct/2025
-- **ClickUp URL:** https://app.clickup.com/t/86acn64gh
+- **ClickUp URL:** <https://app.clickup.com/t/86acn64gh>
 - **Prioridad:** 🔴 ALTA
 - **Épica:** EP-01
 - **Estimación:** 5 puntos
@@ -786,6 +822,7 @@
 - **Nota:** Funcionalidad básica completada. Mejoras futuras: filtros avanzados, búsqueda, y paginación.
 
 #### HU-007: Cruce automático con Norma MINSAL
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 4
 - **Asignado:** Por asignar
@@ -807,6 +844,7 @@
   - ⏳ Tests de matching
 
 #### HU-012: Guardado de progreso
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 4
 - **Asignado:** Por asignar
@@ -827,6 +865,7 @@
   - ⏳ Tests de concurrencia
 
 #### HU-013: Complemento financiero
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 4
 - **Asignado:** Por asignar
@@ -845,6 +884,7 @@
   - ⏳ Tests de permisos
 
 #### HU-020: Exportación de Excel final
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 4
 - **Asignado:** Por asignar
@@ -869,6 +909,7 @@
 ### Sprint 5 - Enriquecimiento y Validaciones (3/nov/2025)
 
 #### HU-006: Validación de datos automática
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 5
 - **Asignado:** Por asignar
@@ -890,6 +931,7 @@
   - ⏳ Tests exhaustivos
 
 #### HU-008: Cálculo automático de montos
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 5
 - **Asignado:** Por asignar
@@ -909,6 +951,7 @@
   - ⏳ Tests de fórmulas
 
 #### HU-010: Registro de Ajustes Tecnológicos (AT)
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 5
 - **Asignado:** Por asignar
@@ -929,6 +972,7 @@
   - ⏳ Tests
 
 #### HU-011: Asignación de precio base por convenio
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 5
 - **Asignado:** Por asignar
@@ -947,6 +991,7 @@
   - ⏳ Tests
 
 #### HU-014: Validación automática de outliers
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 5
 - **Asignado:** Por asignar
@@ -966,6 +1011,7 @@
   - ⏳ Tests
 
 #### HU-016: Alertas de valores fuera de rango
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 5
 - **Asignado:** Por asignar
@@ -985,6 +1031,7 @@
   - ⏳ Tests
 
 #### HU-018: Aprobación/rechazo de registros
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 5
 - **Asignado:** Por asignar
@@ -1004,6 +1051,7 @@
   - ⏳ Tests de workflow
 
 #### HU-019: Filtrado de usuarios con AT vigente
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 5
 - **Asignado:** Por asignar
@@ -1025,6 +1073,7 @@
 ### Sprint 6 - Revisión Final y Exportación (17/nov/2025)
 
 #### HU-015: Validación de campos obligatorios
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 6
 - **Asignado:** Por asignar
@@ -1042,6 +1091,7 @@
   - ⏳ Tests
 
 #### HU-017: Visualización administrativa final
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 6
 - **Asignado:** Por asignar
@@ -1060,6 +1110,7 @@
   - ⏳ Tests
 
 #### HU-021: Revisión de archivo SIGESA original
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 6
 - **Asignado:** Por asignar
@@ -1077,6 +1128,7 @@
   - ⏳ Tests
 
 #### TEST-001: Testing End-to-End completo
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 6
 - **Asignado:** Equipo completo
@@ -1098,6 +1150,7 @@
   - ⏳ CI/CD con tests
 
 #### DOC-005: Documentación final del proyecto
+
 - **Estado:** ⏳ No Iniciado
 - **Sprint:** 6
 - **Asignado:** Equipo completo
@@ -1120,6 +1173,7 @@
 ## 🚫 Tareas Bloqueadas
 
 ### BLOCK-001: Mostrar Norma MINSAL en interfaz
+
 - **Estado:** ⏳ Bloqueada
 - **Bloqueada por:** Pendiente definición de formato de visualización
 - **Asignado:** Matías Adauy
@@ -1133,6 +1187,7 @@
 ## 🔧 Tareas Técnicas (Tech Debt)
 
 ### TECH-001: Configurar logging centralizado
+
 - **Estado:** ⏳ No Iniciado
 - **Prioridad:** 🟡 MEDIA
 - **Estimación:** 3 puntos
@@ -1145,6 +1200,7 @@
   - ⏳ Error tracking (Sentry?)
 
 ### TECH-002: Implementar rate limiting
+
 - **Estado:** ⏳ No Iniciado
 - **Prioridad:** 🔴 ALTA
 - **Estimación:** 3 puntos
@@ -1156,6 +1212,7 @@
   - ⏳ Tests
 
 ### TECH-003: Setup de Sentry para error tracking
+
 - **Estado:** ⏳ No Iniciado
 - **Prioridad:** 🟡 MEDIA
 - **Estimación:** 2 puntos
@@ -1166,6 +1223,7 @@
   - ⏳ Configurar source maps
 
 ### TECH-004: Optimizar queries de Supabase
+
 - **Estado:** ⏳ No Iniciado
 - **Prioridad:** 🟡 MEDIA
 - **Estimación:** 5 puntos
@@ -1178,6 +1236,7 @@
   - ⏳ Tests de performance
 
 ### TECH-005: Implementar caché con React Query
+
 - **Estado:** ⏳ No Iniciado
 - **Prioridad:** 🟡 MEDIA
 - **Estimación:** 3 puntos
@@ -1188,6 +1247,7 @@
   - ⏳ Invalidación de caché
 
 ### TECH-006: Re-habilitar validaciones de campos obligatorios ✅
+
 - **Estado:** ✅ COMPLETADO
 - **Fecha Completado:** 5/nov/2025
 - **Prioridad:** 🔴 ALTA (BLOQUEABA PRODUCCIÓN)
@@ -1219,6 +1279,7 @@
   - ⏳ Documentar campos obligatorios en PLANNING.md (opcional)
 
 ### TECH-007: Fix Admin UX - Eliminar Redirección Después de Aprobar ✅
+
 - **Estado:** ✅ COMPLETADO
 - **Fecha Completado:** 5/nov/2025 (Tarde)
 - **Prioridad:** 🔴 CRÍTICO (BLOQUEABA WORKFLOW ADMIN)
@@ -1253,6 +1314,7 @@
   - ✅ FASE 2: Crear página /dashboard/archivos (lista de archivos procesados) - COMPLETADO
 
 ### TECH-008: FASE 2 - Lista de Archivos Procesados para Admin ✅
+
 - **Estado:** ✅ COMPLETADO
 - **Fecha Completado:** 5/nov/2025 (Tarde)
 - **Prioridad:** 🟡 MEDIA (COMPLEMENTA FASE 1)
@@ -1317,6 +1379,7 @@
 ## 💡 Descubierto Durante el Trabajo
 
 ### DISC-001: Agregar componentes faltantes frontend
+
 - **Estado:** 🚧 En Progreso
 - **Fecha Descubierto:** 20/oct/2025
 - **Asignado:** Alexandra San Martín (sin asignar específico aún)
@@ -1334,6 +1397,7 @@
   - Agregar filtros avanzados
 
 ### DISC-002: Levantar backend
+
 - **Estado:** ⏳ No Iniciado
 - **Fecha Descubierto:** 20/oct/2025
 - **Prioridad:** 🔴 ALTA
@@ -1346,6 +1410,7 @@
   - Tests de API
 
 ### DISC-003: Gestión por Roles Frontend
+
 - **Estado:** 🚧 En Progreso (ACTIVO)
 - **Fecha Descubierto:** 18/oct/2025
 - **Asignado:** Joaquín Peralta
@@ -1353,7 +1418,7 @@
 - **Descripción:** Implementar lógica de roles en frontend
 - **Progreso:** En desarrollo activo - 30/oct/2025
 - **Relacionado con:** HU-003, AUTH-002
-- **ClickUp URL:** https://app.clickup.com/t/86ach8k5f
+- **ClickUp URL:** <https://app.clickup.com/t/86ach8k5f>
 - **Nota:** Depende de HU-001 y HU-002 para completarse
 
 ---
@@ -1361,17 +1426,20 @@
 ## 📊 Estadísticas del Proyecto
 
 ### Por Estado
+
 - ✅ Completadas: 8 tareas
 - 🚧 En Progreso: 9 tareas
 - ⏳ No Iniciadas: 32 tareas (+1 Tech Debt: TECH-006)
 - 🚫 Bloqueadas: 1 tarea
 
 ### Por Prioridad
+
 - 🔴 ALTA: 23 tareas (+1: TECH-006)
 - 🟡 MEDIA: 15 tareas
 - 🟢 BAJA: 3 tareas
 
 ### Por Sprint
+
 - Sprint 1: 6/6 (100%) ✅
 - Sprint 2: 2/8 (25%) 🚧
 - Sprint 3: 1/4 (25%) 🚧 - AUTH-001 ✅
@@ -1380,6 +1448,7 @@
 - Sprint 6: 0/5 (0%) ⏳
 
 ### Velocity Estimada
+
 - **Sprint 1:** 20 puntos completados
 - **Sprint 2:** En progreso
 - **Sprint 3-4:** 13 puntos completados (AUTH-001: 8pts, HU-004: 5pts)
@@ -1402,12 +1471,14 @@
 ## 🔧 NOTAS TÉCNICAS
 
 ### Estado de Supabase (30/oct/2025)
+
 - **Proyecto ID:** cgjeiyevnlypgghsfemc
 - **Región:** US East 1
 - **Estado:** ACTIVE_HEALTHY
 - **Postgres:** 17.6.1.021
 
 **Tablas existentes:**
+
 - ✅ `sigesa` - Archivos SIGESA
 - ✅ `sigesa_fila` - Datos de egresos
 - ✅ `norma_minsal` - Tabla normativa GRD
@@ -1416,10 +1487,12 @@
 - ✅ `users` - Tabla de usuarios con auth (**COMPLETADO 30/oct**)
 
 **Pendiente crear:**
+
 - [ ] Tabla `audit_log` para trazabilidad
 - [ ] RLS Policies adicionales para `sigesa` y tablas relacionadas
 
 ### Sistema de Autenticación (30/oct/2025)
+
 - ✅ **Login/Logout funcional** con Supabase Auth
 - ✅ **Integración dual:** `auth.users` + `public.users`
 - ✅ **Gestión de contraseñas temporales:** Auto-generadas (12 chars)
@@ -1430,6 +1503,7 @@
 - ✅ **Cliente Supabase:** Usando `@supabase/ssr` para manejo de cookies
 
 **Rutas implementadas:**
+
 - `/login` - Página de login
 - `/change-password` - Cambio obligatorio de contraseña
 - `/dashboard/users` - Dashboard de administración de usuarios
@@ -1438,16 +1512,20 @@
 - `/api/admin/users` - CRUD de usuarios (POST, GET implementados)
 
 **Roles del sistema:**
+
 - `admin` - Administrador (acceso total)
 - `encoder` - Codificador (módulo de egresos)
 - `finance` - Finanzas (módulo de complemento)
 
 ### Package Manager (30/oct/2025)
+
 - ✅ **Actualizado a npm** (eliminado pnpm@10.5.2)
 - Correr: `npm install` para instalar dependencias
 
 ### Migraciones de Base de Datos
+
 **30/oct/2025:**
+
 - ✅ `20251030_create_users_table.sql` - Creación de tabla users
 - ✅ `20251030_add_user_sync_trigger.sql` - Trigger de sincronización auth
 - ✅ `20251030_change_user_role_to_english.sql` - Migración roles a inglés
@@ -1455,6 +1533,7 @@
 - ✅ `20251030_fix_rls_infinite_recursion.sql` - Corrección RLS con SECURITY DEFINER
 
 **31/oct/2025 (HU-03):**
+
 - ✅ `20251031_fix_rls_policies_insert.sql` - Políticas RLS INSERT para encoder/admin en sigesa_fila y grd_fila
 - ✅ `20251031_add_estado_workflow_to_grd_fila.sql` - **Sistema de workflow con 6 estados**
   - ENUM `workflow_estado` (borrador_encoder → pendiente_finance → borrador_finance → pendiente_admin → aprobado → exportado)
@@ -1462,6 +1541,7 @@
   - Índices para optimización de queries
 
 **3/nov/2025 (HU-03 - Plan Completo):**
+
 - ⏳ **PENDIENTE:** `20251103_add_rechazado_state.sql` - **Agregar estado `rechazado` al ENUM** (BLOQUEANTE)
 
 ---
@@ -1469,9 +1549,11 @@
 ## 📝 Changelog de TASK.md
 
 ### 4 de Noviembre, 2025 (Tarde) - Inicio Bloque 6: Botones Admin
+
 **HU-003: Implementando Approve/Reject para Admin**
 
 **En desarrollo:**
+
 - 🚧 **Bloque 6:** Botones Admin (Aprobar/Rechazar) - EN PROGRESO
   - ✅ Bug fix API review: Cambiado `.single()` por `.limit(1)` + actualización masiva
   - 🚧 Creando componente `RejectModal.tsx` (modal con textarea para razón de rechazo)
@@ -1480,13 +1562,15 @@
   - ⏳ Integración con API POST `/api/v1/grd/[grdId]/review`
 
 **Estados objetivo:**
+
 - `pendiente_admin` → `aprobado` (Admin aprueba)
 - `pendiente_admin` → `rechazado` (Admin rechaza con razón)
 
 **Estimación:** 1 hora
 **Progreso:** 20% (API corregida, modal en desarrollo)
 
-**Próximo paso:** 
+**Próximo paso:**
+
 - Completar RejectModal component
 - Implementar handlers en ExcelEditor
 - Testing manual del flujo completo
@@ -1494,9 +1578,11 @@
 ---
 
 ### 4 de Noviembre, 2025 (Mañana) - Testing Bloques 4 y 5 + Bypass Validaciones
+
 **HU-003: Avance en Testing de Workflow End-to-End**
 
 **Cambios principales:**
+
 - ✅ **Bug fix crítico:** APIs submit-encoder y submit-finance ahora actualizan TODAS las filas (no .single())
 - ✅ **Bypass de validaciones:** Comentadas validaciones de campos obligatorios en submit-finance
 - ✅ **Tech Debt creado:** TECH-006 (Re-habilitar validaciones antes de producción)
@@ -1504,21 +1590,25 @@
 - ✅ **Documentación actualizada:** Notas técnicas reflejan estado actual del código
 
 **Problemas resueltos:**
+
 1. ❌ "Archivo GRD no encontrado" → ✅ Cambiado `.single()` por `.limit(1)` + actualización masiva
 2. ❌ "Faltan campos obligatorios" en Finance → ✅ Validaciones comentadas temporalmente
 
 **Justificación bypass validaciones:**
+
 - **Objetivo:** Completar flujo end-to-end Encoder → Finance → Admin sin bloqueos
 - **Alcance:** Solo API submit-finance (líneas 102-110 comentadas)
 - **Próximo paso:** Re-habilitar validaciones después de Bloque 8 (Testing completo)
 - **Registro:** Tech Debt TECH-006 (Prioridad ALTA, bloquea producción)
 
 **Archivos modificados:**
+
 - `src/app/api/v1/grd/[grdId]/submit-encoder/route.ts` - Fix .single() → múltiples filas
 - `src/app/api/v1/grd/[grdId]/submit-finance/route.ts` - Fix .single() + bypass validaciones
 - `planning/TASK.md` - Documentación actualizada, TECH-006 agregado
 
 **Estado del testing:**
+
 - ✅ Encoder → Finance: Funcional
 - 🧪 Finance → Admin: En testing (validaciones bypasseadas)
 - ⏳ Admin → Approve/Reject: Pendiente (Bloque 6)
@@ -1526,9 +1616,11 @@
 ---
 
 ### 3 de Noviembre, 2025 - Actualización Mayor
+
 **HU-003: Plan Completo de Implementación Definido**
 
 **Cambios principales:**
+
 - ✅ **Plan detallado de 5 fases** con 17 tareas nuevas identificadas
 - ✅ **Progreso actualizado:** 35% completado (antes 30%)
 - ✅ **Estado BLOQUEANTE identificado:** Migración para agregar estado `rechazado`
@@ -1538,16 +1630,19 @@
 - ✅ **Archivos a modificar vs crear:** Lista completa documentada
 
 **Regla de Archivo Único:**
+
 - Solo puede existir UN archivo en proceso a la vez
 - Estados activos: `borrador_encoder`, `pendiente_finance`, `borrador_finance`, `pendiente_admin`
 - Estados que liberan: `exportado`, `rechazado`
 
 **Tareas Bloqueantes Críticas:**
+
 1. WORKFLOW-001B: Migración estado `rechazado` (30 min) ⚠️
 2. WORKFLOW-002: API active-workflow (1 hora)
 3. WORKFLOW-008: Modificar upload para validar unicidad (1 hora)
 
 **Páginas Existentes (NO duplicar):**
+
 - `/sigesa` - Vista SIGESA (SigesaPreview)
 - `/norma` - Vista Norma MINSAL (NormaMinsal)
 - `/upload` - Carga de archivos (FileUpload)
@@ -1556,6 +1651,7 @@
 - `/dashboard/users` - Gestión de usuarios
 
 **Componentes Existentes (NO duplicar):**
+
 - `SigesaPreview.tsx`
 - `ExcelEditor.tsx`
 - `NormaMinsal.tsx`
@@ -1564,5 +1660,3 @@
 - `Layout.tsx`
 
 **Próxima Acción:** Comenzar FASE 1 completando migración de estado `rechazado`
-
-
