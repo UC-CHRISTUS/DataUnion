@@ -3,7 +3,6 @@ import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import ExcelJS from 'exceljs'
 import { successResponse, errorResponse, handleError } from '@/lib/api/response'
-import { Console } from 'console'
 import { get } from 'http'
 
 /**
@@ -166,7 +165,6 @@ function joinPrevision(previsionCodigo: string | null, previsionDesc: string | n
 
 
 function handleConvenio(convenioCod: string | null, supabase: any, tramo: string | null, fecha_ingreso: string | null): Promise<number | null>{
-  console.log("handleConvenio", convenioCod, tramo, fecha_ingreso)
   if (convenioCod == "FNS012") { 
     return getPrecioFNS012(supabase, convenioCod, tramo, fecha_ingreso)
 
@@ -192,13 +190,10 @@ function handlePagoDemoraRescate(convenioCod: string | null , supabase: any,
   precio_base: number | null,
   dias_demora_rescate: number | null): Promise<number | null>  {
 
-  console.log("handlePagoDemoraRescate", convenioCod, fecha_ingreso, grd, peso_grd, precio_base, dias_demora_rescate)
    if (convenioCod == "FNS012") { 
-    console.log("Calculating pago demora FNS012",getPagoDemoraFNS012(supabase, grd, peso_grd, precio_base, dias_demora_rescate))
     return getPagoDemoraFNS012(supabase, grd, peso_grd, precio_base, dias_demora_rescate)
 
   } else if (convenioCod == "CH0041") {
-    console.log("Calculating pago demora CH0041", getPagoDemoraCH0041(supabase, fecha_ingreso, dias_demora_rescate))
     return getPagoDemoraCH0041(supabase, fecha_ingreso, dias_demora_rescate)
   }
   
@@ -234,21 +229,16 @@ async function getPagoDemoraFNS012(
       .limit(1)
 
     if (error) {
-      console.error('[getPagoDemoraFNS012] DB error:', error)
       return null
     }
-    console.log("Checking row for pago demora FNS012:", data[0])
 
     if (!Array.isArray(data) || data.length === 0) return null
 
     const p75 = Number(data[0].percentil_75)
     if (isNaN(p75) || p75 === 0) return null
-    console.log("Percentil 75 for pago demora FNS012:", p75)
     const numerator = peso * precioBase * dias
-    console.log("Numerator for pago demora FNS012:", numerator)
     return numerator / p75
   } catch (err) {
-    console.error('[getPagoDemoraFNS012] Unexpected error:', err)
     return null
   }
 }
@@ -277,7 +267,7 @@ async function pagoOutlierSuperior(
   try {
     const { data, error } = await supabase
       .from('norma_minsal')
-      .select('percentil_75, percentil_50, punto_corte_superior')
+      .select('percentil_75, tab_1430_d_perct_50_g, punto_corte_superior')
       .eq('GRD', grdNum)
       .limit(1)
 
@@ -285,17 +275,21 @@ async function pagoOutlierSuperior(
       return 0
     }
 
-    if (!Array.isArray(data) || data.length === 0) return 0
+    if (!Array.isArray(data) || data.length === 0) {
+      return 0
+    }
 
     const row = data[0]
     const p75 = Number(row.percentil_75)
-    const p50 = Number(row.percentil_50)
+    const p50 = Number(row.tab_1430_d_perct_50_g)
     const punto = Number(row.punto_corte_superior)
 
-    if ([p75, p50, punto].some((v) => isNaN(v)) || p75 === 0) return 0
+    if ([p75, p50, punto].some((v) => isNaN(v)) || p75 === 0) {
+      return 0
+    }
 
     const periodo_carencia = punto + p50
-    const dia_post_carencia = estancia - periodo_carencia
+    const dia_post_carencia = 10*estancia - periodo_carencia
 
     if (dia_post_carencia <= 0) return 0
 
@@ -312,8 +306,6 @@ function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_
 
   const peso = Number(peso_grd_medio_todos)
   if (isNaN(peso)) return null
-  // print peso 
-  console.log("Peso:", peso)
 
   for (const row of tramos) {
 
@@ -336,7 +328,6 @@ function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_
  */
 function parseDateString(dateStr: string | null | undefined): Date | null {
   if (!dateStr) return null
-  console.log("Parsing date string:", dateStr)
 
   // Try native parser first (handles ISO)
   const iso = new Date(dateStr)
@@ -349,14 +340,12 @@ function parseDateString(dateStr: string | null | undefined): Date | null {
     const month = Number(mdyMatch[1])
     const day = Number(mdyMatch[2])
     const year = Number(mdyMatch[3])
-    console.log("Parsed MM/DD/YYYY:", month, day, year)
 
     if (!Number.isNaN(month) && !Number.isNaN(day) && !Number.isNaN(year)) {
       const d = new Date(Date.UTC(year, month - 1, day))
       if (!isNaN(d.getTime())) return d
     }
   }
-  console.log("Date string could not be parsed:", dateStr)
 
   return null
 }
@@ -378,7 +367,6 @@ async function getPrecioFNS012(
       .eq('tramo', tramo)
 
     if (error) {
-      console.error('[getPrecioForConvenioTramo] DB error:', error)
       return null
     }
 
@@ -400,7 +388,6 @@ async function getPrecioFNS012(
 
     return null
   } catch (err) {
-    console.error('[getPrecioForConvenioTramo] Unexpected error:', err)
     return null
   }
 }
@@ -465,7 +452,6 @@ async function getPrecioFNS019(
     const precioNum = data[0].precio != null ? Number(data[0].precio) : NaN
     return Number.isNaN(precioNum) ? null : precioNum
   } catch (err) {
-    console.error('[getPrecioConvenio] Unexpected error:', err)
     return null
   }
 }
@@ -488,12 +474,10 @@ async function getPrecioFNS026(
     if (error || !Array.isArray(data) || data.length === 0) {
       return null
     }
-    console.log("Checking row for precio FNS026:", data[0])
 
     const precioNum = data[0].precio != null ? Number(data[0].precio) : NaN
     return Number.isNaN(precioNum) ? null : precioNum
   } catch (err) {
-    console.error('[getPrecioConvenio] Unexpected error:', err)
     return null
   }
 }
@@ -524,7 +508,6 @@ async function getPagoDemoraCH0041(
     if (!ingresoDate) return null
 
     for (const row of data) {
-      console.log("Checking row for pago demora CH0041:", row)
       const adm = parseDateString(row.fecha_admision)
       const fin = parseDateString(row.fecha_fin)
       if (!adm || !fin) continue
@@ -538,7 +521,6 @@ async function getPagoDemoraCH0041(
 
     return null
   } catch (err) {
-    console.error('[getpagodemorach0041] Unexpected error:', err)
     return null
   }
 }
@@ -612,7 +594,6 @@ export async function POST(request: NextRequest) {
       .limit(1)
 
     if (workflowError) {
-      console.error('[POST /api/v1/sigesa/upload] Workflow check error:', workflowError)
       return errorResponse('Error al verificar workflow activo', 500)
     }
 
@@ -752,23 +733,19 @@ export async function POST(request: NextRequest) {
     let tramosData: any[] = []
 
     try {
-      console.log('[POST] Fetching tramos_peso_grd data')
       const { data, error } = await supabase
         .from('tramos_peso_grd')
         .select('limite_inferior, limite_superior, tramo')
         .order('limite_inferior', { ascending: true })
 
       if (error) {
-        console.error('[POST] Error fetching tramos_peso_grd:', error)
       } else if (Array.isArray(data)) {
         tramosData = data
       }
 
     } catch (err) {
-      console.error('[POST] Unexpected error fetching tramos:', err)
     }
 
-    console.log('[POST] tramosData:', tramosData)
 
     // Transform each SIGESA row to GRD row
     const grdFilaRowsPromises = rows.map(async (row) => {
@@ -791,7 +768,7 @@ export async function POST(request: NextRequest) {
       row.convenios_cod || null,
       row.peso_grd_medio_todos || null,
       convenioPrecioPromise,
-      row.prevision_codigo || null,
+      row.ir_grd_codigo || null,
       row.estancia_real_episodio || null
     )
 
@@ -816,7 +793,7 @@ export async function POST(request: NextRequest) {
         dias_demora_rescate_hospital: row.estancia_real_episodio || null,
         
         pago_demora_rescate: pagoDemoraPromise != null ? Math.round(pagoDemoraPromise) : null,
-        pago_outlier_superior: pagoOutlier,
+        pago_outlier_superior: pagoOutlier != null ? Math.round(pagoOutlier) : null,
         
         // Platform-managed fields (left as null)
         validado: null,
