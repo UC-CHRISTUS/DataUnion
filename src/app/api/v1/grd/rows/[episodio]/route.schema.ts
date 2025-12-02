@@ -6,7 +6,17 @@ import { episodioSchema } from '@/lib/api/validation'
  * All fields are optional except id and episodio which cannot be updated
  */
 export const updateGrdRowSchema = z.object({
-  validado: z.boolean().nullable().optional(),
+  validado: z
+    .union([
+      z.boolean(),
+      z.string().transform((val) => {
+        if (val === 'true' || val === 'Si' || val === 'Sí' || val === 'YES' || val === '1') return true
+        if (val === 'false' || val === 'No' || val === 'NO' || val === '0') return false
+        return null
+      })
+    ])
+    .nullable()
+    .optional(),
   centro: z.string().nullable().optional(),
   n_folio: z.string().nullable().optional(),
   rut_paciente: z.string().nullable().optional(),
@@ -16,7 +26,17 @@ export const updateGrdRowSchema = z.object({
   fecha_alta: z.string().nullable().optional(),
   servicios_alta: z.string().nullable().optional(),
   estado_rn: z.string().nullable().optional(),
-  AT: z.boolean().nullable().optional(),
+  AT: z
+    .union([
+      z.boolean(),
+      z.string().transform((val) => {
+        if (val === 'true' || val === 'Si' || val === 'Sí' || val === 'YES' || val === '1') return true
+        if (val === 'false' || val === 'No' || val === 'NO' || val === '0') return false
+        return null
+      })
+    ])
+    .nullable()
+    .optional(),
   AT_detalle: z.string().nullable().optional(),
   monto_AT: z.number().nullable().optional(),
   tipo_alta: z.string().nullable().optional(),
@@ -28,7 +48,17 @@ export const updateGrdRowSchema = z.object({
   pago_outlier_superior: z.number().nullable().optional(),
   documentacion: z.string().nullable().optional(),
   'inlier/outlier': z.string().nullable().optional(),
-  grupo_dentro_norma: z.boolean().nullable().optional(),
+  grupo_dentro_norma: z
+    .union([
+      z.boolean(),
+      z.string().transform((val) => {
+        if (val === 'true' || val === 'Si' || val === 'Sí' || val === 'YES' || val === '1') return true
+        if (val === 'false' || val === 'No' || val === 'NO' || val === '0') return false
+        return null
+      })
+    ])
+    .nullable()
+    .optional(),
   dias_estadia: z.number().nullable().optional(),
   precio_base_tramo: z.number().nullable().optional(),
   valor_GRD: z.number().nullable().optional(),

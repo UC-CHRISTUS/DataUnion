@@ -58,10 +58,10 @@ export async function PUT(
     const { estado } = existingRow
     const { role } = user
 
-    // Encoder can only edit in borrador_encoder
-    if (role === 'encoder' && estado !== 'borrador_encoder') {
+    // Encoder can edit in borrador_encoder or rechazado (to fix rejections)
+    if (role === 'encoder' && !['borrador_encoder', 'rechazado'].includes(estado)) {
       return errorResponse(
-        `No puedes editar en estado: ${estado}. Solo puedes editar en 'borrador_encoder'.`,
+        `No puedes editar en estado: ${estado}. Solo puedes editar en 'borrador_encoder' o cuando el archivo es 'rechazado'.`,
         403
       )
     }
@@ -86,6 +86,11 @@ export async function PUT(
     let updatedEstado = estado
     if (role === 'finance' && estado === 'pendiente_finance') {
       updatedEstado = 'borrador_finance'
+    }
+    
+    // If Encoder is fixing a rejection (rechazado), change to borrador_encoder
+    if (role === 'encoder' && estado === 'rechazado') {
+      updatedEstado = 'borrador_encoder'
     }
 
     // Update the row with the new estado if needed
