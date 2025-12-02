@@ -525,6 +525,14 @@ async function getPagoDemoraCH0041(
   }
 }
 
+function computeValorGRD(precioBaseRounded: number | null, peso: number | null): number | null {
+  if (precioBaseRounded == null) return null
+  const precio = Number(precioBaseRounded)
+  const pesoNum = peso != null ? Number(peso) : NaN
+  if (isNaN(precio) || isNaN(pesoNum)) return null
+  return Math.round(precio * pesoNum)
+}
+
 
 
 export async function POST(request: NextRequest) {
@@ -772,6 +780,7 @@ export async function POST(request: NextRequest) {
       row.estancia_real_episodio || null
     )
 
+
       return {
         episodio: Number(row.episodio_CMBD),
         rut_paciente: row.rut ? String(row.rut) : null,
@@ -804,7 +813,7 @@ export async function POST(request: NextRequest) {
         monto_rn: null,
         documentacion: null,
         grupo_dentro_norma: null,
-        valor_GRD: null,
+        valor_GRD: computeValorGRD(convenioPrecioPromise != null ? Math.round(convenioPrecioPromise) : null, row.peso_grd_medio_todos || null),
         monto_final: null,
       }
     })
