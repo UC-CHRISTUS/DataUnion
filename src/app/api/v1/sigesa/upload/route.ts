@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import ExcelJS from 'exceljs'
 import { successResponse, errorResponse, handleError } from '@/lib/api/response'
+import { Console } from 'console'
 
 /**
  * Normalize header string for flexible matching
@@ -11,11 +12,18 @@ import { successResponse, errorResponse, handleError } from '@/lib/api/response'
  * - Remove content in parentheses
  */
 function normalizeHeader(header: string): string {
-  return header
+
+  const normalized = header
+    .normalize('NFD')
+    .replace(/[\u0300-\u0302\u0304-\u036f]/g, '') // quitamos tildes pero conservamos ñ
+    .normalize('NFC')
     .toLowerCase()
     .trim()
-    .replace(/\s*\([^)]*\)/g, '') // Remove parentheses and content
-    .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
+    .replace(/[()]/g, '')
+    .replace(/\s+/g, ' ')
+    .trimEnd()
+
+  return normalized
 }
 
 /**
@@ -26,80 +34,44 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
 
   // Define all possible header mappings (normalized form → DB column)
   const columnMappings: Record<string, string> = {
+    "hospital descripcion": 'hospital_descripcion',
     'episodio cmbd': 'episodio_CMBD',
+    'id derivacion': 'id_derivacion',
     'nombre': 'nombre',
     'rut': 'rut',
     'edad en años': 'edad',
-    'edad': 'edad',
-    'sexo': 'sexo',
     'sexo desc': 'sexo',
     'conjunto dx': 'conjunto_dx',
+    'tipo actividad_1': 'tipo_actividad_1',
     'tipo actividad': 'tipo_actividad',
-    'tipo ingreso': 'tipo_ingreso',
-    'tipo ingreso descripción': 'tipo_ingreso',
-    'servicio ingreso': 'servicio_ingreso_descripcion',
-    'servicio ingreso descripción': 'servicio_ingreso_descripcion',
-    'servicio ingreso código': 'servicio_ingreso_codigo',
+    'tipo ingreso descripcion': 'tipo_ingreso_descripcion',
+    "servicio ingreso descripcion": 'servicio_ingreso_descripcion',
     'servicio ingreso codigo': 'servicio_ingreso_codigo',
     'motivo egreso': 'motivo_egreso',
-    'motivo egreso descripción': 'motivo_egreso',
     'motivo egreso descripcion': 'motivo_egreso',
     'medico egreso': 'medico_egreso',
-    'medico egreso descripción': 'medico_egreso',
     'medico egreso descripcion': 'medico_egreso',
     'medico alta id': 'medico_alta_id',
     'especialidad servicio egreso': 'especialidad_servicio_egreso',
-    'especialidad servicio egreso descripción': 'especialidad_servicio_egreso',
     'especialidad servicio egreso descripcion': 'especialidad_servicio_egreso',
-    'servicio egreso código': 'servicio_egreso_codigo',
     'servicio egreso codigo': 'servicio_egreso_codigo',
     'servicio egreso': 'servicio_egreso_descripcion',
-    'servicio egreso descripción': 'servicio_egreso_descripcion',
     'servicio egreso descripcion': 'servicio_egreso_descripcion',
-    'prevision cód': 'prevision_codigo',
     'prevision cod': 'prevision_codigo',
-    'prevision código': 'prevision_codigo',
-    'prevision codigo': 'prevision_codigo',
-    'prevision': 'prevision_desc',
     'prevision desc': 'prevision_desc',
-    'prevision descripción': 'prevision_desc',
-    'prevision descripcion': 'prevision_desc',
     'prevision 2 cod': 'prevision_2_cod',
-    'prevision 2 código': 'prevision_2_cod',
-    'prevision 2 codigo': 'prevision_2_cod',
     'prevision 2 desc': 'prevision_2_desc',
-    'prevision 2 descripción': 'prevision_2_desc',
-    'prevision 2 descripcion': 'prevision_2_desc',
     'ley cod': 'ley_cod',
-    'ley cód': 'ley_cod',
-    'ley código': 'ley_cod',
-    'ley codigo': 'ley_cod',
     'ley desc': 'ley_desc',
-    'ley descripción': 'ley_desc',
-    'ley descripcion': 'ley_desc',
     'convenios cod': 'convenios_cod',
-    'convenios cód': 'convenios_cod',
-    'convenios código': 'convenios_cod',
-    'convenios codigo': 'convenios_cod',
     'convenios des': 'convenio_des',
-    'convenios desc': 'convenio_des',
-    'convenios descripción': 'convenio_des',
-    'convenios descripcion': 'convenio_des',
     'servicio salud cod': 'servicio_salud_cod',
-    'servicio salud cód': 'servicio_salud_cod',
-    'servicio salud código': 'servicio_salud_cod',
-    'servicio salud codigo': 'servicio_salud_cod',
     'servicio salud des': 'servicio_salud_des',
-    'servicio salud desc': 'servicio_salud_des',
-    'servicio salud descripción': 'servicio_salud_des',
-    'servicio salud descripcion': 'servicio_salud_des',
     'estancias prequirurgicas int episodio': 'estancias_prequirurgicas_int _episodio',
     'estancias prequirurgicas int -episodio-': 'estancias_prequirurgicas_int _episodio',
     'estancias postquirurgicas int episodio': 'estancias_postquirurgicas_int',
     'estancias postquirurgicas int -episodio-': 'estancias_postquirurgicas_int',
-    'em pre-quirúrgica': 'em_pre_quirurgica',
     'em pre-quirurgica': 'em_pre_quirurgica',
-    'em post-quirúrgica': 'em_post_quirurgica',
     'em post-quirurgica': 'em_post_quirurgica',
     'estancia del episodio': 'estancia_episodio',
     'estancia episodio': 'estancia_episodio',
@@ -108,7 +80,7 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
     'estancia media': 'estancia_media',
     'peso grd medio': 'peso_grd_medio_todos',
     'peso grd medio todos': 'peso_grd_medio_todos',
-    'peso medio norma ir': 'peso_medio_norma_ir',
+    'peso medio [norma ir]': 'peso_medio_norma_ir',
     'iema ir bruto': 'iema_ir_bruto',
     'emaf ir bruta': 'emaf_ir_bruta',
     'impacto estancias evitables brutas': 'impacto_estancias_evitables_brutas',
@@ -121,16 +93,15 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
     'ir mortalidad descripción': 'ir_mortalidad_desc',
     'ir mortalidad descripcion': 'ir_mortalidad_desc',
     'ir tipo grd': 'ir_tipo_grd',
-    'ir grd código': 'ir_grd_codigo',
     'ir grd codigo': 'ir_grd_codigo',
     'ir grd': 'ir_grd',
     'ir punto corte inferior': 'ir_punto_corte_inferior',
     'ir punto corte superior': 'ir_punto_corte_superior',
-    'em norma ir': 'em_norma_ir',
-    'estancias norma ir': 'estancias_norma_ir',
-    'casos norma ir': 'casos_norma_ir',
+    'em [norma ir]': 'em_norma_ir',
+    'estancias [norma ir]': 'estancias_norma_ir',
+    'casos [norma ir]': 'casos_norma_ir',
     'fecha ingreso completa': 'fecha_ingreso_completa',
-    'fecha completa': 'fecha_completa',
+    'fecha completa': 'fecha_completa_egreso',
     'conjunto de servicios traslado': 'conjunto_servicios_traslado',
     'fecha tr1': 'fecha_tr1',
     'fecha tr2': 'fecha_tr2',
@@ -143,54 +114,30 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
     'fecha tr9': 'fecha_tr9',
     'fecha tr10': 'fecha_tr10',
     'e.m. traslados servicio': 'em_traslados_servicios',
-    'em traslados servicio': 'em_traslados_servicios',
-    'facturación total del episodio': 'facturacion_total_episodio',
     'facturacion total del episodio': 'facturacion_total_episodio',
-    'facturación total episodio': 'facturacion_total_episodio',
-    'facturacion total episodio': 'facturacion_total_episodio',
-    'especialidad médica de la intervención': 'especialidad_medica_intervencion',
-    'especialidad medica de la intervención': 'especialidad_medica_intervencion',
-    'especialidad medica de la intervencion': 'especialidad_medica_intervencion',
-    'especialidad médica de la intervencion': 'especialidad_medica_intervencion',
-    'especialidad médica de la intervención des': 'especialidad_medica_intervencion',
-    'especialidad medica de la intervención des': 'especialidad_medica_intervencion',
+    'especialidad medica de la intervencion des': 'especialidad_medica_intervencion',
     'ir alta inlier / outlier': 'ir_alta_inlier_outlier',
     'ir alta inlier outlier': 'ir_alta_inlier_outlier',
     'año': 'año',
     'ano': 'año',
-    'mes número': 'mes_numero',
     'mes numero': 'mes_numero',
-    'diagnóstico principal': 'diagnostico_principal',
     'diagnostico principal': 'diagnostico_principal',
     'proced 01 principal': 'proced_01_principal',
     'proced 01 principal cod': 'proced_01_principal',
-    'proced 01 principal código': 'proced_01_principal',
     'proced 01 principal codigo': 'proced_01_principal',
     'conjunto procedimientos secundarios': 'conjunto_procedimientos_secundarios',
-    'servicio ingreso código_1': 'servicio_ingreso_codigo_1',
-    'servicio ingreso codigo_1': 'servicio_ingreso_codigo_1',
-    'servicio cod tr1': 'servicio_cod_ tr1',
+    'servicio ingreso codigo_2': 'servicio_ingreso_codigo_2',
     'serviciocod tr1': 'servicio_cod_ tr1',
-    'servicio cod tr2': 'servicio_cod_ tr2',
     'serviciocod tr2': 'servicio_cod_ tr2',
-    'servicio cod tr3': 'servicio_cod_ tr3',
     'serviciocod tr3': 'servicio_cod_ tr3',
-    'servicio cod tr4': 'servicio_cod_ tr4',
     'serviciocod tr4': 'servicio_cod_ tr4',
-    'servicio cod tr5': 'servicio_cod_ tr5',
     'serviciocod tr5': 'servicio_cod_ tr5',
-    'servicio cod tr6': 'servicio_cod_ tr6',
     'serviciocod tr6': 'servicio_cod_ tr6',
-    'servicio cod tr7': 'servicio_cod_ tr7',
     'serviciocod tr7': 'servicio_cod_ tr7',
-    'servicio cod tr8': 'servicio_cod_ tr8',
     'serviciocod tr8': 'servicio_cod_ tr8',
-    'servicio cod tr9': 'servicio_cod_ tr9',
     'serviciocod tr9': 'servicio_cod_ tr9',
-    'servicio cod tr10': 'servicio_cod_ tr10',
     'serviciocod tr10': 'servicio_cod_ tr10',
-    'servicio egreso código_2': 'servicio_egreso_codigo_2',
-    'servicio egreso codigo_2': 'servicio_egreso_codigo_2',
+    'servicio egreso codigo_3': 'servicio_egreso_codigo_3',
   }
 
   excelHeaders.forEach((header, index) => {
@@ -204,30 +151,397 @@ function mapHeaders(excelHeaders: string[]): Map<number, string> {
   return headerMap
 }
 
-/**
- * Parse date string and calculate difference in days
- */
-function calculateDaysDiff(fechaAlta: string | null, fechaIngreso: string | null): number {
-  if (!fechaAlta || !fechaIngreso) return 0
+
+
+// function join columns with - prevision_codigo and previosion_desc
+function joinPrevision(previsionCodigo: string | null, previsionDesc: string | null): string | null 
+{
+  if (previsionCodigo && previsionDesc) {
+    return `${previsionCodigo} - ${previsionDesc}`
+  } else {
+    return null
+  }
+}
+
+
+// function handleConvenio(convenioCod: string | null, supabase: any, tramo: string | null, fecha_ingreso: string | null): Promise<number | null>{
+//   Console.log("handleConvenio", convenioCod, tramo, fecha_ingreso)
+function handleConvenio(convenioCod: string | null, supabase: any, tramo: string | null, fecha_ingreso: string | null): Promise<number | null>{
+  console.log("handleConvenio", convenioCod, tramo, fecha_ingreso)
+  if (convenioCod == "FNS012") { 
+    return getPrecioFNS012(supabase, convenioCod, tramo, fecha_ingreso)
+
+  } else if (convenioCod == "CH0041") {
+    return getPrecioCH041(supabase, convenioCod, fecha_ingreso)
+  }
+  else if (convenioCod == "FNS019") {
+    const num = Number(convenioCod)
+    return getPrecioFNS019(supabase, convenioCod)
+  }
+  else if (convenioCod == "FNS026") {
+    return getPrecioFNS026(supabase, convenioCod, tramo)
+  }
+  
+  else {
+    return Promise.resolve(null)
+  }
+}
+
+function handlePagoDemoraRescate(convenioCod: string | null , supabase: any,
+  fecha_ingreso: string | null,grd: number | null,
+  peso_grd: number | null,
+  precio_base: number | null,
+  dias_demora_rescate: number | null): Promise<number | null>  {
+
+   if (convenioCod == "FNS012") { 
+    return getPagoDemoraFNS012(supabase, grd, peso_grd, precio_base, dias_demora_rescate)
+
+  } else if (convenioCod == "CH0041") {
+    return getPagoDemoraCH0041(supabase, fecha_ingreso, dias_demora_rescate)
+  }
+  
+  else {
+    return Promise.resolve(null)
+  }
+}
+
+
+async function getPagoDemoraFNS012(
+  supabase: any,
+  grd: number | null,
+  peso_grd: number | null,
+  precio_base: number | null,
+  dias_demora_rescate: number | null
+): Promise<number | null> {
+  if (grd == null) return null
+
+  const grdNum = Number(grd)
+  if (isNaN(grdNum)) return null
+
+  const peso = Number(peso_grd)
+  const precioBase = Number(precio_base)
+  const dias = Number(dias_demora_rescate)
+
+  if ([peso, precioBase, dias].some((v) => isNaN(v))) return null
 
   try {
-    const alta = new Date(fechaAlta)
-    const ingreso = new Date(fechaIngreso)
+    const { data, error } = await supabase
+      .from('norma_minsal')
+      .select('percentil_75')
+      .eq('GRD', grdNum)
+      .limit(1)
 
-    if (isNaN(alta.getTime()) || isNaN(ingreso.getTime())) return 0
+    if (error) {
+      console.error('[getPagoDemoraFNS012] DB error:', error)
+      return null
+    }
 
-    const diffTime = Math.abs(alta.getTime() - ingreso.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays
-  } catch {
+    if (!Array.isArray(data) || data.length === 0) return null
+
+    const p75 = Number(data[0].percentil_75)
+    if (isNaN(p75) || p75 === 0) return null
+
+    const numerator = peso * precioBase * dias
+    return numerator / p75
+  } catch (err) {
+    console.error('[getPagoDemoraFNS012] Unexpected error:', err)
+    return null
+  }
+}
+
+
+async function pagoOutlierSuperior(
+  supabase: any,
+  codigo_convenio: string | null,
+  peso_grd: number | null,
+  precio_base: number | null,
+  grd: number | null,
+  estancia_total: number | null
+): Promise<number > {
+  if (codigo_convenio !== 'FNS012') return 0
+
+  const peso = Number(peso_grd)
+  const precioBase = Number(precio_base)
+  const estancia = Number(estancia_total)
+
+  if ([peso, precioBase, estancia].some((v) => isNaN(v))) return 0
+
+  if (grd == null) return 0
+  const grdNum = Number(grd)
+  if (isNaN(grdNum)) return 0
+  try {
+    const { data, error } = await supabase
+      .from('norma_minsal')
+      .select('percentil_75, percentil_50, punto_corte_superior')
+      .eq('GRD', grdNum)
+      .limit(1)
+
+    if (error) {
+      return 0
+    }
+
+    if (!Array.isArray(data) || data.length === 0) return 0
+
+    const row = data[0]
+    const p75 = Number(row.percentil_75)
+    const p50 = Number(row.percentil_50)
+    const punto = Number(row.punto_corte_superior)
+
+    if ([p75, p50, punto].some((v) => isNaN(v)) || p75 === 0) return 0
+
+    const periodo_carencia = punto + p50
+    const dia_post_carencia = estancia - periodo_carencia
+
+    if (dia_post_carencia <= 0) return 0
+
+    const numerator = dia_post_carencia * peso * precioBase
+    return numerator / p75
+  } catch (err) {
     return 0
   }
 }
 
+
+function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_todos: number | null): string | null {
+  if (!tramos || peso_grd_medio_todos == null) return null
+
+  const peso = Number(peso_grd_medio_todos)
+  if (isNaN(peso)) return null
+  // print peso 
+  console.log("Peso:", peso)
+
+  for (const row of tramos) {
+    console.log("Checking row:", row)
+
+    const lower = row.limite_inferior != null ? Number(row.limite_inferior) : -Infinity
+    console.log("Lower limit:", lower)
+    const upper = row.limite_superior != null ? Number(row.limite_superior) : Infinity
+    console.log("Upper limit:", upper)
+
+    if (isNaN(lower) && isNaN(upper)) continue
+
+    if (peso > lower && peso <= upper) {
+      console.log("Peso is within range:", lower, upper)
+      return row.tramo ?? null
+    }
+  }
+
+  return null
+}
+
 /**
- * POST /api/v1/sigesa/upload
- * Upload and process a SIGESA Excel file
+ * Parse a date string that may be in ISO format (YYYY-MM-DD...) or US format (MM/DD/YYYY[ ...])
+ * Returns a Date object or null if invalid.
  */
+function parseDateString(dateStr: string | null | undefined): Date | null {
+  if (!dateStr) return null
+  console.log("Parsing date string:", dateStr)
+
+  // Try native parser first (handles ISO)
+  const iso = new Date(dateStr)
+  if (!isNaN(iso.getTime())) return iso
+
+  // Try MM/DD/YYYY (or M/D/YYYY) optionally with time
+  const mdy = String(dateStr).trim()
+  const mdyMatch = mdy.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T].*)?$/)
+  if (mdyMatch) {
+    const month = Number(mdyMatch[1])
+    const day = Number(mdyMatch[2])
+    const year = Number(mdyMatch[3])
+    console.log("Parsed MM/DD/YYYY:", month, day, year)
+
+    if (!Number.isNaN(month) && !Number.isNaN(day) && !Number.isNaN(year)) {
+      const d = new Date(Date.UTC(year, month - 1, day))
+      if (!isNaN(d.getTime())) return d
+    }
+  }
+  console.log("Date string could not be parsed:", dateStr)
+
+  return null
+}
+
+
+async function getPrecioFNS012(
+  supabase: any,
+  convenio: string | null,
+  tramo: string | null,
+  fecha_ingreso: string | null
+): Promise<number | null> {
+  if (!convenio || !tramo || !fecha_ingreso) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('precios_convenios_grd')
+      .select('precio, fecha_admision, fecha_fin')
+      .eq('convenio', convenio)
+      .eq('tramo', tramo)
+
+    if (error) {
+      console.error('[getPrecioForConvenioTramo] DB error:', error)
+      return null
+    }
+
+    if (!Array.isArray(data) || data.length === 0) return null
+
+    const ingresoDate = parseDateString(fecha_ingreso)
+    if (!ingresoDate) return null
+
+    for (const row of data) {
+      const adm = parseDateString(row.fecha_admision)
+      const fin = parseDateString(row.fecha_fin)
+      if (!adm || !fin) continue
+
+      if (ingresoDate >= adm && ingresoDate <= fin) {
+        const precioNum = row.precio != null ? Number(row.precio) : NaN
+        return Number.isNaN(precioNum) ? null : precioNum
+      }
+    }
+
+    return null
+  } catch (err) {
+    console.error('[getPrecioForConvenioTramo] Unexpected error:', err)
+    return null
+  }
+}
+
+async function getPrecioCH041(
+  supabase: any,
+  convenio: string | null,
+  fecha_ingreso: string | null
+): Promise<number | null> {
+  if (!convenio || !fecha_ingreso) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('precios_convenios_grd')
+      .select('precio, fecha_admision, fecha_fin')
+      .eq('convenio', convenio)
+   
+
+    if (error) {
+      return null
+    }
+
+    if (!Array.isArray(data) || data.length === 0) return null
+
+    const ingresoDate = parseDateString(fecha_ingreso)
+    if (!ingresoDate) return null
+
+    for (const row of data) {
+      const adm = parseDateString(row.fecha_admision)
+      const fin = parseDateString(row.fecha_fin)
+      if (!adm || !fin) continue
+
+      if (ingresoDate >= adm && ingresoDate <= fin) {
+        const precioNum = row.precio != null ? Number(row.precio) : NaN
+        return Number.isNaN(precioNum) ? null : precioNum
+      }
+    }
+
+    return null
+  } catch (err) {
+    return null
+  }
+}
+
+async function getPrecioFNS019(
+  supabase: any,
+  convenio: string | null,
+): Promise<number | null> {
+  if (!convenio) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('precios_convenios_grd')
+      .select('precio')
+      .eq('convenio', convenio)
+      .limit(1)
+
+    if (error || !Array.isArray(data) || data.length === 0) {
+      return null
+    }
+
+    const precioNum = data[0].precio != null ? Number(data[0].precio) : NaN
+    return Number.isNaN(precioNum) ? null : precioNum
+  } catch (err) {
+    console.error('[getPrecioConvenio] Unexpected error:', err)
+    return null
+  }
+}
+
+async function getPrecioFNS026(
+  supabase: any,
+  convenio: string | null,
+  tramo: string | null,
+): Promise<number | null> {
+  if (!convenio) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('precios_convenios_grd')
+      .select('precio')
+      .eq('convenio', convenio)
+      .eq('tramo', tramo)
+      .limit(1)
+
+    if (error || !Array.isArray(data) || data.length === 0) {
+      return null
+    }
+
+    const precioNum = data[0].precio != null ? Number(data[0].precio) : NaN
+    return Number.isNaN(precioNum) ? null : precioNum
+  } catch (err) {
+    console.error('[getPrecioConvenio] Unexpected error:', err)
+    return null
+  }
+}
+
+
+async function getPagoDemoraCH0041(
+  supabase: any,
+  fecha_ingreso: string | null,
+  dias_espera: number | null
+): Promise<number | null> {
+  if (!fecha_ingreso || dias_espera == null) return null
+
+  const dias = Number(dias_espera)
+  if (isNaN(dias) || dias <= 0) return null
+
+  try {
+    const { data, error } = await supabase
+      .from('montos_dias_espera')
+      .select('precio, fecha_admision, fecha_fin')
+
+    if (error) {
+      return null
+    }
+
+    if (!Array.isArray(data) || data.length === 0) return null
+
+    const ingresoDate = parseDateString(fecha_ingreso)
+    if (!ingresoDate) return null
+
+    for (const row of data) {
+      const adm = parseDateString(row.fecha_admision)
+      const fin = parseDateString(row.fecha_fin)
+      if (!adm || !fin) continue
+
+      if (ingresoDate >= adm && ingresoDate <= fin) {
+        const precioNum = row.precio != null ? Number(row.precio) : NaN
+        if (Number.isNaN(precioNum)) return null
+        return precioNum * dias
+      }
+    }
+
+    return null
+  } catch (err) {
+    console.error('[getpagodemorach0041] Unexpected error:', err)
+    return null
+  }
+}
+
+
+
 export async function POST(request: NextRequest) {
   try {
     // Create Supabase client with user session from cookies
@@ -431,12 +745,73 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Transform each SIGESA row to GRD row
-    const grdFilaRows = rows.map((row) => {
-      const irGrdCodigo = row.ir_grd_codigo ? Number(row.ir_grd_codigo) : null
-      const peso = irGrdCodigo ? pesoMap.get(irGrdCodigo) || null : null
+    // Fetch tramos_peso_grd once to avoid repeated DB calls per row
+    // let tramosData: any[] = []
+    // try {
+    //   console.log('[POST] Fetching tramos_peso_grd data')
+    //   const { data: _tramos, error: tramosError } = await supabase
+    //     .from('tramos_peso_grd')
+    //     .select('limite_inferior, limite_superior, tramo')
+    //     .order('limite_inferior', { ascending: true })
+      
 
-      const diasEstadia = calculateDaysDiff(row.fecha_completa, row.fecha_ingreso_completa)
+    //   if (tramosError) {
+    //     console.error('[POST] Error fetching tramos_peso_grd:', tramosError)
+    //     tramosData = null
+    //   } else {
+    //     tramosData = Array.isArray(_tramos) ? _tramos : null
+    //   }
+    // } catch (err) {
+    //   console.error('[POST] Unexpected error fetching tramos:', err)
+    //   tramosData = null
+    // }
+    // console.log('[POST] tramosData:', tramosData)
+
+    let tramosData: any[] = []
+
+    try {
+      console.log('[POST] Fetching tramos_peso_grd data')
+      const { data, error } = await supabase
+        .from('tramos_peso_grd')
+        .select('limite_inferior, limite_superior, tramo')
+        .order('limite_inferior', { ascending: true })
+
+      if (error) {
+        console.error('[POST] Error fetching tramos_peso_grd:', error)
+      } else if (Array.isArray(data)) {
+        tramosData = data
+      }
+
+    } catch (err) {
+      console.error('[POST] Unexpected error fetching tramos:', err)
+    }
+
+    console.log('[POST] tramosData:', tramosData)
+
+    // Transform each SIGESA row to GRD row
+    const grdFilaRowsPromises = rows.map(async (row) => {
+    const joinedPrevision = joinPrevision(row.prevision_codigo || null, row.prevision_desc || null)
+    const pesoTramo = findPesoSectionInList(tramosData, row.peso_grd_medio_todos)
+    const convenioPrecioPromise = await handleConvenio(row.convenios_cod || null, supabase, pesoTramo, row.fecha_ingreso_completa || null)
+    const pagoDemoraPromise = await handlePagoDemoraRescate(
+      row.convenios_cod || null,
+      supabase,
+      row.fecha_ingreso_completa || null,
+      row.ir_grd || null,
+      row.peso_grd_medio_todos || null,
+      convenioPrecioPromise,
+      row.estancia_real_episodio || null
+    )
+
+    // Compute pago outlier superior (only for FNS012 per implementation)
+    const pagoOutlier = await pagoOutlierSuperior(
+      supabase,
+      row.convenios_cod || null,
+      row.peso_grd_medio_todos || null,
+      convenioPrecioPromise,
+      row.ir_grd || null,
+      row.estancia_real_episodio || null
+    )
 
       return {
         episodio: Number(row.episodio_CMBD),
@@ -444,35 +819,38 @@ export async function POST(request: NextRequest) {
         nombre_paciente: row.nombre || null,
         tipo_episodio: row.tipo_actividad || null,
         fecha_ingreso: row.fecha_ingreso_completa || null,
-        fecha_alta: row.fecha_completa || null,
+        fecha_alta: row.fecha_completa_egreso || null,
         servicios_alta: row.servicio_egreso_codigo || null,
         tipo_alta: row.motivo_egreso || null,
-        'IR-GRD': irGrdCodigo || 0,
-        peso: peso,
+        centro: row.hospital_descripcion|| null,
+        n_folio: row.id_derivacion || null,
+        'IR-GRD': row.ir_grd || null,
+        peso: row.peso_grd_medio_todos || null,
         'inlier/outlier': row.ir_alta_inlier_outlier || null,
-        dias_estadia: diasEstadia,
+        dias_estadia: row.estancia_real_episodio || null,
         id_grd_oficial: grdId,
+        convenio: joinedPrevision,
+        precio_base_tramo: convenioPrecioPromise, 
+        dias_demora_rescate_hospital: row.estancia_real_episodio || null,
+        pago_demora_rescate: pagoDemoraPromise,
+        pago_outlier_superior: pagoOutlier,
+        
         // Platform-managed fields (left as null)
         validado: null,
-        centro: null,
-        n_folio: null,
         estado_rn: null,
         AT: null,
         AT_detalle: null,
         monto_AT: null,
         monto_rn: null,
-        dias_demora_rescate_hospital: null,
-        pago_demora_rescate: null,
-        pago_outlier_superior: null,
         documentacion: null,
         grupo_dentro_norma: null,
-        precio_base_tramo: null,
         valor_GRD: null,
         monto_final: null,
       }
     })
 
     // Insert GRD rows
+    const grdFilaRows = await Promise.all(grdFilaRowsPromises)
     const { error: grdFilaError } = await supabase.from('grd_fila').insert(grdFilaRows)
 
     if (grdFilaError) {
@@ -495,3 +873,4 @@ export async function POST(request: NextRequest) {
     return handleError(error)
   }
 }
+
