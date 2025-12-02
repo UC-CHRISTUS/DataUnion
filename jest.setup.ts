@@ -1,5 +1,18 @@
 // Jest setup file for global test configuration
 
+// Suppress Node.js warnings (e.g., --localstorage-file warning from Supabase)
+const originalEmit = process.emit;
+// @ts-expect-error - Overriding process.emit for warning suppression
+process.emit = function (event: string, ...args: unknown[]) {
+  if (event === 'warning' && args[0] && typeof args[0] === 'object' && 'name' in args[0]) {
+    const warning = args[0] as { name: string; message?: string };
+    if (warning.message?.includes('localstorage-file')) {
+      return false;
+    }
+  }
+  return originalEmit.apply(process, [event, ...args] as Parameters<typeof originalEmit>);
+};
+
 // Mock environment variables
 process.env.SUPABASE_URL = 'https://test.supabase.co';
 process.env.SUPABASE_PUBLISHABLE_KEY = 'test-key';
@@ -28,6 +41,11 @@ beforeAll(() => {
       'Error updating user must_change_password flag:',
       'Error al cerrar sesión:',
       'Error en signout:',
+      'Error fetching sigesa',
+      'Error al cargar filas SIGESA',
+      'not wrapped in act',
+      'Failed to load norma',
+      'Error in rejection:'
     ];
 
     if (suppressPatterns.some(pattern => message.includes(pattern))) {
