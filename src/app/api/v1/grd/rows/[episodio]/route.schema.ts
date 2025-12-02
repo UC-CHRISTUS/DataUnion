@@ -8,7 +8,7 @@ import { episodioSchema } from '@/lib/api/validation'
 export const updateGrdRowSchema = z.object({
   validado: z.boolean().nullable().optional(),
   centro: z.string().nullable().optional(),
-  n_folio: z.number().nullable().optional(),
+  n_folio: z.string().nullable().optional(),
   rut_paciente: z.string().nullable().optional(),
   nombre_paciente: z.string().nullable().optional(),
   tipo_episodio: z.string().nullable().optional(),
