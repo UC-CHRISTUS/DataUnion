@@ -27,6 +27,17 @@ import type {
 // Convenios que permiten asignar AT
 const CONVENIOS_CON_AT = ['FNS012', 'CH0041'] as const;
 
+/**
+ * Extrae el código del convenio desde el formato de grd_fila.
+ * grd_fila guarda convenio como "{codigo} - {nombre}" (ej: "FNS012 - GRD UGCC")
+ * Las otras tablas solo guardan el código (ej: "FNS012")
+ */
+const getCodigoConvenio = (convenio: string | null | undefined): string | null => {
+  if (!convenio) return null;
+  const parts = convenio.split(' - ');
+  return parts[0] || null;
+};
+
 const FIELD_TYPES: Record<string, FieldType> = {
   validado: 'string',
   centro: 'string',
@@ -758,9 +769,9 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
 
       if (c.field === "AT_detalle") {
         base.editable = (params: { data?: GrdRowData }) => {
-          const convenio = params.data?.convenio;
+          const codigoConvenio = getCodigoConvenio(params.data?.convenio);
           // Debe tener AT=true Y convenio válido
-          if (!convenio || !CONVENIOS_CON_AT.includes(convenio as typeof CONVENIOS_CON_AT[number])) {
+          if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
             return false;
           }
           return fieldEditable && params.data?.AT === true;
@@ -771,16 +782,16 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
 
         // cellEditorParams dinámico: filtra AT por convenio y calcula precio por fecha
         base.cellEditorParams = (params: { data?: GrdRowData }) => {
-          const rowConvenio = params.data?.convenio;
+          const codigoConvenio = getCodigoConvenio(params.data?.convenio);
           const fechaIngreso = params.data?.fecha_ingreso;
 
-          // Filtrar ATs por convenio y recalcular precio según fecha
+          // Filtrar ATs por código de convenio y recalcular precio según fecha
           const filteredOptions = atOpts
-            .filter(at => at.codigo_convenio === rowConvenio)
+            .filter(at => at.codigo_convenio === codigoConvenio)
             .map(at => ({
               ...at,
               // Sobrescribir el valor con el precio calculado según fecha
-              valor: getATPrice(at, fechaIngreso ?? null, rowConvenio ?? null)
+              valor: getATPrice(at, fechaIngreso ?? null, codigoConvenio)
             }));
 
           return { options: filteredOptions };
@@ -788,10 +799,10 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
 
         base.cellRenderer = (params: AGCellRendererParams<GrdRowData>) => {
           const displayValue = params.value != null ? String(params.value) : "";
-          const convenio = params.data?.convenio;
+          const codigoConvenio = getCodigoConvenio(params.data?.convenio);
 
           // Si convenio no permite AT o AT=false, mostrar candado
-          if (!convenio || !CONVENIOS_CON_AT.includes(convenio as typeof CONVENIOS_CON_AT[number]) || params.data?.AT === false) {
+          if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number]) || params.data?.AT === false) {
             return (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
                 <span style={{ marginRight: 4 }}>🔒</span>
@@ -805,8 +816,8 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         };
 
         base.onCellClicked = (params: { data?: GrdRowData; api: AGGridApi }) => {
-          const convenio = params.data?.convenio;
-          if (params.data?.AT === false || !convenio || !CONVENIOS_CON_AT.includes(convenio as typeof CONVENIOS_CON_AT[number])) {
+          const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+          if (params.data?.AT === false || !codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
             params.api.stopEditing();
           }
         };
@@ -825,14 +836,14 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
               // Si es string, recalcular el monto desde las opciones filtradas
               newATDetalle = (v as string) ?? "";
               if (newATDetalle) {
-                const rowConvenio = params.data.convenio;
+                const codigoConvenio = getCodigoConvenio(params.data.convenio);
                 const fechaIngreso = params.data.fecha_ingreso;
                 const selectedLabels = newATDetalle.split(AT_SEPARATOR).map(s => s.trim()).filter(Boolean);
 
                 newMontoAT = selectedLabels.reduce((acc, label) => {
-                  const found = atOpts.find(at => at.label === label && at.codigo_convenio === rowConvenio);
+                  const found = atOpts.find(at => at.label === label && at.codigo_convenio === codigoConvenio);
                   if (found) {
-                    return acc + getATPrice(found, fechaIngreso ?? null, rowConvenio ?? null);
+                    return acc + getATPrice(found, fechaIngreso ?? null, codigoConvenio);
                   }
                   return acc;
                 }, 0);
@@ -868,8 +879,8 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
 
         // Estilo para mostrar que está bloqueado por convenio
         base.cellStyle = (params: AGCellClassParams<GrdRowData>) => {
-          const convenio = params.data?.convenio;
-          if (!convenio || !CONVENIOS_CON_AT.includes(convenio as typeof CONVENIOS_CON_AT[number])) {
+          const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+          if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
             return {
               backgroundColor: "#f0f0f0",
               color: "#999",
@@ -915,9 +926,9 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         // Para el campo AT, solo permitir edición si el convenio es FNS012 o CH0041
         if (c.field === "AT") {
           base.editable = (params: { data?: GrdRowData }) => {
-            const convenio = params.data?.convenio;
+            const codigoConvenio = getCodigoConvenio(params.data?.convenio);
             // Si no tiene convenio válido para AT, bloquear el campo
-            if (!convenio || !CONVENIOS_CON_AT.includes(convenio as typeof CONVENIOS_CON_AT[number])) {
+            if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
               return false;
             }
             return fieldEditable;
@@ -926,11 +937,11 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
           // Renderer que muestra candado si convenio no válido
           const originalRenderer = base.cellRenderer;
           base.cellRenderer = (params: AGCellRendererParams<GrdRowData>) => {
-            const convenio = params.data?.convenio;
+            const codigoConvenio = getCodigoConvenio(params.data?.convenio);
             const displayValue = params.value === true ? "Sí" : params.value === false ? "No" : "";
 
             // Si convenio no permite AT, mostrar candado
-            if (!convenio || !CONVENIOS_CON_AT.includes(convenio as typeof CONVENIOS_CON_AT[number])) {
+            if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
               return (
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
                   <span style={{ marginRight: 4 }}>🔒</span>
@@ -950,8 +961,8 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
           // Estilo para mostrar visualmente que está bloqueado por convenio
           const originalCellStyle = base.cellStyle;
           base.cellStyle = (params: AGCellClassParams<GrdRowData>) => {
-            const convenio = params.data?.convenio;
-            if (!convenio || !CONVENIOS_CON_AT.includes(convenio as typeof CONVENIOS_CON_AT[number])) {
+            const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+            if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
               return {
                 backgroundColor: "#f0f0f0",
                 color: "#999",
