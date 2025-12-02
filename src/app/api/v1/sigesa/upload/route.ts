@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 import ExcelJS from 'exceljs'
 import { successResponse, errorResponse, handleError } from '@/lib/api/response'
 import { Console } from 'console'
+import { get } from 'http'
 
 /**
  * Normalize header string for flexible matching
@@ -164,8 +165,6 @@ function joinPrevision(previsionCodigo: string | null, previsionDesc: string | n
 }
 
 
-// function handleConvenio(convenioCod: string | null, supabase: any, tramo: string | null, fecha_ingreso: string | null): Promise<number | null>{
-//   Console.log("handleConvenio", convenioCod, tramo, fecha_ingreso)
 function handleConvenio(convenioCod: string | null, supabase: any, tramo: string | null, fecha_ingreso: string | null): Promise<number | null>{
   console.log("handleConvenio", convenioCod, tramo, fecha_ingreso)
   if (convenioCod == "FNS012") { 
@@ -193,15 +192,18 @@ function handlePagoDemoraRescate(convenioCod: string | null , supabase: any,
   precio_base: number | null,
   dias_demora_rescate: number | null): Promise<number | null>  {
 
+  console.log("handlePagoDemoraRescate", convenioCod, fecha_ingreso, grd, peso_grd, precio_base, dias_demora_rescate)
    if (convenioCod == "FNS012") { 
+    console.log("Calculating pago demora FNS012",getPagoDemoraFNS012(supabase, grd, peso_grd, precio_base, dias_demora_rescate))
     return getPagoDemoraFNS012(supabase, grd, peso_grd, precio_base, dias_demora_rescate)
 
   } else if (convenioCod == "CH0041") {
+    console.log("Calculating pago demora CH0041", getPagoDemoraCH0041(supabase, fecha_ingreso, dias_demora_rescate))
     return getPagoDemoraCH0041(supabase, fecha_ingreso, dias_demora_rescate)
   }
   
   else {
-    return Promise.resolve(null)
+    return Promise.resolve(0)
   }
 }
 
@@ -235,13 +237,15 @@ async function getPagoDemoraFNS012(
       console.error('[getPagoDemoraFNS012] DB error:', error)
       return null
     }
+    console.log("Checking row for pago demora FNS012:", data[0])
 
     if (!Array.isArray(data) || data.length === 0) return null
 
     const p75 = Number(data[0].percentil_75)
     if (isNaN(p75) || p75 === 0) return null
-
+    console.log("Percentil 75 for pago demora FNS012:", p75)
     const numerator = peso * precioBase * dias
+    console.log("Numerator for pago demora FNS012:", numerator)
     return numerator / p75
   } catch (err) {
     console.error('[getPagoDemoraFNS012] Unexpected error:', err)
@@ -258,7 +262,8 @@ async function pagoOutlierSuperior(
   grd: number | null,
   estancia_total: number | null
 ): Promise<number > {
-  if (codigo_convenio !== 'FNS012') return 0
+  if (codigo_convenio !== 'FNS012') 
+    return 0
 
   const peso = Number(peso_grd)
   const precioBase = Number(precio_base)
@@ -311,17 +316,13 @@ function findPesoSectionInList(tramos: any[] | null | undefined, peso_grd_medio_
   console.log("Peso:", peso)
 
   for (const row of tramos) {
-    console.log("Checking row:", row)
 
     const lower = row.limite_inferior != null ? Number(row.limite_inferior) : -Infinity
-    console.log("Lower limit:", lower)
     const upper = row.limite_superior != null ? Number(row.limite_superior) : Infinity
-    console.log("Upper limit:", upper)
 
     if (isNaN(lower) && isNaN(upper)) continue
 
     if (peso > lower && peso <= upper) {
-      console.log("Peso is within range:", lower, upper)
       return row.tramo ?? null
     }
   }
@@ -487,6 +488,7 @@ async function getPrecioFNS026(
     if (error || !Array.isArray(data) || data.length === 0) {
       return null
     }
+    console.log("Checking row for precio FNS026:", data[0])
 
     const precioNum = data[0].precio != null ? Number(data[0].precio) : NaN
     return Number.isNaN(precioNum) ? null : precioNum
@@ -522,6 +524,7 @@ async function getPagoDemoraCH0041(
     if (!ingresoDate) return null
 
     for (const row of data) {
+      console.log("Checking row for pago demora CH0041:", row)
       const adm = parseDateString(row.fecha_admision)
       const fin = parseDateString(row.fecha_fin)
       if (!adm || !fin) continue
@@ -745,27 +748,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Fetch tramos_peso_grd once to avoid repeated DB calls per row
-    // let tramosData: any[] = []
-    // try {
-    //   console.log('[POST] Fetching tramos_peso_grd data')
-    //   const { data: _tramos, error: tramosError } = await supabase
-    //     .from('tramos_peso_grd')
-    //     .select('limite_inferior, limite_superior, tramo')
-    //     .order('limite_inferior', { ascending: true })
-      
-
-    //   if (tramosError) {
-    //     console.error('[POST] Error fetching tramos_peso_grd:', tramosError)
-    //     tramosData = null
-    //   } else {
-    //     tramosData = Array.isArray(_tramos) ? _tramos : null
-    //   }
-    // } catch (err) {
-    //   console.error('[POST] Unexpected error fetching tramos:', err)
-    //   tramosData = null
-    // }
-    // console.log('[POST] tramosData:', tramosData)
 
     let tramosData: any[] = []
 
@@ -797,7 +779,7 @@ export async function POST(request: NextRequest) {
       row.convenios_cod || null,
       supabase,
       row.fecha_ingreso_completa || null,
-      row.ir_grd || null,
+      row.ir_grd_codigo || null,
       row.peso_grd_medio_todos || null,
       convenioPrecioPromise,
       row.estancia_real_episodio || null
@@ -809,7 +791,7 @@ export async function POST(request: NextRequest) {
       row.convenios_cod || null,
       row.peso_grd_medio_todos || null,
       convenioPrecioPromise,
-      row.ir_grd || null,
+      row.prevision_codigo || null,
       row.estancia_real_episodio || null
     )
 
@@ -830,9 +812,10 @@ export async function POST(request: NextRequest) {
         dias_estadia: row.estancia_real_episodio || null,
         id_grd_oficial: grdId,
         convenio: joinedPrevision,
-        precio_base_tramo: convenioPrecioPromise, 
+        precio_base_tramo: convenioPrecioPromise != null ? Math.round(convenioPrecioPromise) : null,
         dias_demora_rescate_hospital: row.estancia_real_episodio || null,
-        pago_demora_rescate: pagoDemoraPromise,
+        
+        pago_demora_rescate: pagoDemoraPromise != null ? Math.round(pagoDemoraPromise) : null,
         pago_outlier_superior: pagoOutlier,
         
         // Platform-managed fields (left as null)
