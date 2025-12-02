@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { supabase, getSupabaseAdmin } from '@/lib/supabase'
+import { NextRequest } from 'next/server'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import { successResponse, errorResponse, handleError } from '@/lib/api/response'
 import { updateGrdRowSchema, episodioParamSchema } from './route.schema'
 import { getCurrentUser } from '@/lib/auth-helpers'

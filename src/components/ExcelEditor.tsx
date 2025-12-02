@@ -24,6 +24,20 @@ import type {
 
 // Constants
 
+// Convenios que permiten asignar AT
+const CONVENIOS_CON_AT = ['FNS012', 'CH0041'] as const;
+
+/**
+ * Extrae el código del convenio desde el formato de grd_fila.
+ * grd_fila guarda convenio como "{codigo} - {nombre}" (ej: "FNS012 - GRD UGCC")
+ * Las otras tablas solo guardan el código (ej: "FNS012")
+ */
+const getCodigoConvenio = (convenio: string | null | undefined): string | null => {
+  if (!convenio) return null;
+  const parts = convenio.split(' - ');
+  return parts[0] || null;
+};
+
 const FIELD_TYPES: Record<string, FieldType> = {
   validado: 'string',
   centro: 'string',
@@ -98,7 +112,10 @@ interface GrdRowData extends Partial<GrdFilaRow> {
 interface ATOption {
   id: number;
   label: string;
+  codigo_convenio: string | null;
   valor: number;
+  valor_reajuste_1: number | null;
+  valor_reajuste_2: number | null;
 }
 
 interface ATMultiSelectValue {
@@ -196,6 +213,58 @@ const AgGridReact = dynamic<any>(
 
 // Separator for multiple AT labels - using " | " since AT names contain commas
 const AT_SEPARATOR = " | ";
+
+/**
+ * Calcula el precio correcto de un AT basado en la fecha de ingreso del paciente.
+ * Los precios varían según rangos de fechas específicos para cada convenio.
+ *
+ * FNS012:
+ * - valor: 01/01/2023 - 09/04/2024
+ * - valor_reajuste_1: 09/05/2024 - 09/04/2025
+ * - valor_reajuste_2: 09/05/2025 en adelante
+ *
+ * CH0041:
+ * - valor: 01/01/2023 - 08/28/2024
+ * - valor_reajuste_1: 08/29/2024 - 08/28/2025
+ * - valor_reajuste_2: 08/29/2025 en adelante
+ */
+const getATPrice = (
+  at: ATOption,
+  fechaIngreso: string | null,
+  convenio: string | null
+): number => {
+  if (!fechaIngreso || !convenio) return at.valor ?? 0;
+
+  const fecha = new Date(fechaIngreso);
+
+  if (convenio === 'FNS012') {
+    // 09/05/2025 en adelante -> valor_reajuste_2
+    if (fecha >= new Date('2025-09-05')) {
+      return at.valor_reajuste_2 ?? at.valor ?? 0;
+    }
+    // 09/05/2024 - 09/04/2025 -> valor_reajuste_1
+    if (fecha >= new Date('2024-09-05')) {
+      return at.valor_reajuste_1 ?? at.valor ?? 0;
+    }
+    // Antes de 09/05/2024 -> valor
+    return at.valor ?? 0;
+  }
+
+  if (convenio === 'CH0041') {
+    // 08/29/2025 en adelante -> valor_reajuste_2
+    if (fecha >= new Date('2025-08-29')) {
+      return at.valor_reajuste_2 ?? at.valor ?? 0;
+    }
+    // 08/29/2024 - 08/28/2025 -> valor_reajuste_1
+    if (fecha >= new Date('2024-08-29')) {
+      return at.valor_reajuste_1 ?? at.valor ?? 0;
+    }
+    // Antes de 08/29/2024 -> valor
+    return at.valor ?? 0;
+  }
+
+  return at.valor ?? 0;
+};
 
 const AtMultiSelectEditor = React.forwardRef<
   { getValue: () => ATMultiSelectValue; isPopup: () => boolean },
@@ -700,16 +769,40 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
 
       if (c.field === "AT_detalle") {
         base.editable = (params: { data?: GrdRowData }) => {
+          const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+          // Debe tener AT=true Y convenio válido
+          if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
+            return false;
+          }
           return fieldEditable && params.data?.AT === true;
         };
         base.singleClickEdit = true;
         base.cellEditor = AtMultiSelectEditor;
         base.cellEditorPopup = true;
-        base.cellEditorParams = { options: atOpts };
+
+        // cellEditorParams dinámico: filtra AT por convenio y calcula precio por fecha
+        base.cellEditorParams = (params: { data?: GrdRowData }) => {
+          const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+          const fechaIngreso = params.data?.fecha_ingreso;
+
+          // Filtrar ATs por código de convenio y recalcular precio según fecha
+          const filteredOptions = atOpts
+            .filter(at => at.codigo_convenio === codigoConvenio)
+            .map(at => ({
+              ...at,
+              // Sobrescribir el valor con el precio calculado según fecha
+              valor: getATPrice(at, fechaIngreso ?? null, codigoConvenio)
+            }));
+
+          return { options: filteredOptions };
+        };
 
         base.cellRenderer = (params: AGCellRendererParams<GrdRowData>) => {
           const displayValue = params.value != null ? String(params.value) : "";
-          if (params.data?.AT === false) {
+          const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+
+          // Si convenio no permite AT o AT=false, mostrar candado
+          if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number]) || params.data?.AT === false) {
             return (
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
                 <span style={{ marginRight: 4 }}>🔒</span>
@@ -723,7 +816,8 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         };
 
         base.onCellClicked = (params: { data?: GrdRowData; api: AGGridApi }) => {
-          if (params.data?.AT === false) {
+          const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+          if (params.data?.AT === false || !codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
             params.api.stopEditing();
           }
         };
@@ -739,7 +833,23 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
               newATDetalle = v.labels ?? "";
               newMontoAT = v.monto ?? 0;
             } else {
+              // Si es string, recalcular el monto desde las opciones filtradas
               newATDetalle = (v as string) ?? "";
+              if (newATDetalle) {
+                const codigoConvenio = getCodigoConvenio(params.data.convenio);
+                const fechaIngreso = params.data.fecha_ingreso;
+                const selectedLabels = newATDetalle.split(AT_SEPARATOR).map(s => s.trim()).filter(Boolean);
+
+                newMontoAT = selectedLabels.reduce((acc, label) => {
+                  const found = atOpts.find(at => at.label === label && at.codigo_convenio === codigoConvenio);
+                  if (found) {
+                    return acc + getATPrice(found, fechaIngreso ?? null, codigoConvenio);
+                  }
+                  return acc;
+                }, 0);
+              } else {
+                newMontoAT = 0;
+              }
             }
 
             params.data.AT_detalle = newATDetalle;
@@ -767,6 +877,26 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
           return true;
         };
 
+        // Estilo para mostrar que está bloqueado por convenio
+        base.cellStyle = (params: AGCellClassParams<GrdRowData>) => {
+          const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+          if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
+            return {
+              backgroundColor: "#f0f0f0",
+              color: "#999",
+              cursor: "not-allowed"
+            };
+          }
+          if (params.data?.AT === false) {
+            return {
+              backgroundColor: "#f0f0f0",
+              color: "#999",
+              cursor: "not-allowed"
+            };
+          }
+          return {};
+        };
+
         base.valueFormatter = (params: AGValueFormatterParams<GrdRowData>) => params.value as string;
       }
 
@@ -792,6 +922,60 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
           if (params.value === null) return "";
           return "";
         };
+
+        // Para el campo AT, solo permitir edición si el convenio es FNS012 o CH0041
+        if (c.field === "AT") {
+          base.editable = (params: { data?: GrdRowData }) => {
+            const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+            // Si no tiene convenio válido para AT, bloquear el campo
+            if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
+              return false;
+            }
+            return fieldEditable;
+          };
+
+          // Renderer que muestra candado si convenio no válido
+          const originalRenderer = base.cellRenderer;
+          base.cellRenderer = (params: AGCellRendererParams<GrdRowData>) => {
+            const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+            const displayValue = params.value === true ? "Sí" : params.value === false ? "No" : "";
+
+            // Si convenio no permite AT, mostrar candado
+            if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
+              return (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+                  <span style={{ marginRight: 4 }}>🔒</span>
+                  <span style={{ color: "#999" }}>{displayValue}</span>
+                </div>
+              );
+            }
+
+            // Si tiene renderer original (por !fieldEditable), usarlo
+            if (originalRenderer && !fieldEditable) {
+              return originalRenderer(params);
+            }
+
+            return displayValue;
+          };
+
+          // Estilo para mostrar visualmente que está bloqueado por convenio
+          const originalCellStyle = base.cellStyle;
+          base.cellStyle = (params: AGCellClassParams<GrdRowData>) => {
+            const codigoConvenio = getCodigoConvenio(params.data?.convenio);
+            if (!codigoConvenio || !CONVENIOS_CON_AT.includes(codigoConvenio as typeof CONVENIOS_CON_AT[number])) {
+              return {
+                backgroundColor: "#f0f0f0",
+                color: "#999",
+                cursor: "not-allowed"
+              };
+            }
+            // Usar el estilo original para otros casos
+            if (typeof originalCellStyle === 'function') {
+              return originalCellStyle(params);
+            }
+            return originalCellStyle || {};
+          };
+        }
       }
 
       return base;
@@ -817,12 +1001,22 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         interface AjusteResponse {
           id: number;
           AT: string | null;
+          codigo_convenio: string | null;
           valor: number | null;
+          valor_reajuste_1: number | null;
+          valor_reajuste_2: number | null;
         }
 
         const cleaned: ATOption[] = (arr ?? [])
           .filter((x: AjusteResponse) => x?.AT && x?.valor != null)
-          .map((x: AjusteResponse) => ({ id: x.id, label: String(x.AT).trim(), valor: Number(x.valor) }));
+          .map((x: AjusteResponse) => ({
+            id: x.id,
+            label: String(x.AT).trim(),
+            codigo_convenio: x.codigo_convenio,
+            valor: Number(x.valor),
+            valor_reajuste_1: x.valor_reajuste_1,
+            valor_reajuste_2: x.valor_reajuste_2
+          }));
         setAtOptions(cleaned);
         setColumnDefs(enrichColumns(BASE_COLUMN_DEFS, cleaned, role, estado));
       } catch (e) {
