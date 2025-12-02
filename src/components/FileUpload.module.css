@@ -5,7 +5,7 @@
 }
 
 .dropZone {
-  border: 2px dashed #cbd5e1;
+  border: 2px dashed white;
   border-radius: 12px;
   padding: 3rem 2rem;
   text-align: center;
@@ -23,6 +23,27 @@
   border-color: #6366f1;
   background-color: #e0e7ff;
   transform: scale(1.02);
+}
+
+.dropZone.disabled {
+  border-color: #e5e7eb;
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.dropZone.disabled:hover {
+  border-color: #e5e7eb;
+  background-color: #f3f4f6;
+  transform: none;
+}
+
+.dropZone.disabled .uploadIcon {
+  color: #9ca3af;
+}
+
+.dropZone.disabled .dropZoneText {
+  color: #9ca3af;
 }
 
 .dropZoneContent {
@@ -71,6 +92,12 @@
   background-color: #4f46e5;
 }
 
+.chooseFileButton:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .fileInput {
   display: none;
 }
@@ -93,4 +120,40 @@
   color: #15803d;
   margin: 0;
   font-size: 0.875rem;
+}
+
+.actions {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.uploadButton {
+  background-color: #0ea5a4;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  justify-content: center;
+}
+
+.removeButton {
+  background-color: transparent;
+  color: #065f46;
+  border: 1px solid #065f46;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  justify-content: center;
+}
+
+.successMessage {
+  margin-top: 1rem;
+  color: #065f46;
+}
+
+.errorMessage {
+  margin-top: 1rem;
+  color: #991b1b;
 }

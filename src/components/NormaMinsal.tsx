@@ -1,118 +1,114 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
-// import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import * as XLSX from "xlsx";
 
-// Registrar módulos AG Grid
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-// Import dinámico de AG Grid React
-const AgGridReact = dynamic(
+
+const AgGridReact = dynamic<any>(
+
   () => import("ag-grid-react").then((mod) => mod.AgGridReact),
   { ssr: false }
-);
+) as any;
 
 export default function NormaMinsalPage() {
   const [rowData, setRowData] = useState<any[]>([]);
   const [columnDefs, setColumnDefs] = useState<any[]>([]);
-  const [filename, setFilename] = useState<string>("");
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState<string | null>(null);
 
-  const handleFileUpload = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+  const headerMap: Record<string, string> = {
+    GRD: "GRD",
+    tipo_GRD: "Tipo GRD",
+    peso_total: "Peso total",
+    peso_total_depu: "Peso total (depu)",
+    punto_corte_inferior: "Punto corte inferior",
+    punto_corte_superior: "Punto corte superior",
+    percentil_25: "Percentil 25",
+    percentil_75: "Percentil 75",
+    est_media: "Estancia media",
+    total_altas: "Total altas",
+    total_est: "Total estancias",
+    altas_depu: "Altas (depu)",
+    exitus: "Exitus",
+    gravedad: "Gravedad",
+    n_outliers_sup: "N outliers sup",
+    tab_1430_d_est_med_depu_g: "Tab 1430 D EST MED DEPU G",
+    tab_1430_d_num_out_inf_g: "Tab 1430 D NUM OUT INF G",
+    tab_1430_d_perct_50_g: "Tab 1430 D PERCT 50 G",
+    total_est_depu: "Total est depu",
+  };
 
-      setFilename(file.name);
-      const reader = new FileReader();
+  useEffect(() => {
+    const fetchNorma = async () => {
+      try {
+        const res = await fetch("/api/v1/norma-minsal");
+        if (!res.ok) throw new Error("Error fetching norma");
+        const data = await res.json();
 
-      reader.onload = (event) => {
-        const arrayBuffer = event.target?.result;
-        if (!arrayBuffer) return;
+        const rows = Array.isArray(data) ? data : data?.data ?? [];
 
-        const workbook = XLSX.read(arrayBuffer, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
+        setRowData(rows || []);
 
-        const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          defval: "",
-        });
+        const keys =
+          rows && rows.length > 0
+            ? Object.keys(rows[0])
+            : Object.keys(headerMap);
 
-        if (jsonData.length === 0) return;
-
-        const cols = jsonData[0].map((val, index) => ({
-        headerName: val || `Col ${index + 1}`, // usa el valor de la celda, si está vacío, usa Col #
-        field: `col_${index}`,
-        editable: true,
-        resizable: true,
-        sortable: true,
-        }));
-
-        const rows = jsonData.slice(1).map((row: any[]) => {
-          const obj: any = {};
-          row.forEach((val, i) => {
-            obj[`col_${i}`] = val;
-          });
-          return obj;
-        });
+        const cols = keys
+          .filter((k) => k !== "id") 
+          .map((k) => ({
+            headerName: headerMap[k] ?? k,
+            field: k,
+            sortable: true,
+            resizable: true,
+            editable: false,
+      }));
 
         setColumnDefs(cols);
-        setRowData(rows);
-      };
+      } catch (e: any) {
+        console.error("Failed to load norma:", e);
+        setError(e.message || "Error al cargar los datos");
+      } finally {
+        setLoading(false); 
+      }
+    };
 
-      reader.readAsArrayBuffer(file);
-    },
-    []
-  );
-
-  const handleDownload = useCallback(() => {
-    if (rowData.length === 0 || columnDefs.length === 0) return;
-
-    const aoa = [
-      columnDefs.map((col) => col.headerName),
-      ...rowData.map((row) =>
-        columnDefs.map((col) => row[col.field] ?? "")
-      ),
-    ];
-
-    const ws = XLSX.utils.aoa_to_sheet(aoa);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Hoja1");
-
-    XLSX.writeFile(wb, `editado_${filename || "archivo"}.xlsx`);
-  }, [rowData, columnDefs, filename]);
+    fetchNorma();
+  }, []);
 
   return (
     <div className="p-6 flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold mb-4">📄 Cargar Excel / Norma</h1>
+      <h1 className="text-2xl font-semibold mb-4">
+        📄 Norma Minsal v2019 (solo lectura)
+      </h1>
 
-      <input
-        type="file"
-        accept=".xlsx, .csv"
-        onChange={handleFileUpload}
-        className="border rounded p-2 mb-4"
-      />
-
-      {rowData.length > 0 && (
-        <>
-          <div className="ag-theme-alpine w-full" style={{ height: "600px" }}>
-            <AgGridReact
-              rowData={rowData}
-              columnDefs={columnDefs}
-              defaultColDef={{
-                flex: 1,
-                minWidth: 100,
-                editable: true,
-                resizable: true,
-              }}
-            />
-          </div>
-
-      {rowData.length === 0 && <p>Selecciona un archivo para cargar la tabla...</p>}
+      {loading ? (
+        <p>Cargando...</p>
+      ) : error ? (
+        <p className="text-red-600">
+          Error: {error}. Verifica que el endpoint <code>/api/v1/norma-minsal</code> esté disponible.
+        </p>
+      ) : rowData.length > 0 ? (
+        <div className="ag-theme-alpine w-full" style={{ height: "600px" }}>
+          <AgGridReact
+            rowData={rowData}
+            columnDefs={columnDefs}
+            defaultColDef={{
+              flex: 1,
+              minWidth: 100,
+              editable: false,
+              resizable: true,
+              sortable: true,
+            }}
+          />
+        </div>
+      ) : (
+        <p>No se encontraron registros de norma.</p>
+      )}
     </div>
   );
 }

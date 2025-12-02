@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { getPaginationParams, calculatePagination } from '@/lib/api/pagination'
 import { paginatedResponse, errorResponse, handleError } from '@/lib/api/response'

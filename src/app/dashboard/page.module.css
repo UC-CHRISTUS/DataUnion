@@ -1,20 +1,105 @@
+/* ---- CONTENEDOR GENERAL ---- */
 .container {
-  padding: 2rem;
-  background-color: #f8fafc;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  background-color: #ffffff;
   min-height: calc(100vh - 80px);
 }
 
+/* ---- HERO ---- */
+.hero {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
 .title {
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   font-weight: 700;
   background: linear-gradient(135deg, #6D28D9, #8B5CF6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
-/* Para la opción 1 */
+.subtitle {
+  font-size: 1.1rem;
+  color: #64748b;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ---- SECCIONES ---- */
+.sectionTitle {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* ---- CARDS DE ROLES ---- */
+.rolesSection {
+  margin-bottom: 4rem;
+}
+
+.rolesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.roleCard {
+  background: white;
+  padding: 1.8rem;
+  border-radius: 12px;
+  border-left: 4px solid #6D28D9;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.roleCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.roleTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.roleText {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.55;
+}
+
+/* ---- BLOQUE DE INFORMACIÓN (FLUJO) ---- */
+.infoSection {
+  background: #f9fafb;
+  padding: 2.4rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.stepsList {
+  max-width: 650px;
+  margin: 0 auto;
+  color: #374151;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.stepsList li {
+  margin-bottom: 0.7rem;
+}
+
+
+/* ---- LO QUE YA TENÍAS (lo preservamos tal cual) ---- */
+
 .dashboardGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -53,7 +138,7 @@
   background: #5B21B6;
 }
 
-/* Para la opción 2 */
+/* Stats */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -118,7 +203,7 @@
   gap: 0.5rem;
   width: 100%;
   background: none;
-  border: 1px solid #e2e8f0;
+  border: 1px solid white;
   padding: 0.75rem;
   border-radius: 8px;
   margin-bottom: 0.5rem;
@@ -128,7 +213,7 @@
 
 .quickButton:hover {
   border-color: #6D28D9;
-  background: #f5f3ff;
+  background: #ffffff;
 }
 
 .activityList {

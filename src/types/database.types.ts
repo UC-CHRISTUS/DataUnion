@@ -18,293 +18,29 @@ export type Database = {
         Row: {
           AT: string | null
           codigo: string | null
+          codigo_convenio: string | null
           id: number
           valor: number | null
+          valor_reajuste_1: number | null
+          valor_reajuste_2: number | null
         }
         Insert: {
           AT?: string | null
           codigo?: string | null
+          codigo_convenio?: string | null
           id?: number
           valor?: number | null
+          valor_reajuste_1?: number | null
+          valor_reajuste_2?: number | null
         }
         Update: {
           AT?: string | null
           codigo?: string | null
+          codigo_convenio?: string | null
           id?: number
           valor?: number | null
-        }
-        Relationships: []
-      }
-      DEPRECATED: {
-        Row: {
-          año: number | null
-          casos_norma_ir: number | null
-          conjunto_dx: string | null
-          conjunto_procedimientos_secundarios: string | null
-          conjunto_servicios_traslado: string | null
-          convenios_cod: string | null
-          convenios_des: string | null
-          created_at: string
-          diagnostico_principal: string | null
-          edad: number | null
-          em_norma_ir: number | null
-          em_post_quirurgica: number | null
-          em_pre_quirurgica: number | null
-          em_traslados_servicio: number | null
-          emaf_ir_bruta: number | null
-          episodio_cmbd: number | null
-          especialidad_medica_intervencion_des: string | null
-          especialidad_servicio_egreso_descripcion: string | null
-          estancia_episodio: number | null
-          estancia_media: number | null
-          estancia_real_episodio: number | null
-          estancias_norma_ir: number | null
-          "estancias_postquirurgicas _int_episodio": number | null
-          "estancias_prequirurgicas _int_episodio": number | null
-          facturacion: number | null
-          fecha_completa: string | null
-          fecha_ingreso_completa: string | null
-          fecha_tr1: string | null
-          fecha_tr10: string | null
-          fecha_tr2: string | null
-          fecha_tr3: string | null
-          fecha_tr4: string | null
-          fecha_tr5: string | null
-          fecha_tr6: string | null
-          fecha_tr7: string | null
-          fecha_tr8: string | null
-          fecha_tr9: string | null
-          horas_estancia: number | null
-          hospital_descripcion: string | null
-          id: number
-          id_derivacion: number | null
-          iema_ir_bruto: number | null
-          impacto_estancias_evitables_brutas: number | null
-          ir_alta_inlier_outlier: string | null
-          ir_gravedad_desc: string | null
-          ir_grd: number | null
-          ir_grd_codigo: number | null
-          ir_mortalidad_desc: string | null
-          ir_punto_corte_inferior: number | null
-          ir_punto_corte_superior: number | null
-          ir_tipo_grd: string | null
-          ley_cod: number | null
-          ley_desc: string | null
-          medico_alta: string | null
-          medico_egreso_descripcion: string | null
-          mes: number | null
-          motivo_egreso_descripcion: string | null
-          nombre: string | null
-          peso_grd_medio_todos: number | null
-          peso_medio_norma_ir: number | null
-          prevision_2_cod: number | null
-          prevision_2_desc: string | null
-          prevision_cod: string | null
-          prevision_desc: string | null
-          proced_01_principal_cod: number | null
-          rut: string | null
-          servicio_cod_tr1: string | null
-          servicio_cod_tr10: string | null
-          servicio_cod_tr2: string | null
-          servicio_cod_tr3: string | null
-          servicio_cod_tr4: string | null
-          servicio_cod_tr5: string | null
-          servicio_cod_tr6: string | null
-          servicio_cod_tr7: string | null
-          servicio_cod_tr8: string | null
-          servicio_cod_tr9: string | null
-          servicio_egreso_codigo: string | null
-          servicio_egreso_codigo_3: string | null
-          servicio_egreso_descripcion_descripcion: string | null
-          servicio_ingreso_codigo: string | null
-          servicio_ingreso_codigo_2: string | null
-          servicio_ingreso_descripcion: string | null
-          servicio_salud_cod: number | null
-          servicio_salud_des: string | null
-          sexo: string | null
-          tipo_actividad: string | null
-          tipo_actividad_1: string | null
-          tipo_ingreso_descripcion: string | null
-        }
-        Insert: {
-          año?: number | null
-          casos_norma_ir?: number | null
-          conjunto_dx?: string | null
-          conjunto_procedimientos_secundarios?: string | null
-          conjunto_servicios_traslado?: string | null
-          convenios_cod?: string | null
-          convenios_des?: string | null
-          created_at?: string
-          diagnostico_principal?: string | null
-          edad?: number | null
-          em_norma_ir?: number | null
-          em_post_quirurgica?: number | null
-          em_pre_quirurgica?: number | null
-          em_traslados_servicio?: number | null
-          emaf_ir_bruta?: number | null
-          episodio_cmbd?: number | null
-          especialidad_medica_intervencion_des?: string | null
-          especialidad_servicio_egreso_descripcion?: string | null
-          estancia_episodio?: number | null
-          estancia_media?: number | null
-          estancia_real_episodio?: number | null
-          estancias_norma_ir?: number | null
-          "estancias_postquirurgicas _int_episodio"?: number | null
-          "estancias_prequirurgicas _int_episodio"?: number | null
-          facturacion?: number | null
-          fecha_completa?: string | null
-          fecha_ingreso_completa?: string | null
-          fecha_tr1?: string | null
-          fecha_tr10?: string | null
-          fecha_tr2?: string | null
-          fecha_tr3?: string | null
-          fecha_tr4?: string | null
-          fecha_tr5?: string | null
-          fecha_tr6?: string | null
-          fecha_tr7?: string | null
-          fecha_tr8?: string | null
-          fecha_tr9?: string | null
-          horas_estancia?: number | null
-          hospital_descripcion?: string | null
-          id?: number
-          id_derivacion?: number | null
-          iema_ir_bruto?: number | null
-          impacto_estancias_evitables_brutas?: number | null
-          ir_alta_inlier_outlier?: string | null
-          ir_gravedad_desc?: string | null
-          ir_grd?: number | null
-          ir_grd_codigo?: number | null
-          ir_mortalidad_desc?: string | null
-          ir_punto_corte_inferior?: number | null
-          ir_punto_corte_superior?: number | null
-          ir_tipo_grd?: string | null
-          ley_cod?: number | null
-          ley_desc?: string | null
-          medico_alta?: string | null
-          medico_egreso_descripcion?: string | null
-          mes?: number | null
-          motivo_egreso_descripcion?: string | null
-          nombre?: string | null
-          peso_grd_medio_todos?: number | null
-          peso_medio_norma_ir?: number | null
-          prevision_2_cod?: number | null
-          prevision_2_desc?: string | null
-          prevision_cod?: string | null
-          prevision_desc?: string | null
-          proced_01_principal_cod?: number | null
-          rut?: string | null
-          servicio_cod_tr1?: string | null
-          servicio_cod_tr10?: string | null
-          servicio_cod_tr2?: string | null
-          servicio_cod_tr3?: string | null
-          servicio_cod_tr4?: string | null
-          servicio_cod_tr5?: string | null
-          servicio_cod_tr6?: string | null
-          servicio_cod_tr7?: string | null
-          servicio_cod_tr8?: string | null
-          servicio_cod_tr9?: string | null
-          servicio_egreso_codigo?: string | null
-          servicio_egreso_codigo_3?: string | null
-          servicio_egreso_descripcion_descripcion?: string | null
-          servicio_ingreso_codigo?: string | null
-          servicio_ingreso_codigo_2?: string | null
-          servicio_ingreso_descripcion?: string | null
-          servicio_salud_cod?: number | null
-          servicio_salud_des?: string | null
-          sexo?: string | null
-          tipo_actividad?: string | null
-          tipo_actividad_1?: string | null
-          tipo_ingreso_descripcion?: string | null
-        }
-        Update: {
-          año?: number | null
-          casos_norma_ir?: number | null
-          conjunto_dx?: string | null
-          conjunto_procedimientos_secundarios?: string | null
-          conjunto_servicios_traslado?: string | null
-          convenios_cod?: string | null
-          convenios_des?: string | null
-          created_at?: string
-          diagnostico_principal?: string | null
-          edad?: number | null
-          em_norma_ir?: number | null
-          em_post_quirurgica?: number | null
-          em_pre_quirurgica?: number | null
-          em_traslados_servicio?: number | null
-          emaf_ir_bruta?: number | null
-          episodio_cmbd?: number | null
-          especialidad_medica_intervencion_des?: string | null
-          especialidad_servicio_egreso_descripcion?: string | null
-          estancia_episodio?: number | null
-          estancia_media?: number | null
-          estancia_real_episodio?: number | null
-          estancias_norma_ir?: number | null
-          "estancias_postquirurgicas _int_episodio"?: number | null
-          "estancias_prequirurgicas _int_episodio"?: number | null
-          facturacion?: number | null
-          fecha_completa?: string | null
-          fecha_ingreso_completa?: string | null
-          fecha_tr1?: string | null
-          fecha_tr10?: string | null
-          fecha_tr2?: string | null
-          fecha_tr3?: string | null
-          fecha_tr4?: string | null
-          fecha_tr5?: string | null
-          fecha_tr6?: string | null
-          fecha_tr7?: string | null
-          fecha_tr8?: string | null
-          fecha_tr9?: string | null
-          horas_estancia?: number | null
-          hospital_descripcion?: string | null
-          id?: number
-          id_derivacion?: number | null
-          iema_ir_bruto?: number | null
-          impacto_estancias_evitables_brutas?: number | null
-          ir_alta_inlier_outlier?: string | null
-          ir_gravedad_desc?: string | null
-          ir_grd?: number | null
-          ir_grd_codigo?: number | null
-          ir_mortalidad_desc?: string | null
-          ir_punto_corte_inferior?: number | null
-          ir_punto_corte_superior?: number | null
-          ir_tipo_grd?: string | null
-          ley_cod?: number | null
-          ley_desc?: string | null
-          medico_alta?: string | null
-          medico_egreso_descripcion?: string | null
-          mes?: number | null
-          motivo_egreso_descripcion?: string | null
-          nombre?: string | null
-          peso_grd_medio_todos?: number | null
-          peso_medio_norma_ir?: number | null
-          prevision_2_cod?: number | null
-          prevision_2_desc?: string | null
-          prevision_cod?: string | null
-          prevision_desc?: string | null
-          proced_01_principal_cod?: number | null
-          rut?: string | null
-          servicio_cod_tr1?: string | null
-          servicio_cod_tr10?: string | null
-          servicio_cod_tr2?: string | null
-          servicio_cod_tr3?: string | null
-          servicio_cod_tr4?: string | null
-          servicio_cod_tr5?: string | null
-          servicio_cod_tr6?: string | null
-          servicio_cod_tr7?: string | null
-          servicio_cod_tr8?: string | null
-          servicio_cod_tr9?: string | null
-          servicio_egreso_codigo?: string | null
-          servicio_egreso_codigo_3?: string | null
-          servicio_egreso_descripcion_descripcion?: string | null
-          servicio_ingreso_codigo?: string | null
-          servicio_ingreso_codigo_2?: string | null
-          servicio_ingreso_descripcion?: string | null
-          servicio_salud_cod?: number | null
-          servicio_salud_des?: string | null
-          sexo?: string | null
-          tipo_actividad?: string | null
-          tipo_actividad_1?: string | null
-          tipo_ingreso_descripcion?: string | null
+          valor_reajuste_1?: number | null
+          valor_reajuste_2?: number | null
         }
         Relationships: []
       }
@@ -346,10 +82,12 @@ export type Database = {
           AT: boolean | null
           AT_detalle: string | null
           centro: string | null
+          convenio: string | null
           dias_demora_rescate_hospital: number | null
           dias_estadia: number | null
           documentacion: string | null
           episodio: number
+          estado: Database["public"]["Enums"]["workflow_estado"]
           estado_rn: string | null
           fecha_alta: string | null
           fecha_ingreso: string | null
@@ -357,7 +95,7 @@ export type Database = {
           id: number
           id_grd_oficial: number
           "inlier/outlier": string | null
-          "IR-GRD": number
+          "IR-GRD": string | null
           monto_AT: number | null
           monto_final: number | null
           monto_rn: number | null
@@ -371,17 +109,19 @@ export type Database = {
           servicios_alta: string | null
           tipo_alta: string | null
           tipo_episodio: string | null
-          validado: string | null
+          validado: boolean | null
           valor_GRD: number | null
         }
         Insert: {
           AT?: boolean | null
           AT_detalle?: string | null
           centro?: string | null
+          convenio?: string | null
           dias_demora_rescate_hospital?: number | null
           dias_estadia?: number | null
           documentacion?: string | null
           episodio: number
+          estado?: Database["public"]["Enums"]["workflow_estado"]
           estado_rn?: string | null
           fecha_alta?: string | null
           fecha_ingreso?: string | null
@@ -389,7 +129,7 @@ export type Database = {
           id?: number
           id_grd_oficial: number
           "inlier/outlier"?: string | null
-          "IR-GRD": number
+          "IR-GRD"?: string | null
           monto_AT?: number | null
           monto_final?: number | null
           monto_rn?: number | null
@@ -403,17 +143,19 @@ export type Database = {
           servicios_alta?: string | null
           tipo_alta?: string | null
           tipo_episodio?: string | null
-          validado?: string | null
+          validado?: boolean | null
           valor_GRD?: number | null
         }
         Update: {
           AT?: boolean | null
           AT_detalle?: string | null
           centro?: string | null
+          convenio?: string | null
           dias_demora_rescate_hospital?: number | null
           dias_estadia?: number | null
           documentacion?: string | null
           episodio?: number
+          estado?: Database["public"]["Enums"]["workflow_estado"]
           estado_rn?: string | null
           fecha_alta?: string | null
           fecha_ingreso?: string | null
@@ -421,7 +163,7 @@ export type Database = {
           id?: number
           id_grd_oficial?: number
           "inlier/outlier"?: string | null
-          "IR-GRD"?: number
+          "IR-GRD"?: string | null
           monto_AT?: number | null
           monto_final?: number | null
           monto_rn?: number | null
@@ -435,7 +177,7 @@ export type Database = {
           servicios_alta?: string | null
           tipo_alta?: string | null
           tipo_episodio?: string | null
-          validado?: string | null
+          validado?: boolean | null
           valor_GRD?: number | null
         }
         Relationships: [
@@ -467,6 +209,30 @@ export type Database = {
         Update: {
           created_at?: string
           id?: number
+        }
+        Relationships: []
+      }
+      montos_dias_espera: {
+        Row: {
+          codigo_convenio: string | null
+          fecha_admision: string | null
+          fecha_fin: string | null
+          id: number
+          precio: number | null
+        }
+        Insert: {
+          codigo_convenio?: string | null
+          fecha_admision?: string | null
+          fecha_fin?: string | null
+          id?: number
+          precio?: number | null
+        }
+        Update: {
+          codigo_convenio?: string | null
+          fecha_admision?: string | null
+          fecha_fin?: string | null
+          id?: number
+          precio?: number | null
         }
         Relationships: []
       }
@@ -539,6 +305,48 @@ export type Database = {
         }
         Relationships: []
       }
+      precios_convenios_grd: {
+        Row: {
+          aseguradora: number | null
+          convenio: string | null
+          descr_convenio: string | null
+          fecha_admision: string | null
+          fecha_fin: string | null
+          id: number
+          nombre_aseguradora: string | null
+          precio: number | null
+          tipo_aseguradora: string | null
+          tipo_convenio: string | null
+          tramo: string | null
+        }
+        Insert: {
+          aseguradora?: number | null
+          convenio?: string | null
+          descr_convenio?: string | null
+          fecha_admision?: string | null
+          fecha_fin?: string | null
+          id?: number
+          nombre_aseguradora?: string | null
+          precio?: number | null
+          tipo_aseguradora?: string | null
+          tipo_convenio?: string | null
+          tramo?: string | null
+        }
+        Update: {
+          aseguradora?: number | null
+          convenio?: string | null
+          descr_convenio?: string | null
+          fecha_admision?: string | null
+          fecha_fin?: string | null
+          id?: number
+          nombre_aseguradora?: string | null
+          precio?: number | null
+          tipo_aseguradora?: string | null
+          tipo_convenio?: string | null
+          tramo?: string | null
+        }
+        Relationships: []
+      }
       sigesa: {
         Row: {
           created_at: string
@@ -581,7 +389,7 @@ export type Database = {
           estancias_postquirurgicas_int: number | null
           "estancias_prequirurgicas_int _episodio": number | null
           facturacion_total_episodio: number | null
-          fecha_completa: string | null
+          fecha_completa_egreso: string | null
           fecha_ingreso_completa: string | null
           fecha_tr1: string | null
           fecha_tr10: string | null
@@ -594,8 +402,10 @@ export type Database = {
           fecha_tr8: string | null
           fecha_tr9: string | null
           horas_estancia: number | null
+          hospital_descripcion: string | null
           id: number
           id_archivo_sigesa: number
+          id_derivacion: string | null
           iema_ir_bruto: number | null
           impacto_estancias_evitables_brutas: number | null
           ir_alta_inlier_outlier: string | null
@@ -632,15 +442,16 @@ export type Database = {
           "servicio_cod_ tr8": string | null
           "servicio_cod_ tr9": string | null
           servicio_egreso_codigo: string | null
-          servicio_egreso_codigo_2: string | null
+          servicio_egreso_codigo_3: string | null
           servicio_egreso_descripcion: string | null
           servicio_ingreso_codigo: string | null
-          servicio_ingreso_codigo_1: string | null
+          servicio_ingreso_codigo_2: string | null
           servicio_ingreso_descripcion: string | null
           servicio_salud_cod: number | null
           servicio_salud_des: string | null
           sexo: string | null
           tipo_actividad: string | null
+          tipo_actividad_1: string | null
           tipo_ingreso: string | null
         }
         Insert: {
@@ -669,7 +480,7 @@ export type Database = {
           estancias_postquirurgicas_int?: number | null
           "estancias_prequirurgicas_int _episodio"?: number | null
           facturacion_total_episodio?: number | null
-          fecha_completa?: string | null
+          fecha_completa_egreso?: string | null
           fecha_ingreso_completa?: string | null
           fecha_tr1?: string | null
           fecha_tr10?: string | null
@@ -682,8 +493,10 @@ export type Database = {
           fecha_tr8?: string | null
           fecha_tr9?: string | null
           horas_estancia?: number | null
+          hospital_descripcion?: string | null
           id?: number
           id_archivo_sigesa: number
+          id_derivacion?: string | null
           iema_ir_bruto?: number | null
           impacto_estancias_evitables_brutas?: number | null
           ir_alta_inlier_outlier?: string | null
@@ -720,15 +533,16 @@ export type Database = {
           "servicio_cod_ tr8"?: string | null
           "servicio_cod_ tr9"?: string | null
           servicio_egreso_codigo?: string | null
-          servicio_egreso_codigo_2?: string | null
+          servicio_egreso_codigo_3?: string | null
           servicio_egreso_descripcion?: string | null
           servicio_ingreso_codigo?: string | null
-          servicio_ingreso_codigo_1?: string | null
+          servicio_ingreso_codigo_2?: string | null
           servicio_ingreso_descripcion?: string | null
           servicio_salud_cod?: number | null
           servicio_salud_des?: string | null
           sexo?: string | null
           tipo_actividad?: string | null
+          tipo_actividad_1?: string | null
           tipo_ingreso?: string | null
         }
         Update: {
@@ -757,7 +571,7 @@ export type Database = {
           estancias_postquirurgicas_int?: number | null
           "estancias_prequirurgicas_int _episodio"?: number | null
           facturacion_total_episodio?: number | null
-          fecha_completa?: string | null
+          fecha_completa_egreso?: string | null
           fecha_ingreso_completa?: string | null
           fecha_tr1?: string | null
           fecha_tr10?: string | null
@@ -770,8 +584,10 @@ export type Database = {
           fecha_tr8?: string | null
           fecha_tr9?: string | null
           horas_estancia?: number | null
+          hospital_descripcion?: string | null
           id?: number
           id_archivo_sigesa?: number
+          id_derivacion?: string | null
           iema_ir_bruto?: number | null
           impacto_estancias_evitables_brutas?: number | null
           ir_alta_inlier_outlier?: string | null
@@ -808,15 +624,16 @@ export type Database = {
           "servicio_cod_ tr8"?: string | null
           "servicio_cod_ tr9"?: string | null
           servicio_egreso_codigo?: string | null
-          servicio_egreso_codigo_2?: string | null
+          servicio_egreso_codigo_3?: string | null
           servicio_egreso_descripcion?: string | null
           servicio_ingreso_codigo?: string | null
-          servicio_ingreso_codigo_1?: string | null
+          servicio_ingreso_codigo_2?: string | null
           servicio_ingreso_descripcion?: string | null
           servicio_salud_cod?: number | null
           servicio_salud_des?: string | null
           sexo?: string | null
           tipo_actividad?: string | null
+          tipo_actividad_1?: string | null
           tipo_ingreso?: string | null
         }
         Relationships: [
@@ -827,24 +644,86 @@ export type Database = {
             referencedRelation: "sigesa"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "sigesa_fila_ir_grd_codigo_fkey"
-            columns: ["ir_grd_codigo"]
-            isOneToOne: false
-            referencedRelation: "norma_minsal"
-            referencedColumns: ["GRD"]
-          },
         ]
+      }
+      tramos_peso_grd: {
+        Row: {
+          id: number
+          limite_inferior: number | null
+          limite_superior: number | null
+          tramo: string | null
+        }
+        Insert: {
+          id?: number
+          limite_inferior?: number | null
+          limite_superior?: number | null
+          tramo?: string | null
+        }
+        Update: {
+          id?: number
+          limite_inferior?: number | null
+          limite_superior?: number | null
+          tramo?: string | null
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          auth_id: string | null
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean | null
+          last_login: string | null
+          must_change_password: boolean | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          auth_id?: string | null
+          created_at?: string | null
+          email: string
+          full_name: string
+          id?: string
+          is_active?: boolean | null
+          last_login?: string | null
+          must_change_password?: boolean | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          auth_id?: string | null
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_login?: string | null
+          must_change_password?: boolean | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_role: { Args: never; Returns: string }
+      get_user_role: { Args: never; Returns: string }
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "encoder" | "finance"
+      workflow_estado:
+        | "borrador_encoder"
+        | "pendiente_finance"
+        | "borrador_finance"
+        | "pendiente_admin"
+        | "aprobado"
+        | "exportado"
+        | "rechazado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -971,6 +850,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "encoder", "finance"],
+      workflow_estado: [
+        "borrador_encoder",
+        "pendiente_finance",
+        "borrador_finance",
+        "pendiente_admin",
+        "aprobado",
+        "exportado",
+        "rechazado",
+      ],
+    },
   },
 } as const
