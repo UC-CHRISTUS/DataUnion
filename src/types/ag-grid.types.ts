@@ -64,7 +64,7 @@ export interface AGColDef<TData = unknown> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cellEditor?: any;
   cellEditorPopup?: boolean;
-  cellEditorParams?: Record<string, unknown>;
+  cellEditorParams?: Record<string, unknown> | ((params: { data?: TData }) => Record<string, unknown>);
   singleClickEdit?: boolean;
   onCellClicked?: (params: { data?: TData; api: AGGridApi }) => void;
 }

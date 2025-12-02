@@ -99,7 +99,7 @@ export type Database = {
           monto_AT: number | null
           monto_final: number | null
           monto_rn: number | null
-          n_folio: number | null
+          n_folio: string | null
           nombre_paciente: string | null
           pago_demora_rescate: number | null
           pago_outlier_superior: number | null
@@ -133,7 +133,7 @@ export type Database = {
           monto_AT?: number | null
           monto_final?: number | null
           monto_rn?: number | null
-          n_folio?: number | null
+          n_folio?: string | null
           nombre_paciente?: string | null
           pago_demora_rescate?: number | null
           pago_outlier_superior?: number | null
@@ -167,7 +167,7 @@ export type Database = {
           monto_AT?: number | null
           monto_final?: number | null
           monto_rn?: number | null
-          n_folio?: number | null
+          n_folio?: string | null
           nombre_paciente?: string | null
           pago_demora_rescate?: number | null
           pago_outlier_superior?: number | null
@@ -370,7 +370,7 @@ export type Database = {
           conjunto_procedimientos_secundarios: string | null
           conjunto_servicios_traslado: string | null
           convenio_des: string | null
-          convenios_cod: number | null
+          convenios_cod: string | null
           created_at: string
           diagnostico_principal: string | null
           edad: number | null
@@ -416,7 +416,7 @@ export type Database = {
           ir_punto_corte_inferior: number | null
           ir_punto_corte_superior: number | null
           ir_tipo_grd: string | null
-          ley_cod: number | null
+          ley_cod: string | null
           ley_desc: string | null
           medico_alta_id: string | null
           medico_egreso: string | null
@@ -425,12 +425,12 @@ export type Database = {
           nombre: string | null
           peso_grd_medio_todos: number | null
           peso_medio_norma_ir: number | null
-          prevision_2_cod: number | null
+          prevision_2_cod: string | null
           prevision_2_desc: string | null
-          prevision_codigo: number | null
+          prevision_codigo: string | null
           prevision_desc: string | null
           proced_01_principal: number | null
-          rut: number | null
+          rut: string | null
           "servicio_cod_ tr1": string | null
           "servicio_cod_ tr10": string | null
           "servicio_cod_ tr2": string | null
@@ -447,12 +447,12 @@ export type Database = {
           servicio_ingreso_codigo: string | null
           servicio_ingreso_codigo_2: string | null
           servicio_ingreso_descripcion: string | null
-          servicio_salud_cod: number | null
+          servicio_salud_cod: string | null
           servicio_salud_des: string | null
           sexo: string | null
           tipo_actividad: string | null
           tipo_actividad_1: string | null
-          tipo_ingreso: string | null
+          tipo_ingreso_descripcion: string | null
         }
         Insert: {
           año?: number | null
@@ -461,7 +461,7 @@ export type Database = {
           conjunto_procedimientos_secundarios?: string | null
           conjunto_servicios_traslado?: string | null
           convenio_des?: string | null
-          convenios_cod?: number | null
+          convenios_cod?: string | null
           created_at?: string
           diagnostico_principal?: string | null
           edad?: number | null
@@ -507,7 +507,7 @@ export type Database = {
           ir_punto_corte_inferior?: number | null
           ir_punto_corte_superior?: number | null
           ir_tipo_grd?: string | null
-          ley_cod?: number | null
+          ley_cod?: string | null
           ley_desc?: string | null
           medico_alta_id?: string | null
           medico_egreso?: string | null
@@ -516,12 +516,12 @@ export type Database = {
           nombre?: string | null
           peso_grd_medio_todos?: number | null
           peso_medio_norma_ir?: number | null
-          prevision_2_cod?: number | null
+          prevision_2_cod?: string | null
           prevision_2_desc?: string | null
-          prevision_codigo?: number | null
+          prevision_codigo?: string | null
           prevision_desc?: string | null
           proced_01_principal?: number | null
-          rut?: number | null
+          rut?: string | null
           "servicio_cod_ tr1"?: string | null
           "servicio_cod_ tr10"?: string | null
           "servicio_cod_ tr2"?: string | null
@@ -538,12 +538,12 @@ export type Database = {
           servicio_ingreso_codigo?: string | null
           servicio_ingreso_codigo_2?: string | null
           servicio_ingreso_descripcion?: string | null
-          servicio_salud_cod?: number | null
+          servicio_salud_cod?: string | null
           servicio_salud_des?: string | null
           sexo?: string | null
           tipo_actividad?: string | null
           tipo_actividad_1?: string | null
-          tipo_ingreso?: string | null
+          tipo_ingreso_descripcion?: string | null
         }
         Update: {
           año?: number | null
@@ -552,7 +552,7 @@ export type Database = {
           conjunto_procedimientos_secundarios?: string | null
           conjunto_servicios_traslado?: string | null
           convenio_des?: string | null
-          convenios_cod?: number | null
+          convenios_cod?: string | null
           created_at?: string
           diagnostico_principal?: string | null
           edad?: number | null
@@ -598,7 +598,7 @@ export type Database = {
           ir_punto_corte_inferior?: number | null
           ir_punto_corte_superior?: number | null
           ir_tipo_grd?: string | null
-          ley_cod?: number | null
+          ley_cod?: string | null
           ley_desc?: string | null
           medico_alta_id?: string | null
           medico_egreso?: string | null
@@ -607,12 +607,12 @@ export type Database = {
           nombre?: string | null
           peso_grd_medio_todos?: number | null
           peso_medio_norma_ir?: number | null
-          prevision_2_cod?: number | null
+          prevision_2_cod?: string | null
           prevision_2_desc?: string | null
-          prevision_codigo?: number | null
+          prevision_codigo?: string | null
           prevision_desc?: string | null
           proced_01_principal?: number | null
-          rut?: number | null
+          rut?: string | null
           "servicio_cod_ tr1"?: string | null
           "servicio_cod_ tr10"?: string | null
           "servicio_cod_ tr2"?: string | null
@@ -629,12 +629,12 @@ export type Database = {
           servicio_ingreso_codigo?: string | null
           servicio_ingreso_codigo_2?: string | null
           servicio_ingreso_descripcion?: string | null
-          servicio_salud_cod?: number | null
+          servicio_salud_cod?: string | null
           servicio_salud_des?: string | null
           sexo?: string | null
           tipo_actividad?: string | null
           tipo_actividad_1?: string | null
-          tipo_ingreso?: string | null
+          tipo_ingreso_descripcion?: string | null
         }
         Relationships: [
           {
