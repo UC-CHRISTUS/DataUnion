@@ -900,11 +900,11 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         base.valueFormatter = (params: AGValueFormatterParams<GrdRowData>) => params.value as string;
       }
 
-      if (["AT", "validado", "documentacion"].includes(c.field)) {
+      if (["AT", "validado"].includes(c.field)) {
         base.cellEditor = "agSelectCellEditor";
         base.cellEditorParams = {
-          values: [true, false],  // Only Sí and No, no blank option
-          useFormatter: true      // Display formatted values (Sí/No) in dropdown
+          values: [true, false],  // Solo Sí y No
+          useFormatter: true
         };
         base.singleClickEdit = true;
 
@@ -976,6 +976,25 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
             return originalCellStyle || {};
           };
         }
+      }
+
+      if (c.field === "documentacion") {
+        base.cellEditor = "agSelectCellEditor";
+        base.cellEditorParams = {
+          values: [
+            "EPICRISIS",
+            "CERTIFICADO",
+            "DEFUNCION",
+            "PROTOCOLO",
+            "OPERATORIA",
+            "DOCUMENTACION AT"
+          ]
+        };
+        base.singleClickEdit = true;
+
+        // Mostrar tal cual el texto seleccionado
+        base.valueFormatter = (params: AGValueFormatterParams<GrdRowData>) =>
+          (params.value as string) || "";
       }
 
       return base;
