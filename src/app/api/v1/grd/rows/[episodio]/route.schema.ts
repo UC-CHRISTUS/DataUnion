@@ -18,7 +18,13 @@ export const updateGrdRowSchema = z.object({
     .nullable()
     .optional(),
   centro: z.string().nullable().optional(),
-  n_folio: z.string().nullable().optional(),
+  n_folio: z
+    .union([
+      z.string(),
+      z.number().transform(v => String(v))
+    ])
+    .nullable()
+    .optional(),
   rut_paciente: z.string().nullable().optional(),
   nombre_paciente: z.string().nullable().optional(),
   tipo_episodio: z.string().nullable().optional(),

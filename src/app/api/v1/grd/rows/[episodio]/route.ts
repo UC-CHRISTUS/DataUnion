@@ -32,7 +32,26 @@ export async function PUT(
     const validation = updateGrdRowSchema.safeParse(body)
 
     if (!validation.success) {
-      return errorResponse('Invalid request body', 400)
+      let errorMessage = 'Datos inválidos enviados'
+      
+      try {
+        // Zod usa 'issues' no 'errors'
+        if (validation.error?.issues && Array.isArray(validation.error.issues)) {
+          const errors = validation.error.issues
+            .map(err => {
+              const path = Array.isArray(err.path) ? err.path.join('.') : 'campo desconocido'
+              return `${path}: ${err.message}`
+            })
+            .join('; ')
+          errorMessage = `Los datos contienen errores: ${errors}`
+        }
+      } catch (e) {
+        // Si hay error parsing los errores, usar mensaje genérico
+        console.error('Error parsing validation errors:', e)
+        errorMessage = 'Los datos enviados no cumplen el formato requerido'
+      }
+      
+      return errorResponse(errorMessage, 400)
     }
 
     // Get current authenticated user

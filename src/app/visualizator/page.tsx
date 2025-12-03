@@ -23,6 +23,7 @@ export default function VisualizatorPage() {
   const [role, setRole] = useState<'admin' | 'encoder' | 'finance' | null>(null);
   const [grdId, setGrdId] = useState<string | null>(null);
   const [estado, setEstado] = useState<'borrador_encoder' | 'pendiente_finance' | 'borrador_finance' | 'pendiente_admin' | 'aprobado' | 'exportado' | 'rechazado' | null>(null);
+  const [filterOnlyAT, setFilterOnlyAT] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -179,11 +180,32 @@ export default function VisualizatorPage() {
           </div>
         </div>
       )}
+
+      {/* Filtro de AT - Solo para Admin */}
+      {role === 'admin' && (
+        <div className="mb-4 bg-white rounded-lg shadow p-4">
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={filterOnlyAT}
+              onChange={(e) => setFilterOnlyAT(e.target.checked)}
+              className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+            />
+            <span className="ml-2 text-sm font-medium text-gray-700">
+              🔍 Solo episodios con Ajustes Tecnológicos (AT)
+            </span>
+          </label>
+          <p className="text-xs text-gray-500 mt-2 ml-6">
+            Este filtro es solo visual. No afecta la exportación del archivo.
+          </p>
+        </div>
+      )}
       
       <ExcelEditor 
         role={role}
         grdId={grdId}
         estado={estado}
+        filterOnlyAT={filterOnlyAT}
       />
     </div>
   );
