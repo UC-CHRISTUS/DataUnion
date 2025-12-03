@@ -19,7 +19,8 @@ import type {
   AGCellClassParams,
   AGGetRowsParams,
   AGColDef,
-  AGGridRef
+  AGGridRef,
+  AGCellValueChangedParams
 } from "@/types/ag-grid.types";
 
 // Constants
@@ -1309,7 +1310,7 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
               paginationPageSize={10}
               datasource={datasource}
               singleClickEdit={true}
-              onCellValueChanged={(event) => {
+              onCellValueChanged={(event: AGCellValueChangedParams<GrdRowData>) => {
                 // Refresh only the changed cell to show the new value immediately
                 if (event.node && event.column) {
                   event.api.refreshCells({
