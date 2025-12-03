@@ -17,12 +17,25 @@ export interface AGCellRendererParams<TData = unknown> {
   api: AGGridApi;
 }
 
+export interface AGColumn {
+  getColId: () => string;
+}
+
 export interface AGValueSetterParams<TData = unknown> {
   data?: TData;
   newValue: unknown;
   oldValue?: unknown;
   node?: unknown;
-  column?: unknown;
+  column?: AGColumn;
+  api: AGGridApi;
+}
+
+export interface AGCellValueChangedParams<TData = unknown> {
+  data?: TData;
+  newValue: unknown;
+  oldValue?: unknown;
+  node?: unknown;
+  column?: AGColumn;
   api: AGGridApi;
 }
 

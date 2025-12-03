@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
@@ -19,7 +19,8 @@ import type {
   AGCellClassParams,
   AGGetRowsParams,
   AGColDef,
-  AGGridRef
+  AGGridRef,
+  AGCellValueChangedParams
 } from "@/types/ag-grid.types";
 
 // Constants
@@ -144,8 +145,7 @@ interface ValidationResult {
 }
 
 // Campos editables por Encoder
-const ENCODER_EDITABLE_FIELDS = ['AT', 'AT_detalle', 'centro', 'documentacion', 'dias_demora_rescate_hospital', 'pago_demora_rescate',
-  'pago_outlier_superior'];
+const ENCODER_EDITABLE_FIELDS = ['AT', 'AT_detalle', 'centro'];
 
 // Campos editables por Finance
 const FINANCE_EDITABLE_FIELDS = ['validado', 'n_folio', 'estado_rn', 'monto_rn'];
@@ -369,12 +369,14 @@ interface ExcelEditorProps {
   role?: UserRole;
   grdId?: string;
   estado?: WorkflowEstado;
+  filterOnlyAT?: boolean;
 }
 
-export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, estado = 'borrador_encoder' }: ExcelEditorProps) {
+export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, estado = 'borrador_encoder', filterOnlyAT = false }: ExcelEditorProps) {
   // Usar grdId de props o cargar el primero disponible (fallback temporal)
   const [grdId, setGrdId] = useState<string | null>(grdIdProp || null);
   const [rowData, setRowData] = useState<GrdRowData[]>([]);
+  const [displayRowData, setDisplayRowData] = useState<GrdRowData[]>([]);
 
   // Estados para workflow
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -429,12 +431,14 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
 
         try {
           const errorJson = JSON.parse(responseText);
+          // Mostrar solo el error del backend, que ya es amigable
           errorDetail = errorJson.message || errorJson.error || res.statusText;
         } catch {
-          errorDetail = responseText || `${res.status} ${res.statusText}`;
+          // Si no es JSON válido, mostrar mensaje genérico amigable
+          errorDetail = 'No se pudo procesar la solicitud. Por favor, intenta de nuevo.';
         }
 
-        throw new Error(`Error al guardar fila ${episodio}: ${errorDetail}`);
+        throw new Error(`Episodio ${episodio}: ${errorDetail}`);
       }
 
       await res.json();
@@ -459,17 +463,37 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         )
       );
 
-      const errors = results
-        .map((r, i) => r.status === 'rejected' ? Object.keys(modifiedRows)[i] : null)
+      const errorDetails = results
+        .map((r, i) => {
+          if (r.status === 'rejected') {
+            const errorMsg = r.reason instanceof Error ? r.reason.message : String(r.reason);
+            // Filtrar errores técnicos (de sistema), mostrar solo errores de negocio
+            if (errorMsg.includes('Cannot read') || errorMsg.includes('TypeError')) {
+              console.error('Technical error caught:', errorMsg);
+              return 'Hubo un problema al guardar. Por favor, intenta de nuevo.';
+            }
+            return errorMsg;
+          }
+          return null;
+        })
         .filter(Boolean);
 
-      if (errors.length > 0) {
-        setSaveError(`Error al guardar las filas: ${errors.join(', ')}`);
+      if (errorDetails.length > 0) {
+        // Deduplicar errores iguales
+        const uniqueErrors = [...new Set(errorDetails)];
+        setSaveError(`❌ ${uniqueErrors.join('\n\n')}`);
       } else {
         setModifiedRows({});
       }
-    } catch {
-      setSaveError('Error al guardar cambios');
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : String(e);
+      // Filtrar errores técnicos
+      if (errorMsg.includes('Cannot read') || errorMsg.includes('TypeError')) {
+        console.error('Technical error caught:', errorMsg);
+        setSaveError('❌ Hubo un problema al guardar. Por favor, intenta de nuevo.');
+      } else {
+        setSaveError(`❌ ${errorMsg}`);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -537,7 +561,24 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Error al entregar archivo');
+        
+        // Construir mensaje de error detallado
+        let errorMessage = errorData.error || 'Error al entregar archivo';
+        
+        if (errorData.details) {
+          const details = errorData.details;
+          if (details.message) {
+            errorMessage = details.message;
+          }
+          if (details.hint) {
+            errorMessage = `${errorMessage}\n\n${details.hint}`;
+          }
+          if (details.sampleEpisodios && Array.isArray(details.sampleEpisodios)) {
+            errorMessage = `${errorMessage}\n\nEpisodios afectados: ${details.sampleEpisodios.join(', ')}`;
+          }
+        }
+        
+        throw new Error(errorMessage);
       }
 
 
@@ -923,6 +964,70 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
           return "";
         };
 
+        // Cell renderer para asegurar que siempre muestre el texto formateado
+        base.cellRenderer = (params: AGCellRendererParams<GrdRowData>) => {
+          if (params.value === true) return "Sí";
+          if (params.value === false) return "No";
+          return "";
+        };
+
+        // ValueSetter específico para campos booleanos (sobrescribe el genérico)
+        base.valueSetter = (params: AGValueSetterParams<GrdRowData>) => {
+          if (!fieldEditable) return false;
+          
+          let newVal = params.newValue;
+          
+          // Convertir cualquier formato a booleano
+          if (newVal === 'true' || newVal === true || newVal === 1 || newVal === '1') {
+            newVal = true;
+          } else if (newVal === 'false' || newVal === false || newVal === 0 || newVal === '0') {
+            newVal = false;
+          } else if (newVal === null || newVal === '') {
+            newVal = null;
+          } else {
+            // Si es string, intentar parsear
+            const raw = String(newVal).toLowerCase();
+            if (["sí", "si", "s", "yes"].includes(raw)) {
+              newVal = true;
+            } else if (["no", "n"].includes(raw)) {
+              newVal = false;
+            } else {
+              return false;
+            }
+          }
+          
+          if (params.data) {
+            const oldValue = params.data[c.field as keyof GrdRowData];
+            (params.data as Record<string, unknown>)[c.field] = newVal;
+            
+            const changed = oldValue !== newVal;
+            if (params.data.episodio && changed) {
+              setModifiedRows(prev => ({
+                ...prev,
+                [params.data!.episodio!]: {
+                  ...(prev[params.data!.episodio!] || {}),
+                  ...params.data
+                }
+              }));
+            }
+            
+            // Trigger immediate refresh to show the formatted value
+            if (params.node && params.column) {
+              setTimeout(() => {
+                params.api.refreshCells({
+                  rowNodes: [params.node!],
+                  columns: [params.column!.getColId()],
+                  force: true
+                });
+              }, 0);
+            }
+            
+            return true;
+          }
+          
+          return false;
+        };
+
         // Para el campo AT, solo permitir edición si el convenio es FNS012 o CH0041
         if (c.field === "AT") {
           base.editable = (params: { data?: GrdRowData }) => {
@@ -1089,7 +1194,19 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
     fetchGRDData();
   }, [validateRow]);
 
-  const datasource = {
+  // Aplicar filtro visual de AT cuando filterOnlyAT cambia
+  useEffect(() => {
+    if (filterOnlyAT && rowData.length > 0) {
+      // Filtrar solo filas donde AT === true
+      const filtered = rowData.filter(row => row.AT === true);
+      setDisplayRowData(filtered);
+    } else {
+      // Mostrar todas las filas
+      setDisplayRowData(rowData);
+    }
+  }, [filterOnlyAT, rowData]);
+
+  const datasource = useMemo(() => ({
     getRows: async (params: AGGetRowsParams) => {
       const page = Math.floor(params.startRow / params.endRow) + 1;
       const limit = params.endRow - params.startRow;
@@ -1099,12 +1216,17 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
           `/api/v1/grd/${grdId}/rows?page=${page}&pageSize=${limit}`
         );
         const json = await res.json();
-        const mergedData = (json.data || []).map((row: GrdRowData) => {
+        let mergedData = (json.data || []).map((row: GrdRowData) => {
           const modified = modifiedRows[row.episodio!];
           return modified ? { ...row, ...modified } : row;
         });
 
-        params.successCallback(mergedData, json.total);
+        // Aplicar filtro visual de AT si está activo
+        if (filterOnlyAT) {
+          mergedData = mergedData.filter((row: GrdRowData) => row.AT === true);
+        }
+
+        params.successCallback(mergedData, filterOnlyAT ? mergedData.length : json.total);
       } catch {
         params.failCallback();
       } finally {
@@ -1115,7 +1237,7 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         }, 600);
       }
     },
-  };
+  }), [filterOnlyAT, grdId, modifiedRows]);
 
 
   const handleDownload = useCallback(async () => {
@@ -1186,9 +1308,12 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
           )}
 
           {saveError && (
-            <span className="text-red-600 flex items-center gap-1">
-              ❌ {saveError}
-            </span>
+            <div className="text-red-600 flex items-start gap-2 bg-red-50 border border-red-200 rounded p-3 text-sm">
+              <span className="flex-shrink-0 mt-0.5">❌</span>
+              <div className="flex-1 whitespace-pre-wrap break-words">
+                {saveError}
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -1204,9 +1329,14 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
               paginationPageSize={10}
               datasource={datasource}
               singleClickEdit={true}
-              onCellValueChanged={() => {
-                if (gridRef.current?.api) {
-                  gridRef.current.api.showLoadingOverlay();
+              onCellValueChanged={(event: AGCellValueChangedParams<GrdRowData>) => {
+                // Refresh only the changed cell to show the new value immediately
+                if (event.node && event.column) {
+                  event.api.refreshCells({
+                    rowNodes: [event.node],
+                    columns: [event.column.getColId()],
+                    force: true
+                  });
                 }
               }}
               localeText={{
@@ -1356,17 +1486,17 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
             )}
           </div>
           {saveError && (
-            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300">
+            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300 whitespace-pre-wrap break-words text-sm">
               ❌ {saveError}
             </div>
           )}
           {submitError && (
-            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300">
+            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300 whitespace-pre-wrap break-words text-sm">
               ❌ {submitError}
             </div>
           )}
           {approveError && (
-            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300">
+            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300 whitespace-pre-wrap break-words text-sm">
               ❌ {approveError}
             </div>
           )}

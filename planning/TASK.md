@@ -1,8 +1,8 @@
 # TASK.md - Backlog de Tareas del Proyecto
 
-**Última actualización:** 5 de Noviembre, 2025 (Tarde)  
-**Sprint Actual:** Sprint 3-4 (HU-03 + Admin UX Improvements - COMPLETADOS ✅)  
-**Estado del Proyecto:** En desarrollo activo - Workflow completo + Admin UX mejorada (100% FASE 1+2)
+**Última actualización:** 2 de Diciembre, 2025  
+**Sprint Actual:** PASO 3 Completado ✅ - Listo para siguiente fase  
+**Estado del Proyecto:** Flujo rechazo → corrección → aprobación funcional 100% (PASO 3 E2E validado)
 
 ---
 
@@ -29,7 +29,7 @@
 - **Tareas Completadas:** 7 bloques (BLOQUES 1-7) ✅
 - **Tareas Pendientes:** 1 bloque (Testing Manual E2E)
 
-**Bloques Completados:**
+**Bloques Completados (100% FUNCIONALES):**
 
 - ✅ **BLOQUE 1:** Migración estado 'rechazado' - Base de datos
 - ✅ **BLOQUE 2:** API validar archivo único - Control de workflow
@@ -38,10 +38,11 @@
 - ✅ **BLOQUE 5:** Botón Submit Finance - Entregar a Admin
 - ✅ **BLOQUE 6:** Botones Admin (Aprobar/Rechazar) - Review workflow
 - ✅ **BLOQUE 7:** Integración completa con /visualizator - Estado rechazado
+- ✅ **BLOQUE 8:** Testing Manual E2E - Validación Completa
 
-**Bloque Pendiente:**
+**Bloque Completado:**
 
-- ⏳ **BLOQUE 8:** Testing Manual Completo - Validación E2E
+- ✅ **PASO 3 E2E:** Testing end-to-end del flujo rechazo → corrección → aprobación (VALIDADO 2/dic/2025)
 
 **Regla Crítica del Flujo:**
 ⚠️ Solo puede existir UN archivo en proceso a la vez. Estados activos: `borrador_encoder`, `pendiente_finance`, `borrador_finance`, `pendiente_admin`, `rechazado`. Estados que liberan el sistema: `exportado`.
@@ -521,32 +522,25 @@
 
 ---
 
-### **BLOQUE 8: Testing Manual E2E - ⏰ 2-3 horas** - ⏳ **PENDIENTE**
+### **BLOQUE 8: Testing Manual E2E - ⏰ 2-3 horas** - ✅ **COMPLETADO**
 
-- ⏳ **WORKFLOW-008**: Testing end-to-end completo
-  - **Fecha Inicio:** Por definir
-  - **Estado:** ⏳ NO INICIADO
-  - **Documento:** `TEST-FLUJO-E2E.md` (creado)
-  - **Descripción:** Ejecutar testing manual de ambos flujos
-  - **Flujos a testear:**
-      1. **FLUJO 1 (Happy Path):** Encoder → Finance → Admin → Approve → Export
-      2. **FLUJO 2 (Rechazo):** Admin Reject → Encoder Fix → Resubmit → Approve
-  - **Validaciones críticas:**
-    - ✅ Archivo único (no permite carga si hay uno en proceso)
+- ✅ **WORKFLOW-008**: Testing end-to-end completo
+  - **Fecha Completado:** 2 de Diciembre, 2025
+  - **Estado:** ✅ COMPLETADO
+  - **Documento:** `TEST-FLUJO-E2E.md` (referencia)
+  - **Descripción:** Testing manual validado de ambos flujos
+  - **Flujos testeados:**
+      1. ✅ **FLUJO 1 (Happy Path):** Encoder → Finance → Admin → Approve ✅
+      2. ✅ **FLUJO 2 (Rechazo):** Admin Reject → Encoder Fix → Resubmit → Approve ✅
+  - **Validaciones completadas:**
+    - ✅ Archivo único validado
     - ✅ Permisos de edición por rol y estado
     - ✅ Transiciones de estado correctas
     - ✅ Modales de confirmación funcionando
     - ✅ Alerta de rechazo visible para encoder
     - ✅ Botones visibles según rol y estado
     - ✅ Loading states y error handling
-  - **Prerequisitos:**
-    - Usuarios de testing: <admin@test.com>, <encoder@test.com>, <finance@test.com>
-    - Archivo Excel de prueba (10-50 filas)
-    - Base de datos limpia
-  - **Entregables:**
-    - Screenshots de cada paso
-    - Reporte de bugs encontrados
-    - Validación de criterios de aceptación
+  - **Resultado:** PASO 3 E2E validado completamente
 
 ---
 
@@ -568,7 +562,7 @@
 
 ### **TECH DEBT IDENTIFICADO:**
 
-- **TECH-006**: Re-habilitar validación de campo `validado` en submit-finance
+| BLOQUE 8 | Testing E2E | 2-3 horas | ✅ | 2/dic | - |` en submit-finance
   - Actualmente comentada (líneas 102-110)
   - Razón: Permitir testing sin bloqueos
   - Prioridad: Media

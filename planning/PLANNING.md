@@ -1,8 +1,8 @@
 # PLANNING.md - Sistema de Gestión de Codificación y Facturación Hospitalaria UC Christus
 
-**Última actualización:** 5 de Noviembre, 2025 (Tarde)  
-**Versión:** 1.5  
-**Estado del proyecto:** Sprint 3-4 completado (HU-03: Workflow ✅ + Admin UX: FASE 1+2 ✅)
+**Última actualización:** 2 de Diciembre, 2025  
+**Versión:** 1.6  
+**Estado del proyecto:** PASO 3 E2E Testing Completado ✅ (Flujo rechazo → corrección → aprobación funcional)
 
 ---
 
@@ -72,7 +72,7 @@ Plataforma web que automatice:
 - ✅ Mensajes descriptivos con episodios afectados
 - ✅ Validación mejorada para revisar todas las filas
 
-**TECH-007: FASE 1 - Admin UX Fix**
+**TECH-007: FASE 1 - Admin UX Fix** ✅
 
 - ✅ Eliminada redirección después de aprobar/rechazar
 - ✅ Admin se queda en página con archivo aprobado
@@ -80,7 +80,7 @@ Plataforma web que automatice:
 - ✅ Botón "Aprobado" bloqueado como indicador visual
 - ✅ Mejora de UX: de 6 pasos a 2 pasos para descargar
 
-**TECH-008: FASE 2 - Lista de Archivos Aprobados**
+**TECH-008: FASE 2 - Lista de Archivos Aprobados** ✅
 
 - ✅ Nueva página `/dashboard/archivos` para Admin
 - ✅ API GET `/api/v1/admin/approved-files`
@@ -88,6 +88,11 @@ Plataforma web que automatice:
 - ✅ Solo archivos aprobados (filtrado simplificado)
 - ✅ Botón "Descargar" directo (sin botón "Ver")
 - ✅ Ítem "Archivos" agregado al Sidebar (solo admin)
+
+**Bugs Solucionados (Diciembre 2025)**
+
+- ✅ **Validado field:** Schema Zod actualizado para aceptar boolean O string con transform
+- ✅ **Encoder editing en rechazado:** Flujo de workflow corregido en `/api/v1/grd/rows/[episodio]/route.ts`
 
 **Bugs Corregidos:**
 
