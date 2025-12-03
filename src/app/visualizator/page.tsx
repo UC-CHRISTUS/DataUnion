@@ -154,11 +154,6 @@ export default function VisualizatorPage() {
               Archivo #{grdId} - Estado: <span className="font-medium">{estado}</span>
             </p>
           </div>
-          <div className="text-right">
-            <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-              Rol: {role.toUpperCase()}
-            </span>
-          </div>
         </div>
       </div>
 
