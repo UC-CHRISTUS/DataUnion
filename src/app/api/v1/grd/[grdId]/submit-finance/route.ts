@@ -111,18 +111,19 @@ export async function POST(
       const episodiosInvalidos = rowsWithoutValidado.map(row => row.episodio).slice(0, 5);
       const totalInvalidos = rowsWithoutValidado.length;
       
+      const episodiosText = totalInvalidos > 5 
+        ? `Primeros 5 episodios: ${episodiosInvalidos.join(', ')}. Y ${totalInvalidos - 5} más...`
+        : `Episodios: ${episodiosInvalidos.join(', ')}`;
+      
       return NextResponse.json(
         {
           success: false,
           error: 'Faltan campos obligatorios en algunas filas',
           details: {
-            message: `El campo "Validado" es obligatorio en todas las filas. Encontradas ${totalInvalidos} fila(s) sin completar.`,
+            message: `El campo "Validado" es obligatorio en todas las filas. Encontradas ${totalInvalidos} fila(s) sin completar.\n\n${episodiosText}`,
             missingField: 'validado',
             affectedRows: totalInvalidos,
             sampleEpisodios: episodiosInvalidos,
-            hint: totalInvalidos > 5 
-              ? `Primeros 5 episodios afectados: ${episodiosInvalidos.join(', ')}. Y ${totalInvalidos - 5} más...`
-              : `Episodios afectados: ${episodiosInvalidos.join(', ')}`
           }
         },
         { status: 400 }
