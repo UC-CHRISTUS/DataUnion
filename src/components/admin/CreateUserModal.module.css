@@ -1,0 +1,245 @@
+/* CreateUserModal.module.css */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  position: relative;
+  background-color: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 32rem;
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  flex: 1;
+}
+
+.closeButton {
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.15s ease;
+}
+
+.closeButton:hover {
+  color: #4b5563;
+}
+
+/* Body */
+.body {
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Success state */
+.successBox {
+  padding: 1rem;
+  background-color: #d1fae5;
+  border: 1px solid #6ee7b7;
+  border-radius: 0.5rem;
+}
+
+.successText {
+  font-size: 0.875rem;
+  color: #065f46;
+  font-weight: 500;
+}
+
+.passwordSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.passwordLabel {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.passwordInputGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.passwordInput {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  font-family: monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  user-select: all;
+}
+
+.copyButton {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background-color: #9333ea;
+  color: white;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.copyButton:hover {
+  background-color: #7e22ce;
+}
+
+.passwordWarning {
+  font-size: 0.75rem;
+  color: #4b5563;
+  margin-top: 0.5rem;
+}
+
+/* Error */
+.errorBox {
+  padding: 0.75rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Form fields */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  transition: all 0.15s ease;
+}
+
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: #9333ea;
+  box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.25);
+}
+
+.input:disabled,
+.select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.select {
+  background-color: white;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.cancelButton {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  background: white;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.submitButton {
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  background-color: #9333ea;
+  color: white;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #7e22ce;
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.doneButton {
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  background-color: #9333ea;
+  color: white;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.doneButton:hover {
+  background-color: #7e22ce;
+}

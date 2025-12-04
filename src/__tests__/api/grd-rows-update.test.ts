@@ -157,6 +157,46 @@ describe('PUT /api/v1/grd/rows/[episodio]', () => {
   });
 
   describe('Validation Cases', () => {
+    it('should allow encoder to update row in rechazado state', async () => {
+      // Arrange
+      const grdFilas = [
+        createMockGrdRow({ 
+          id: 1, 
+          episodio: 2001, 
+          estado: 'rechazado', 
+          centro: 'Hospital Central',
+          AT: false 
+        }),
+      ];
+
+      mockSupabaseInstance = createMockSupabaseClient({
+        grd_fila: grdFilas,
+      });
+
+      const episodio = '2001';
+      const updateData = {
+        AT: true,
+        AT_detalle: 'AT001 - Marcapasos',
+      };
+
+      const request = createMockNextRequest({
+        method: 'PUT',
+        url: `http://localhost:3000/api/v1/grd/rows/${episodio}`,
+        body: updateData,
+      });
+      const params = createMockParams({ episodio });
+
+      // Act
+      const response = await PUT(request, { params });
+      const data = await getResponseJson(response);
+
+      // Assert
+      expect(response.status).toBe(200);
+      expect(data.AT).toBe(true);
+      expect(data.AT_detalle).toBe('AT001 - Marcapasos');
+      expect(data.estado).toBe('borrador_encoder'); // Estado should change to borrador_encoder
+    });
+
     it('should reject invalid episodio parameter (non-numeric)', async () => {
       // Arrange
       const episodio = 'abc';

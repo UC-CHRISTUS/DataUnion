@@ -2,6 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import { getRoleOptions, type UserRole } from '@/lib/constants/roles';
+import styles from './CreateUserModal.module.css';
 
 interface CreateUserModalProps {
   isOpen: boolean;
@@ -71,75 +72,75 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: CreateUs
   if (!isOpen) return null;
 
 return (
-  <div className="fixed inset-0 z-50 px-6 py-7 flex items-center justify-center p-6">
+  <div className={styles.overlay}>
     {/* Backdrop */}
-    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
+    <div className={styles.backdrop} onClick={handleClose} />
 
     {/* Modal */}
-    <div className="relative bg-white rounded-3xl shadow-xl max-w-lg w-full border border-gray-200 overflow-hidden">
+    <div className={styles.modal}>
 
       {/* HEADER */}
-      <div className="flex items-center gap-4 px-6 py-5 border-b">
-        <h2 className="text-lg font-semibold text-gray-800 flex-1">
+      <div className={styles.header}>
+        <h2 className={styles.title}>
           {showSuccess ? '✅ Usuario Creado' : '➕ Crear Usuario'}
         </h2>
 
         <button
           onClick={handleClose}
-          className="text-gray-400 hover:text-gray-600 transition"
+          className={styles.closeButton}
         >
           ✕
         </button>
       </div>
 
       {/* BODY */}
-      <div className="px-6 py-7 space-y-6">
+      <div className={styles.body}>
         
         {/* SUCCESS STATE - Mostrar contraseña temporal */}
         {showSuccess ? (
-          <div className="space-y-6">
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-800 font-medium">
+          <>
+            <div className={styles.successBox}>
+              <p className={styles.successText}>
                 El usuario ha sido creado exitosamente con contraseña temporal.
               </p>
             </div>
 
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-gray-700">
+            <div className={styles.passwordSection}>
+              <label className={styles.passwordLabel}>
                 Contraseña Temporal
               </label>
-              <div className="flex gap-2">
+              <div className={styles.passwordInputGroup}>
                 <input
                   type="text"
                   value={temporaryPassword}
                   readOnly
-                  className="flex-1 px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 font-mono text-sm font-semibold text-gray-800 select-all"
+                  className={styles.passwordInput}
                 />
                 <button
                   onClick={handleCopyPassword}
-                  className="px-4 py-3 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition font-medium text-sm"
+                  className={styles.copyButton}
                 >
                   📋 Copiar
                 </button>
               </div>
-              <p className="text-xs text-gray-600 mt-2">
+              <p className={styles.passwordWarning}>
                 ⚠️ Comparta esta contraseña con el usuario. Deberá cambiarla al primer inicio de sesión.
               </p>
             </div>
-          </div>
+          </>
         ) : (
           // FORM STATE - Mostrar formulario de creación
           <>
             {/* Error */}
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+              <div className={styles.errorBox}>
                 {error}
               </div>
             )}
 
             {/* Nombre */}
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>
                 Nombre Completo
               </label>
               <input
@@ -149,13 +150,13 @@ return (
                 placeholder="Juan Pérez"
                 required
                 disabled={isLoading}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/40 transition"
+                className={styles.input}
               />
             </div>
 
             {/* Email */}
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>
                 Correo Electrónico
               </label>
               <input
@@ -165,13 +166,13 @@ return (
                 placeholder="usuario@uc.cl"
                 required
                 disabled={isLoading}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/40 transition"
+                className={styles.input}
               />
             </div>
 
             {/* Rol */}
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>
                 Rol
               </label>
               <select
@@ -179,7 +180,7 @@ return (
                 onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
                 required
                 disabled={isLoading}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-500/40 transition"
+                className={styles.select}
               >
                 {getRoleOptions().map((option) => (
                   <option key={option.value} value={option.value}>
@@ -193,11 +194,11 @@ return (
       </div>
 
       {/* FOOTER */}
-      <div className="flex justify-end gap-3 px-6 py-5 border-t bg-gray-50">
+      <div className={styles.footer}>
         {showSuccess ? (
           <button
             onClick={handleClose}
-            className="px-5 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition font-medium"
+            className={styles.doneButton}
           >
             Listo
           </button>
@@ -206,7 +207,7 @@ return (
             <button
               onClick={handleClose}
               disabled={isLoading}
-              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition disabled:opacity-50"
+              className={styles.cancelButton}
             >
               Cancelar
             </button>
@@ -214,7 +215,7 @@ return (
             <button
               onClick={() => handleSubmit()}
               disabled={isLoading}
-              className="px-5 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition disabled:opacity-50"
+              className={styles.submitButton}
             >
               {isLoading ? "Creando..." : "Crear"}
             </button>

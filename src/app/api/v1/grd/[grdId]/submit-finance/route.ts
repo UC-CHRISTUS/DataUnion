@@ -7,16 +7,15 @@
  * Validaciones:
  * - Usuario debe tener rol 'finance'
  * - El archivo debe estar en estado 'borrador_finance' o 'pendiente_finance'
- * - Todos los campos obligatorios de Finance deben estar completos:
- *   • Campo 'validado' es OBLIGATORIO en TODAS las filas (re-habilitado 5/nov/2025 - TECH-006)
  * 
  * Después del submit:
  * - Todos los campos quedan bloqueados (read-only)
  * - Admin recibe notificación (banner en dashboard)
+ * - Las filas pueden tener "Validado" en Sí o No (es opcional)
  * 
  * @author Joaquín Peralta
- * @version 2.0 (TECH-006 completado)
- * @date 5 de Noviembre, 2025
+ * @version 2.1 (Campo Validado es opcional)
+ * @date 4 de Diciembre, 2025
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -101,34 +100,10 @@ export async function POST(
       );
     }
 
-    // ✅ VALIDACIÓN DE CAMPOS OBLIGATORIOS (TECH-006 - Re-habilitada 5/nov/2025)
-    // Validar que TODAS las filas tengan el campo 'validado' marcado como true
-    const rowsWithoutValidado = grdFiles.filter(row =>
-      row.validado !== true
-    );
-
-    if (rowsWithoutValidado.length > 0) {
-      const episodiosInvalidos = rowsWithoutValidado.map(row => row.episodio).slice(0, 5);
-      const totalInvalidos = rowsWithoutValidado.length;
-      
-      const episodiosText = totalInvalidos > 5 
-        ? `Primeros 5 episodios: ${episodiosInvalidos.join(', ')}. Y ${totalInvalidos - 5} más...`
-        : `Episodios: ${episodiosInvalidos.join(', ')}`;
-      
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Faltan campos obligatorios en algunas filas',
-          details: {
-            message: `El campo "Validado" es obligatorio en todas las filas. Encontradas ${totalInvalidos} fila(s) sin completar.\n\n${episodiosText}`,
-            missingField: 'validado',
-            affectedRows: totalInvalidos,
-            sampleEpisodios: episodiosInvalidos,
-          }
-        },
-        { status: 400 }
-      );
-    }
+    // ✅ VALIDACIÓN DE CAMPOS OBLIGATORIOS
+    // Nota: La columna "Validado" es OPCIONAL. Finance puede marcar filas como Sí o No.
+    // El Admin recibirá el archivo con las filas marcadas como están.
+    // No se requiere que todas las filas tengan validado=true para entregar.
 
     // Cambiar estado a pendiente_admin para TODAS las filas del archivo
     const { data: updatedFiles, error: updateError } = await supabase
