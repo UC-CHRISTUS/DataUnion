@@ -55,7 +55,7 @@ export default function Home() {
           if (grdData && grdData.length > 0) {
             setWorkflowAlert({
               type: 'error',
-              message: `⚠️ Tu archivo fue rechazado. Razón: ${grdData[0].documentacion || 'Contacta al administrador'}`,
+              message: `⚠️ Tu archivo fue rechazado, contacta al administrador`,
               grdId: grdData[0].id_grd_oficial,
             });
           }
