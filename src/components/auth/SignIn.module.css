@@ -1,0 +1,272 @@
+/* SignIn.module.css */
+
+.container {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  background-color: white;
+}
+
+@media (min-width: 768px) {
+  .container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.leftPanel {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 2.5rem;
+  color: white;
+  position: relative;
+  background-color: #a770b2;
+}
+
+@media (min-width: 768px) {
+  .leftPanel {
+    display: flex;
+  }
+}
+
+.bannerImage {
+  position: absolute;
+  inset: 0;
+  background-image: url('/banner.png');
+  background-size: cover;
+  background-position: 22% center;
+  opacity: 0.8;
+}
+
+.carouselDots {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.dotInactive {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.rightPanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  background-color: white;
+}
+
+@media (min-width: 768px) {
+  .rightPanel {
+    padding: 3rem 2.5rem;
+  }
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 24rem;
+}
+
+.header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.title {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.errorMessage {
+  margin-bottom: 1.25rem;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #dc2626;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  transition: all 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.passwordContainer {
+  position: relative;
+  margin-top: 0.75rem;
+}
+
+.passwordInput {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  padding-right: 2.5rem;
+  transition: all 0.15s ease;
+}
+
+.passwordInput:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3b82f6;
+  border-color: #3b82f6;
+}
+
+.passwordInput:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggleButton {
+  position: absolute;
+  inset-y: 0;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.toggleButton:hover {
+  color: #4b5563;
+}
+
+.toggleButton:disabled {
+  cursor: not-allowed;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.forgotPasswordContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.forgotPasswordButton {
+  font-size: 0.875rem;
+  color: white;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.forgotPasswordButton:hover {
+  color: white;
+  opacity: 0.9;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.625rem 0;
+  background-color: #9333ea;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #7e22ce;
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Loading state */
+.loadingContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom right, #eff6ff, white, #ecfeff);
+}
+
+.loadingContent {
+  text-align: center;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  border-radius: 9999px;
+  width: 3rem;
+  height: 3rem;
+  border: 2px solid transparent;
+  border-bottom-color: #2563eb;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  color: #4b5563;
+}
