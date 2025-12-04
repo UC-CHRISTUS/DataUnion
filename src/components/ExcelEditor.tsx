@@ -573,9 +573,6 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
           if (details.hint) {
             errorMessage = `${errorMessage}\n\n${details.hint}`;
           }
-          if (details.sampleEpisodios && Array.isArray(details.sampleEpisodios)) {
-            errorMessage = `${errorMessage}\n\nEpisodios afectados: ${details.sampleEpisodios.join(', ')}`;
-          }
         }
         
         throw new Error(errorMessage);

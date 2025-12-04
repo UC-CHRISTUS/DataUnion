@@ -1,0 +1,770 @@
+
+> frontend@0.1.0 test:security:all
+> jest src/__tests__/security --detectOpenHandles
+
+FAIL src/__tests__/security/api.security.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (1) from .env.local -- tip: ⚙️  override existing env vars with { override: true }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:98:13)
+
+    console.log
+      📊 API Direct Access - Test Summary
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:99:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:100:13)
+
+    console.log
+      Total: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:101:13)
+
+    console.log
+      ✅ Passed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:102:13)
+
+    console.log
+      ❌ Failed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:103:13)
+
+    console.log
+      Success Rate: NaN%
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:104:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:105:13)
+
+  ● 🔴 CRITICAL - API Security Tests › API-001: Endpoints reject unauthenticated requests
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/api.security.test.ts:14:20)
+
+  ● 🔴 CRITICAL - API Security Tests › API-002: POST endpoints require authentication
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/api.security.test.ts:14:20)
+
+  ● 🔴 CRITICAL - API Security Tests › API-003: Sensitive data requires authentication
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/api.security.test.ts:14:20)
+
+  ● 🔴 CRITICAL - API Security Tests › API-004: Role-based API access control
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/api.security.test.ts:14:20)
+
+  ● 🔴 CRITICAL - API Security Tests › API-005: SQL Injection in query parameters
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/api.security.test.ts:14:20)
+
+FAIL src/__tests__/security/authz-encoder.security.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (1) from .env.local -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:98:13)
+
+    console.log
+      📊 Authorization - Encoder - Test Summary
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:99:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:100:13)
+
+    console.log
+      Total: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:101:13)
+
+    console.log
+      ✅ Passed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:102:13)
+
+    console.log
+      ❌ Failed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:103:13)
+
+    console.log
+      Success Rate: NaN%
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:104:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:105:13)
+
+  ● 🔴 CRITICAL - Authorization Security Tests (Encoder) › AUTHZ-001: Encoder cannot access user management
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/authz-encoder.security.test.ts:15:20)
+
+  ● 🔴 CRITICAL - Authorization Security Tests (Encoder) › AUTHZ-002: Encoder cannot approve files
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/authz-encoder.security.test.ts:15:20)
+
+  ● 🔴 CRITICAL - Authorization Security Tests (Encoder) › AUTHZ-003: Encoder cannot edit Finance fields
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/authz-encoder.security.test.ts:15:20)
+
+  ● 🔴 CRITICAL - Authorization Security Tests (Encoder) › AUTHZ-004: Encoder cannot edit after Submit
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/authz-encoder.security.test.ts:15:20)
+
+FAIL src/__tests__/security/workflow.security.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (1) from .env.local -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:98:13)
+
+    console.log
+      📊 Workflow & State - Test Summary
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:99:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:100:13)
+
+    console.log
+      Total: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:101:13)
+
+    console.log
+      ✅ Passed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:102:13)
+
+    console.log
+      ❌ Failed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:103:13)
+
+    console.log
+      Success Rate: NaN%
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:104:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:105:13)
+
+  ● 🔴 CRITICAL - Workflow Security Tests › WF-001: Cannot manually change workflow state
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/workflow.security.test.ts:15:20)
+
+  ● 🔴 CRITICAL - Workflow Security Tests › WF-005: Only one file allowed in workflow
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/workflow.security.test.ts:15:20)
+
+  ● 🔴 CRITICAL - Workflow Security Tests › WF-008: Cannot edit exported files
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/workflow.security.test.ts:15:20)
+
+FAIL src/__tests__/security/upload.security.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (1) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:98:13)
+
+    console.log
+      📊 File Upload - Test Summary
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:99:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:100:13)
+
+    console.log
+      Total: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:101:13)
+
+    console.log
+      ✅ Passed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:102:13)
+
+    console.log
+      ❌ Failed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:103:13)
+
+    console.log
+      Success Rate: NaN%
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:104:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:105:13)
+
+  ● 🔴 CRITICAL - File Upload Security Tests › UPLOAD-001: Reject executable files
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/upload.security.test.ts:14:20)
+
+  ● 🔴 CRITICAL - File Upload Security Tests › UPLOAD-008: Path traversal protection
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/upload.security.test.ts:14:20)
+
+  ● 🔴 CRITICAL - File Upload Security Tests › UPLOAD-009: Race condition protection
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/upload.security.test.ts:14:20)
+
+FAIL src/__tests__/security/authz-finance-admin.security.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (1) from .env.local -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:98:13)
+
+    console.log
+      📊 Authorization - Finance & Admin - Test Summary
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:99:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:100:13)
+
+    console.log
+      Total: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:101:13)
+
+    console.log
+      ✅ Passed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:102:13)
+
+    console.log
+      ❌ Failed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:103:13)
+
+    console.log
+      Success Rate: NaN%
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:104:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:105:13)
+
+  ● 🔴 CRITICAL - Authorization Security Tests (Finance & Admin) › AUTHZ-005: Finance cannot edit Encoder fields
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/authz-finance-admin.security.test.ts:15:20)
+
+  ● 🔴 CRITICAL - Authorization Security Tests (Finance & Admin) › AUTHZ-006: Finance cannot approve files
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/authz-finance-admin.security.test.ts:15:20)
+
+  ● 🔴 CRITICAL - Authorization Security Tests (Finance & Admin) › AUTHZ-007: Admin cannot edit data (read-only)
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/authz-finance-admin.security.test.ts:15:20)
+
+FAIL src/__tests__/security/export.security.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (1) from .env.local -- tip: ⚙️  suppress all logs with { quiet: true }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:98:13)
+
+    console.log
+      📊 Export - Test Summary
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:99:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:100:13)
+
+    console.log
+      Total: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:101:13)
+
+    console.log
+      ✅ Passed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:102:13)
+
+    console.log
+      ❌ Failed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:103:13)
+
+    console.log
+      Success Rate: NaN%
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:104:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:105:13)
+
+  ● 🔴 CRITICAL - Export Security Tests › EXPORT-001: Cannot export unapproved files
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/export.security.test.ts:15:20)
+
+  ● 🔴 CRITICAL - Export Security Tests › EXPORT-002: Only Admin can export
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/export.security.test.ts:15:20)
+
+  ● 🔴 CRITICAL - Export Security Tests › EXPORT-005: Data integrity in exported file
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/export.security.test.ts:15:20)
+
+FAIL src/__tests__/security/validation.security.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (1) from .env.local -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:98:13)
+
+    console.log
+      📊 Input Validation - Test Summary
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:99:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:100:13)
+
+    console.log
+      Total: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:101:13)
+
+    console.log
+      ✅ Passed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:102:13)
+
+    console.log
+      ❌ Failed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:103:13)
+
+    console.log
+      Success Rate: NaN%
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:104:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:105:13)
+
+  ● 🔴 CRITICAL - Input Validation Security Tests › VAL-002: XSS Protection in text fields
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/validation.security.test.ts:14:20)
+
+  ● 🔴 CRITICAL - Input Validation Security Tests › VAL-003: SQL Injection Protection
+
+    SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+        at JSON.parse (<anonymous>)
+
+      155 |   }
+      156 |
+    > 157 |   const data = await response.json();
+          |                ^
+      158 |   return data.token || data.access_token;
+      159 | }
+      160 |
+
+      at loginAndGetToken (src/__tests__/security/setup.ts:157:16)
+      at Object.<anonymous> (src/__tests__/security/validation.security.test.ts:14:20)
+
+PASS src/__tests__/security/auth.security.test.ts
+  ● Console
+
+    console.log
+      [dotenv@17.2.3] injecting env (1) from .env.local -- tip: ⚙️  write to custom object with { processEnv: myObject }
+
+      at _log (node_modules/dotenv/lib/main.js:142:11)
+
+    console.log
+      
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:98:13)
+
+    console.log
+      📊 Authentication - Test Summary
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:99:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:100:13)
+
+    console.log
+      Total: 4
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:101:13)
+
+    console.log
+      ✅ Passed: 0
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:102:13)
+
+    console.log
+      ❌ Failed: 4
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:103:13)
+
+    console.log
+      Success Rate: 0.00%
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:104:13)
+
+    console.log
+      ============================================================
+
+      at SecurityTestRunner.log [as printSummary] (src/__tests__/security/setup.ts:105:13)
+
+
+Test Suites: 7 failed, 1 passed, 8 total
+Tests:       23 failed, 4 passed, 27 total
+Snapshots:   0 total
+Time:        2.406 s
+Ran all test suites matching src/__tests__/security.

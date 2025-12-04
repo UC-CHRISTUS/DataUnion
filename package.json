@@ -9,7 +9,13 @@
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:security": "node scripts/run-security-tests.js",
+    "test:security:auth": "jest src/__tests__/security/auth.security.test.ts",
+    "test:security:authz": "jest src/__tests__/security/authz-encoder.security.test.ts src/__tests__/security/authz-finance-admin.security.test.ts",
+    "test:security:api": "jest src/__tests__/security/api.security.test.ts",
+    "test:security:upload": "jest src/__tests__/security/upload.security.test.ts",
+    "test:security:all": "jest src/__tests__/security --detectOpenHandles"
   },
   "dependencies": {
     "@handsontable/react": "^16.1.1",
@@ -32,6 +38,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.57.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -43,6 +50,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/xlsx": "^0.0.35",
+    "axios": "^1.13.2",
+    "chalk": "^5.6.2",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "jest": "^30.2.0",
