@@ -620,10 +620,10 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         throw new Error(errorData.error || 'Error al aprobar archivo');
       }
 
-      alert('✅ Archivo aprobado exitosamente. Ahora puedes descargarlo.');
+      alert('✅ Archivo aprobado exitosamente.');
 
-      // ✅ FASE 1: No redirigir, solo recargar la página para actualizar estado
-      window.location.reload();
+      // Redirigir al dashboard de archivos
+      router.push('/dashboard/archivos');
     } catch (e) {
       const error = e as Error;
       setApproveError(error.message || 'Error al aprobar archivo');
