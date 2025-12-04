@@ -998,13 +998,27 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
             const oldValue = params.data[c.field as keyof GrdRowData];
             (params.data as Record<string, unknown>)[c.field] = newVal;
             
+            // Si el campo es "AT" y se marca como false, limpiar AT_detalle y monto_AT
+            if (c.field === "AT" && newVal === false) {
+              params.data.AT_detalle = null;
+              params.data.monto_AT = 0;
+            }
+            
             const changed = oldValue !== newVal;
             if (params.data.episodio && changed) {
+              const updatedData = { ...params.data };
+              
+              // Incluir los campos limpiados si AT cambió a false
+              if (c.field === "AT" && newVal === false) {
+                updatedData.AT_detalle = null;
+                updatedData.monto_AT = 0;
+              }
+              
               setModifiedRows(prev => ({
                 ...prev,
                 [params.data!.episodio!]: {
                   ...(prev[params.data!.episodio!] || {}),
-                  ...params.data
+                  ...updatedData
                 }
               }));
             }
@@ -1012,9 +1026,16 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
             // Trigger immediate refresh to show the formatted value
             if (params.node && params.column) {
               setTimeout(() => {
+                const columnsToRefresh = [params.column!.getColId()];
+                
+                // Si es el campo AT y cambió a false, también refrescar AT_detalle y monto_AT
+                if (c.field === "AT" && newVal === false) {
+                  columnsToRefresh.push("AT_detalle", "monto_AT");
+                }
+                
                 params.api.refreshCells({
                   rowNodes: [params.node!],
-                  columns: [params.column!.getColId()],
+                  columns: columnsToRefresh,
                   force: true
                 });
               }, 0);
