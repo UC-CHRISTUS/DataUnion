@@ -80,19 +80,12 @@ export default function FileUpload() {
       const json = await res.json();
 
       if (!res.ok) {
-        let errMsg = json?.error || json?.message || 'Error al subir el archivo';
-
-        if (errMsg === 'No valid rows found in Excel file') {
-        errMsg = 'Debe subir un archivo con el formato descargado desde SIGESA';
-        }
-
+        // The error message should already be user-friendly from the API
+        const errMsg = json?.error || json?.message || 'Error al subir el archivo';
         setError(String(errMsg));
       } else {
-
-        setMessage('Archivo subido correctamente.');
-
+        setMessage('✅ Archivo subido correctamente. Los datos están listos para ser procesados.');
         setSelectedFile(null);
-
         await refetch();
       }
     } catch (e: any) {
