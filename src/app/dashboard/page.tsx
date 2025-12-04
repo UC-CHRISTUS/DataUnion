@@ -173,9 +173,9 @@ export default function Home() {
         <h2 className={styles.sectionTitle}>Flujo General</h2>
 
         <ol className={styles.stepsList}>
-          <li><strong>1)</strong> Codificador carga el archivo y completa GRD.</li>
-          <li><strong>2)</strong> Finanzas valida y confirma.</li>
-          <li><strong>3)</strong> Administrador aprueba y libera el archivo final.</li>
+          <li><strong></strong> Codificador carga el archivo y completa GRD.</li>
+          <li><strong></strong> Finanzas valida y confirma.</li>
+          <li><strong></strong> Administrador aprueba y libera el archivo final.</li>
         </ol>
       </section>
 

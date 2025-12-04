@@ -132,6 +132,17 @@ interface ATMultiSelectEditorProps {
   onValueChange: (value: ATMultiSelectValue) => void;  // AG-Grid v34+ API
 }
 
+interface DocumentacionMultiSelectValue {
+  labels: string;
+}
+
+interface DocumentacionMultiSelectEditorProps {
+  options: string[];
+  value: string | null;
+  stopEditing: (cancel?: boolean) => void;
+  onValueChange: (value: DocumentacionMultiSelectValue) => void;  // AG-Grid v34+ API
+}
+
 interface ColumnDefinition {
   headerName: string;
   field: string;
@@ -146,7 +157,7 @@ interface ValidationResult {
 }
 
 // Campos editables por Encoder
-const ENCODER_EDITABLE_FIELDS = ['AT', 'AT_detalle', 'centro'];
+const ENCODER_EDITABLE_FIELDS = ['AT', 'AT_detalle', 'centro', 'documentacion'];
 
 // Campos editables por Finance
 const FINANCE_EDITABLE_FIELDS = ['validado', 'n_folio', 'estado_rn', 'monto_rn'];
@@ -365,6 +376,98 @@ const AtMultiSelectEditor = React.forwardRef<
 });
 
 AtMultiSelectEditor.displayName = "AtMultiSelectEditor";
+
+// Separator for documentación labels
+const DOCUMENTACION_SEPARATOR = " | ";
+
+const DocumentacionMultiSelectEditor = React.forwardRef<
+  { getValue: () => DocumentacionMultiSelectValue; isPopup: () => boolean },
+  DocumentacionMultiSelectEditorProps
+>((props, ref) => {
+  const { options = [], value, onValueChange } = props;
+
+  // Parse initial value - split by separator and match against valid options
+  const initial = React.useMemo(() => {
+    if (!value) return [];
+    const parts = String(value).split(DOCUMENTACION_SEPARATOR).map(s => s.trim()).filter(Boolean);
+    return parts.filter(p => options.includes(p));
+  }, [value, options]);
+
+  const [selected, setSelected] = React.useState<string[]>(initial);
+
+  // Reset selected when initial changes (e.g., when reopening editor with new value)
+  React.useEffect(() => {
+    setSelected(initial);
+  }, [initial]);
+
+  const toggle = (label: string) => {
+    setSelected(prev =>
+      prev.includes(label) ? prev.filter(x => x !== label) : [...prev, label]
+    );
+  };
+
+  React.useImperativeHandle(ref, () => ({
+    getValue: () => ({ labels: selected.join(DOCUMENTACION_SEPARATOR) }),
+    isPopup: () => true,
+  }), [selected]);
+
+  const applyAndClose = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+
+    // AG-Grid v34+: Use onValueChange to pass the value BEFORE stopping edit
+    const result = { labels: selected.join(DOCUMENTACION_SEPARATOR) };
+    if (typeof onValueChange === "function") {
+      onValueChange(result);
+    }
+
+    if (typeof props.stopEditing === "function") {
+      props.stopEditing();
+    }
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
+    if (e.key === "Enter") applyAndClose();
+    if (e.key === "Escape" && typeof props.stopEditing === "function") {
+      props.stopEditing(true);  // true = cancel the edit
+    }
+  };
+
+  return (
+    <div
+      className={styles.atDropdown}
+      onMouseDown={(e) => e.stopPropagation()}
+      onKeyDown={onKeyDown}
+      tabIndex={0}
+    >
+      {options.map((opt, idx) => (
+        <label
+          key={idx}
+          className={styles.atDropdownOption}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <input
+            type="checkbox"
+            checked={selected.includes(opt)}
+            onChange={() => toggle(opt)}
+            onMouseDown={(e) => e.stopPropagation()}
+          />
+          <span>{opt}</span>
+        </label>
+      ))}
+
+      <button
+        type="button"
+        onClick={applyAndClose}
+        className={styles.atDropdownButton}
+      >
+        Aplicar
+      </button>
+    </div>
+  );
+});
+
+DocumentacionMultiSelectEditor.displayName = "DocumentacionMultiSelectEditor";
 
 interface ExcelEditorProps {
   role?: UserRole;
@@ -1103,20 +1206,59 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
       }
 
       if (c.field === "documentacion") {
-        base.cellEditor = "agSelectCellEditor";
-        base.cellEditorParams = {
-          values: [
-            "EPICRISIS",
-            "CERTIFICADO",
-            "DEFUNCION",
-            "PROTOCOLO",
-            "OPERATORIA",
-            "DOCUMENTACION AT"
-          ]
-        };
+        base.cellEditor = DocumentacionMultiSelectEditor;
+        base.cellEditorPopup = true;
         base.singleClickEdit = true;
 
-        // Mostrar tal cual el texto seleccionado
+        const DOCUMENTACION_OPTIONS = [
+          "EPICRISIS",
+          "CERTIFICADO",
+          "DEFUNCION",
+          "PROTOCOLO",
+          "OPERATORIA",
+          "DOCUMENTACION AT"
+        ];
+
+        base.cellEditorParams = {
+          options: DOCUMENTACION_OPTIONS
+        };
+
+        base.valueSetter = (params: AGValueSetterParams<GrdRowData>) => {
+          const v = params.newValue as DocumentacionMultiSelectValue | string | null;
+
+          if (params.data) {
+            let newDocumentacion = "";
+
+            if (v && typeof v === "object" && 'labels' in v) {
+              newDocumentacion = v.labels ?? "";
+            } else {
+              newDocumentacion = (v as string) ?? "";
+            }
+
+            params.data.documentacion = newDocumentacion;
+
+            if (params.data.episodio) {
+              setModifiedRows(prev => ({
+                ...prev,
+                [params.data!.episodio!]: {
+                  ...(prev[params.data!.episodio!] || {}),
+                  ...params.data,
+                  documentacion: newDocumentacion
+                }
+              }));
+            }
+
+            params.api.refreshCells({
+              rowNodes: [params.node!],
+              columns: ["documentacion"],
+              force: true
+            });
+          }
+
+          return true;
+        };
+
+        // Mostrar el valor formateado
         base.valueFormatter = (params: AGValueFormatterParams<GrdRowData>) =>
           (params.value as string) || "";
       }
