@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, useEffect } from 'react';
 import { getRoleOptions, type UserRole } from '@/lib/constants/roles';
+import styles from './EditUserModal.module.css';
 
 interface User {
   id: string;
@@ -79,48 +80,48 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Edit
   if (!isOpen || !user) return null;
 
   return (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div className={styles.overlay}>
     {/* Backdrop */}
-    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fadeIn" onClick={handleClose} />
+    <div className={styles.backdrop} onClick={handleClose} />
 
     {/* Modal Panel */}
-    <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slideUp border border-gray-200">
+    <div className={styles.modal}>
 
       {/* Header */}
-      <div className="mb-6 border-b pb-4">
-        <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+      <div className={styles.header}>
+        <h2 className={styles.title}>
           ✏️ Editar Usuario
         </h2>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className={styles.subtitle}>
           Actualice la información del usuario
         </p>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-lg text-sm text-red-700">
+        <div className={styles.errorBox}>
           {error}
         </div>
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className={styles.form}>
 
         {/* Email */}
-        <div>
-          <label className="text-sm font-medium text-gray-700">Correo Electrónico</label>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Correo Electrónico</label>
           <input
             type="email"
             value={user.email}
             disabled
-            className="mt-1 w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-600 cursor-not-allowed"
+            className={styles.input}
           />
-          <p className="text-xs text-gray-400 mt-1">No se puede modificar</p>
+          <p className={styles.helperText}>No se puede modificar</p>
         </div>
 
         {/* Full Name */}
-        <div>
-          <label className="text-sm font-medium text-gray-700">Nombre Completo</label>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Nombre Completo</label>
           <input
             type="text"
             value={formData.fullName}
@@ -128,18 +129,18 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Edit
             required
             disabled={isLoading}
             placeholder="Juan Pérez"
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition"
+            className={styles.input}
           />
         </div>
 
         {/* Role */}
-        <div>
-          <label className="text-sm font-medium text-gray-700">Rol</label>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Rol</label>
           <select
             value={formData.role}
             onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
             disabled={isLoading}
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white transition"
+            className={styles.select}
           >
             {getRoleOptions().map((option) => (
               <option key={option.value} value={option.value}>
@@ -150,12 +151,12 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Edit
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-3 pt-2">
+        <div className={styles.buttons}>
           <button
             type="button"
             onClick={handleClose}
             disabled={isLoading}
-            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition disabled:opacity-50"
+            className={styles.cancelButton}
           >
             Cancelar
           </button>
@@ -163,7 +164,7 @@ export default function EditUserModal({ isOpen, onClose, onSuccess, user }: Edit
           <button
             type="submit"
             disabled={isLoading}
-            className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition disabled:opacity-50 shadow-md"
+            className={styles.submitButton}
           >
             {isLoading ? 'Guardando...' : 'Guardar Cambios'}
           </button>

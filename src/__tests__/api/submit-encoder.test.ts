@@ -297,7 +297,45 @@ describe('POST /api/v1/grd/[grdId]/submit-encoder', () => {
       expect(data.error).toBe('Archivo GRD no encontrado');
     });
 
-    it('should reject when file is not in borrador_encoder state', async () => {
+    it('should accept when file is in rechazado state', async () => {
+      // Arrange
+      const encoderUser = createMockEncoder({ id: 1 });
+      setMockUser(encoderUser);
+
+      const grdFiles = [
+        createMockGrdRow({ 
+          id: 1, 
+          id_grd_oficial: 105, 
+          episodio: 1001, 
+          estado: 'rechazado',
+          AT: false 
+        }),
+      ];
+
+      mockSupabaseInstance = createMockSupabaseClient({
+        grd_fila: grdFiles,
+      });
+
+      const request = createMockNextRequest({
+        method: 'POST',
+        url: 'http://localhost:3000/api/v1/grd/105/submit-encoder',
+      });
+
+      const params = createMockParams({ grdId: '105' });
+
+      // Act
+      const response = await POST(request, { params });
+      const data = await getResponseJson(response);
+
+      // Assert
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.message).toBe('Archivo entregado exitosamente a Finance');
+      expect(data.data.previousState).toBe('rechazado');
+      expect(data.data.currentState).toBe('pendiente_finance');
+    });
+
+    it('should reject when file is not in borrador_encoder or rechazado state', async () => {
       // Arrange
       const encoderUser = createMockEncoder({ id: 1 });
       setMockUser(encoderUser);
@@ -324,7 +362,7 @@ describe('POST /api/v1/grd/[grdId]/submit-encoder', () => {
       // Assert
       expect(response.status).toBe(400);
       expect(data.error).toContain('No se puede entregar');
-      expect(data.expectedState).toBe('borrador_encoder');
+      expect(data.expectedStates).toEqual(['borrador_encoder', 'rechazado']);
       expect(data.currentState).toBe('pendiente_finance');
     });
 

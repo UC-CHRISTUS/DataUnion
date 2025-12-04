@@ -3,6 +3,9 @@
  *
  * Tests the finance submit endpoint that delivers work to Admin.
  * Changes state from borrador_finance/pendiente_finance → pendiente_admin.
+ * 
+ * Note: El campo "validado" es OPCIONAL. Finance puede entregar archivos
+ * con filas marcadas como Sí, No, o sin marcar.
  */
 
 import { POST } from '@/app/api/v1/grd/[grdId]/submit-finance/route';
@@ -182,15 +185,15 @@ describe('POST /api/v1/grd/[grdId]/submit-finance', () => {
       expect(data.error).toBe('ID de GRD inválido');
     });
 
-    it('should reject when validado field is missing in some rows', async () => {
-      // Arrange
+    it('should allow submission with validado field set to No in some rows', async () => {
+      // Arrange: Finance puede enviar archivo aunque algunas filas tengan validado=No
       const financeUser = createMockFinance({ id: 1 });
       setMockUser(financeUser);
 
       const grdFiles = [
-        createMockGrdRow({ id: 1, id_grd_oficial: 103, episodio: 1001, estado: 'borrador_finance', validado: 'Sí' }),
-        createMockGrdRow({ id: 2, id_grd_oficial: 103, episodio: 1002, estado: 'borrador_finance', validado: '' }), // Empty
-        createMockGrdRow({ id: 3, id_grd_oficial: 103, episodio: 1003, estado: 'borrador_finance', validado: null }), // Null
+        createMockGrdRow({ id: 1, id_grd_oficial: 103, episodio: 1001, estado: 'borrador_finance', validado: true }),
+        createMockGrdRow({ id: 2, id_grd_oficial: 103, episodio: 1002, estado: 'borrador_finance', validado: false }), // No
+        createMockGrdRow({ id: 3, id_grd_oficial: 103, episodio: 1003, estado: 'borrador_finance', validado: null }), // Sin marcar
       ];
 
       mockSupabaseInstance = createMockSupabaseClient({
@@ -208,21 +211,21 @@ describe('POST /api/v1/grd/[grdId]/submit-finance', () => {
       const response = await POST(request, { params });
       const data = await getResponseJson(response);
 
-      // Assert
-      expect(response.status).toBe(400);
-      expect(data.error).toBe('Faltan campos obligatorios en algunas filas');
-      expect(data.details.missingField).toBe('validado');
-      expect(data.details.affectedRows).toBe(2);
+      // Assert: Debe permitir el submit exitosamente
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.message).toBe('Archivo entregado exitosamente al Admin');
+      expect(data.data.currentState).toBe('pendiente_admin');
     });
 
-    it('should reject when all validado fields are missing', async () => {
-      // Arrange
+    it('should allow submission when all validado fields are No or empty', async () => {
+      // Arrange: Finance puede enviar archivo aunque todas las filas tengan validado=No
       const financeUser = createMockFinance({ id: 1 });
       setMockUser(financeUser);
 
       const grdFiles = [
-        createMockGrdRow({ id: 1, id_grd_oficial: 104, episodio: 1001, estado: 'borrador_finance', validado: null }),
-        createMockGrdRow({ id: 2, id_grd_oficial: 104, episodio: 1002, estado: 'borrador_finance', validado: '' }),
+        createMockGrdRow({ id: 1, id_grd_oficial: 104, episodio: 1001, estado: 'borrador_finance', validado: false }),
+        createMockGrdRow({ id: 2, id_grd_oficial: 104, episodio: 1002, estado: 'borrador_finance', validado: null }),
       ];
 
       mockSupabaseInstance = createMockSupabaseClient({
@@ -240,9 +243,10 @@ describe('POST /api/v1/grd/[grdId]/submit-finance', () => {
       const response = await POST(request, { params });
       const data = await getResponseJson(response);
 
-      // Assert
-      expect(response.status).toBe(400);
-      expect(data.details.affectedRows).toBe(2);
+      // Assert: Debe permitir el submit exitosamente
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data.rowsUpdated).toBe(2);
     });
   });
 

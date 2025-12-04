@@ -1,0 +1,368 @@
+/* Users page.module.css */
+
+.container {
+  min-height: 100vh;
+  background-color: white;
+  padding: 2.5rem 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.wrapper {
+  width: 100%;
+  max-width: 72rem;
+}
+
+/* Header */
+.header {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.headerText h1 {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.headerText p {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-top: 0.25rem;
+}
+
+.createButton {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #9333ea;
+  color: white;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: background-color 0.15s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.createButton:hover {
+  background-color: #7e22ce;
+}
+
+@media (min-width: 768px) {
+  .createButton {
+    margin-top: 0;
+  }
+}
+
+.createButtonIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Error message */
+.errorBox {
+  margin-bottom: 1.5rem;
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Loading */
+.loadingWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 4rem 0;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid #d8b4fe;
+  border-top-color: transparent;
+  border-radius: 9999px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Table */
+.tableCard {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  min-width: 100%;
+  font-size: 0.875rem;
+}
+
+.tableHead {
+  background-color: #f9fafb;
+  color: #4b5563;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.tableHead tr {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tableHead th {
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+}
+
+.tableHead th:last-child {
+  text-align: right;
+}
+
+.tableBody {
+  background-color: white;
+}
+
+.tableBody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.15s ease;
+}
+
+.tableBody tr:hover {
+  background-color: #f9fafb;
+}
+
+.tableBody td {
+  padding: 1rem 1.5rem;
+}
+
+/* User cell */
+.userCell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.userAvatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background-color: #f3e8ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userAvatarText {
+  color: #7e22ce;
+  font-weight: 700;
+}
+
+.userName {
+  font-weight: 500;
+  color: #111827;
+}
+
+.userEmail {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+/* Role badge */
+.roleBadge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.roleBadgeAdmin {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+
+.roleBadgeEncoder {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.roleBadgeFinance {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Status cell */
+.statusCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statusBadge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-flex;
+  width: fit-content;
+}
+
+.statusBadgeActive {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statusBadgeInactive {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.statusBadgePassword {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Actions */
+.actionsCell {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.actionButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: opacity 0.15s ease;
+}
+
+.actionButton:hover {
+  opacity: 0.75;
+}
+
+.actionButtonEdit {
+  color: #9333ea;
+}
+
+.actionButtonEdit:hover {
+  color: #7e22ce;
+}
+
+.actionButtonDelete {
+  color: #dc2626;
+}
+
+.actionButtonDelete:hover {
+  color: #991b1b;
+}
+
+/* Empty state */
+.emptyState {
+  padding: 4rem 0;
+  text-align: center;
+  color: #6b7280;
+}
+
+.emptyState p {
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.emptyStateButton {
+  color: #9333ea;
+  font-weight: 500;
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.emptyStateButton:hover {
+  color: #7e22ce;
+}
+
+/* Stats */
+.statsGrid {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.statCard {
+  background-color: white;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.statValue {
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+
+.statValueGray {
+  color: #111827;
+}
+
+.statValuePurple {
+  color: #9333ea;
+}
+
+.statValueBlue {
+  color: #2563eb;
+}
+
+.statValueGreen {
+  color: #16a34a;
+}
+
+/* Date text */
+.dateText {
+  color: #4b5563;
+}

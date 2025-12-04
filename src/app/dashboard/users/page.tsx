@@ -5,6 +5,7 @@ import CreateUserModal from '@/components/admin/CreateUserModal';
 import EditUserModal from '@/components/admin/EditUserModal';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import { ROLE_LABELS } from '@/lib/constants/roles';
+import styles from './page.module.css';
 
 interface User {
   id: string;
@@ -177,23 +178,20 @@ export default function UsersPage() {
   };
 
   return (
-  <div className="min-h-screen bg-white py-10 px-4 flex justify-center">
-
-
-    <div className="w-full max-w-6xl">
-
+  <div className={styles.container}>
+    <div className={styles.wrapper}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-semibold text-gray-900">Gestión de Usuarios</h1>
-          <p className="text-sm text-gray-600 mt-1">Administre los usuarios y sus permisos</p>
+      <div className={styles.header}>
+        <div className={styles.headerText}>
+          <h1>Gestión de Usuarios</h1>
+          <p>Administre los usuarios y sus permisos</p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="mt-4 md:mt-0 inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-sm transition-all"
+          className={styles.createButton}
         >
-          <svg className="w-5 h-5" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+          <svg className={styles.createButtonIcon} stroke="currentColor" fill="none" viewBox="0 0 24 24">
             <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
           Crear Usuario
@@ -202,42 +200,42 @@ export default function UsersPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-6 bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
+        <div className={styles.errorBox}>
           {error}
         </div>
       )}
 
       {/* Loading */}
       {isLoading && (
-        <div className="flex justify-center py-16">
-          <div className="animate-spin h-12 w-12 border-4 border-purple-300 border-t-transparent rounded-full"></div>
+        <div className={styles.loadingWrapper}>
+          <div className={styles.spinner}></div>
         </div>
       )}
 
       {/* Tabla */}
       {!isLoading && !error && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50 text-gray-600 uppercase font-semibold text-xs">
+        <div className={styles.tableCard}>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead className={styles.tableHead}>
                 <tr>
-                  <th className="px-6 py-3 text-left">Usuario</th>
-                  <th className="px-6 py-3 text-left">Rol</th>
-                  <th className="px-6 py-3 text-left">Estado</th>
-                  <th className="px-6 py-3 text-left">Último Login</th>
-                  <th className="px-6 py-3 text-left">Creado</th>
-                  <th className="px-6 py-3 text-right">Acciones</th>
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Último Login</th>
+                  <th>Creado</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className={styles.tableBody}>
                 {users.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-16 text-center text-gray-500">
-                      <p className="mb-3 text-sm">No hay usuarios aún</p>
+                    <td colSpan={6} className={styles.emptyState}>
+                      <p>No hay usuarios aún</p>
                       <button
                         onClick={() => setIsModalOpen(true)}
-                        className="text-purple-600 hover:text-purple-700 font-medium text-sm"
+                        className={styles.emptyStateButton}
                       >
                         Crear el primero →
                       </button>
@@ -245,61 +243,76 @@ export default function UsersPage() {
                   </tr>
                 ) : (
                   users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                          <span className="text-purple-700 font-bold">
-                            {user.full_name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{user.full_name}</p>
-                          <p className="text-gray-500 text-xs">{user.email}</p>
+                    <tr key={user.id}>
+                      <td>
+                        <div className={styles.userCell}>
+                          <div className={styles.userAvatar}>
+                            <span className={styles.userAvatarText}>
+                              {user.full_name.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <div>
+                            <p className={styles.userName}>{user.full_name}</p>
+                            <p className={styles.userEmail}>{user.email}</p>
+                          </div>
                         </div>
                       </td>
 
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      <td>
+                        <span className={`${styles.roleBadge} ${
                           user.role === 'admin'
-                            ? 'bg-purple-100 text-purple-700'
+                            ? styles.roleBadgeAdmin
                             : user.role === 'encoder'
-                            ? 'bg-blue-100 text-blue-700'
-                            : 'bg-green-100 text-green-700'
+                            ? styles.roleBadgeEncoder
+                            : styles.roleBadgeFinance
                         }`}>
                           {ROLE_LABELS[user.role]}
                         </span>
                       </td>
 
-                      <td className="px-6 py-4 space-y-1">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium inline-flex ${
-                          user.is_active
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-200 text-gray-700'
-                        }`}>
-                          {user.is_active ? 'Activo' : 'Inactivo'}
-                        </span>
-                        {user.must_change_password && (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium inline-flex bg-amber-100 text-amber-700">
-                            🔒 Contraseña temporal
+                      <td>
+                        <div className={styles.statusCell}>
+                          <span className={`${styles.statusBadge} ${
+                            user.is_active
+                              ? styles.statusBadgeActive
+                              : styles.statusBadgeInactive
+                          }`}>
+                            {user.is_active ? 'Activo' : 'Inactivo'}
                           </span>
-                        )}
+                          {user.must_change_password && (
+                            <span className={`${styles.statusBadge} ${styles.statusBadgePassword}`}>
+                              🔒 Contraseña temporal
+                            </span>
+                          )}
+                        </div>
                       </td>
 
-                      <td className="px-6 py-4 text-gray-600">{formatDate(user.last_login)}</td>
-                      <td className="px-6 py-4 text-gray-600">{formatDate(user.created_at)}</td>
+                      <td className={styles.dateText}>{formatDate(user.last_login)}</td>
+                      <td className={styles.dateText}>{formatDate(user.created_at)}</td>
 
-                      <td className="px-6 py-4 text-right flex gap-3 justify-end">
-                        <button onClick={() => handleEdit(user)} className="text-purple-600 hover:text-purple-800">
-                          ✏️
-                        </button>
+                      <td>
+                        <div className={styles.actionsCell}>
+                          <button 
+                            onClick={() => handleEdit(user)} 
+                            className={`${styles.actionButton} ${styles.actionButtonEdit}`}
+                          >
+                            ✏️
+                          </button>
 
-                        <button onClick={() => handleToggleStatusClick(user)} className="hover:opacity-75">
-                          {user.is_active ? '🚫' : '✅'}
-                        </button>
+                          <button 
+                            onClick={() => handleToggleStatusClick(user)} 
+                            className={styles.actionButton}
+                          >
+                            {user.is_active ? '🚫' : '✅'}
+                          </button>
 
-                        <button onClick={() => handleDeleteClick(user)} className="text-red-600 hover:text-red-800">
-                          🗑️
-                        </button>
+                          <button 
+                            onClick={() => handleDeleteClick(user)} 
+                            className={`${styles.actionButton} ${styles.actionButtonDelete}`}
+                          >
+                            🗑️
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -312,16 +325,16 @@ export default function UsersPage() {
 
       {/* Stats */}
       {!isLoading && !error && users.length > 0 && (
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className={styles.statsGrid}>
           {[
-            ["Total Usuarios", users.length, "text-gray-900"],
-            ["Administradores", users.filter(u => u.role === 'admin').length, "text-purple-600"],
-            ["Codificadores", users.filter(u => u.role === 'encoder').length, "text-blue-600"],
-            ["Finanzas", users.filter(u => u.role === 'finance').length, "text-green-600"],
-          ].map(([label, value, color], i) => (
-            <div key={i} className="bg-white p-5 rounded-xl border shadow-sm">
-              <p className="text-sm text-gray-600">{label}</p>
-              <p className={`text-3xl font-bold ${color}`}>{value}</p>
+            ["Total Usuarios", users.length, styles.statValueGray],
+            ["Administradores", users.filter(u => u.role === 'admin').length, styles.statValuePurple],
+            ["Codificadores", users.filter(u => u.role === 'encoder').length, styles.statValueBlue],
+            ["Finanzas", users.filter(u => u.role === 'finance').length, styles.statValueGreen],
+          ].map(([label, value, colorClass], i) => (
+            <div key={i} className={styles.statCard}>
+              <p className={styles.statLabel}>{label}</p>
+              <p className={`${styles.statValue} ${colorClass}`}>{value}</p>
             </div>
           ))}
         </div>

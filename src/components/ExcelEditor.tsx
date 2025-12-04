@@ -9,6 +9,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import SubmitConfirmModal from "./SubmitConfirmModal";
 import RejectModal from "./RejectModal";
+import styles from "./ExcelEditor.module.css";
 import type { Database } from "@/types/database.types";
 import type {
   AGGridApi,
@@ -329,7 +330,7 @@ const AtMultiSelectEditor = React.forwardRef<
 
   return (
     <div
-      className="bg-white border p-2 shadow-md rounded max-h-64 overflow-auto"
+      className={styles.atDropdown}
       onMouseDown={(e) => e.stopPropagation()}
       onKeyDown={onKeyDown}
       tabIndex={0}
@@ -337,7 +338,7 @@ const AtMultiSelectEditor = React.forwardRef<
       {options.map((opt) => (
         <label
           key={opt.id}
-          className="flex items-center gap-2 p-1 hover:bg-gray-100 cursor-pointer"
+          className={styles.atDropdownOption}
           onMouseDown={(e) => e.stopPropagation()}
         >
           <input
@@ -355,7 +356,7 @@ const AtMultiSelectEditor = React.forwardRef<
       <button
         type="button"
         onClick={applyAndClose}
-        className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-1 rounded"
+        className={styles.atDropdownButton}
       >
         Aplicar
       </button>
@@ -619,10 +620,10 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
         throw new Error(errorData.error || 'Error al aprobar archivo');
       }
 
-      alert('✅ Archivo aprobado exitosamente. Ahora puedes descargarlo.');
+      alert('✅ Archivo aprobado exitosamente.');
 
-      // ✅ FASE 1: No redirigir, solo recargar la página para actualizar estado
-      window.location.reload();
+      // Redirigir al dashboard de archivos
+      router.push('/dashboard/archivos');
     } catch (e) {
       const error = e as Error;
       setApproveError(error.message || 'Error al aprobar archivo');
@@ -997,13 +998,27 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
             const oldValue = params.data[c.field as keyof GrdRowData];
             (params.data as Record<string, unknown>)[c.field] = newVal;
             
+            // Si el campo es "AT" y se marca como false, limpiar AT_detalle y monto_AT
+            if (c.field === "AT" && newVal === false) {
+              params.data.AT_detalle = null;
+              params.data.monto_AT = 0;
+            }
+            
             const changed = oldValue !== newVal;
             if (params.data.episodio && changed) {
+              const updatedData = { ...params.data };
+              
+              // Incluir los campos limpiados si AT cambió a false
+              if (c.field === "AT" && newVal === false) {
+                updatedData.AT_detalle = null;
+                updatedData.monto_AT = 0;
+              }
+              
               setModifiedRows(prev => ({
                 ...prev,
                 [params.data!.episodio!]: {
                   ...(prev[params.data!.episodio!] || {}),
-                  ...params.data
+                  ...updatedData
                 }
               }));
             }
@@ -1011,9 +1026,16 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
             // Trigger immediate refresh to show the formatted value
             if (params.node && params.column) {
               setTimeout(() => {
+                const columnsToRefresh = [params.column!.getColId()];
+                
+                // Si es el campo AT y cambió a false, también refrescar AT_detalle y monto_AT
+                if (c.field === "AT" && newVal === false) {
+                  columnsToRefresh.push("AT_detalle", "monto_AT");
+                }
+                
                 params.api.refreshCells({
                   rowNodes: [params.node!],
-                  columns: [params.column!.getColId()],
+                  columns: columnsToRefresh,
                   force: true
                 });
               }, 0);
@@ -1350,18 +1372,16 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
             />
           </div>
 
-          <div className="flex gap-4 mt-4">
+          <div className={styles.actionButtons}>
             {Object.keys(modifiedRows).length > 0 && (
               <button
                 onClick={handleSaveChanges}
                 disabled={isSaving}
-                className={`${
-                  isSaving ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
-                } text-white px-4 py-2 rounded transition flex items-center gap-2`}
+                className={`${styles.button} ${styles.buttonSave}`}
               >
                 {isSaving ? (
                   <>
-                    <span className="animate-spin">⌛</span>
+                    <span className={styles.spinner}>⌛</span>
                     Guardando...
                   </>
                 ) : (
@@ -1377,13 +1397,11 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
               <button
                 onClick={() => setShowSubmitModal(true)}
                 disabled={isSubmitting}
-                className={`${
-                  isSubmitting ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
-                } text-white px-4 py-2 rounded transition flex items-center gap-2`}
+                className={`${styles.button} ${styles.buttonSubmitEncoder}`}
               >
                 {isSubmitting ? (
                   <>
-                    <span className="animate-spin">⌛</span>
+                    <span className={styles.spinner}>⌛</span>
                     Entregando...
                   </>
                 ) : (
@@ -1401,13 +1419,11 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
               <button
                 onClick={() => setShowSubmitModal(true)}
                 disabled={isSubmitting}
-                className={`${
-                  isSubmitting ? 'bg-purple-400' : 'bg-purple-600 hover:bg-purple-700'
-                } text-white px-4 py-2 rounded transition flex items-center gap-2`}
+                className={`${styles.button} ${styles.buttonSubmitFinance}`}
               >
                 {isSubmitting ? (
                   <>
-                    <span className="animate-spin">⌛</span>
+                    <span className={styles.spinner}>⌛</span>
                     Entregando...
                   </>
                 ) : (
@@ -1423,13 +1439,11 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
               <button
                 onClick={handleApprove}
                 disabled={isApproving}
-                className={`${
-                  isApproving ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
-                } text-white px-4 py-2 rounded transition flex items-center gap-2`}
+                className={`${styles.button} ${styles.buttonApprove}`}
               >
                 {isApproving ? (
                   <>
-                    <span className="animate-spin">⌛</span>
+                    <span className={styles.spinner}>⌛</span>
                     Aprobando...
                   </>
                 ) : (
@@ -1444,7 +1458,7 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
             {role === 'admin' && (estado === 'aprobado' || estado === 'exportado') && (
               <button
                 disabled
-                className="bg-green-400 text-white px-4 py-2 rounded cursor-not-allowed flex items-center gap-2"
+                className={`${styles.button} ${styles.buttonApproved}`}
               >
                 ✅ Aprobado
               </button>
@@ -1455,13 +1469,11 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
               <button
                 onClick={() => setShowRejectModal(true)}
                 disabled={isRejecting}
-                className={`${
-                  isRejecting ? 'bg-red-400' : 'bg-red-600 hover:bg-red-700'
-                } text-white px-4 py-2 rounded transition flex items-center gap-2`}
+                className={`${styles.button} ${styles.buttonReject}`}
               >
                 {isRejecting ? (
                   <>
-                    <span className="animate-spin">⌛</span>
+                    <span className={styles.spinner}>⌛</span>
                     Rechazando...
                   </>
                 ) : (
@@ -1476,24 +1488,24 @@ export default function ExcelEditorAGGrid({ role = 'encoder', grdId: grdIdProp, 
             {(estado === 'aprobado' || estado === 'exportado') && (
               <button
                 onClick={handleDownload}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition flex items-center gap-2"
+                className={`${styles.button} ${styles.buttonDownload}`}
               >
                 📥 Descargar Excel
               </button>
             )}
           </div>
           {saveError && (
-            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300 whitespace-pre-wrap break-words text-sm">
+            <div className={styles.errorMessage}>
               ❌ {saveError}
             </div>
           )}
           {submitError && (
-            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300 whitespace-pre-wrap break-words text-sm">
+            <div className={styles.errorMessage}>
               ❌ {submitError}
             </div>
           )}
           {approveError && (
-            <div className="mt-4 p-4 bg-red-50 text-red-700 rounded border border-red-300 whitespace-pre-wrap break-words text-sm">
+            <div className={styles.errorMessage}>
               ❌ {approveError}
             </div>
           )}
