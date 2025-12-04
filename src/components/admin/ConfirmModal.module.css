@@ -1,0 +1,141 @@
+/* ConfirmModal.module.css */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  max-width: 28rem;
+  width: 100%;
+  padding: 1.5rem;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 1rem;
+  border-radius: 9999px;
+  background-color: #fef3c7;
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #d97706;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.message {
+  font-size: 0.875rem;
+  color: #4b5563;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.cancelButton {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  border-radius: 0.5rem;
+  background: white;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #f9fafb;
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmButton {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  color: white;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.confirmButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmButtonNormal {
+  background-color: #2563eb;
+}
+
+.confirmButtonNormal:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.confirmButtonDestructive {
+  background-color: #dc2626;
+}
+
+.confirmButtonDestructive:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.loadingContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  margin-left: -0.25rem;
+  margin-right: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+  color: white;
+}
+
+.spinnerCircle {
+  opacity: 0.25;
+}
+
+.spinnerPath {
+  opacity: 0.75;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

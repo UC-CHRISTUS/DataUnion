@@ -2,11 +2,11 @@
  * API Route: POST /api/v1/grd/[grdId]/submit-encoder
  * 
  * Permite al Encoder entregar su trabajo a Finance.
- * Cambia el estado de borrador_encoder → pendiente_finance.
+ * Cambia el estado de borrador_encoder o rechazado → pendiente_finance.
  * 
  * Validaciones:
  * - Usuario debe tener rol 'encoder'
- * - El archivo debe estar en estado 'borrador_encoder'
+ * - El archivo debe estar en estado 'borrador_encoder' o 'rechazado'
  * - Todos los campos obligatorios del Encoder deben estar completos
  * 
  * Después del submit:
@@ -82,13 +82,13 @@ export async function POST(
 
     const grdFile = grdFiles[0]; // Verificar estado con la primera fila
 
-    // Verificar estado actual
-    if (grdFile.estado !== 'borrador_encoder') {
+    // Verificar estado actual - permitir 'borrador_encoder' o 'rechazado'
+    if (!['borrador_encoder', 'rechazado'].includes(grdFile.estado)) {
       return NextResponse.json(
         {
           success: false,
           error: `No se puede entregar. Estado actual: ${grdFile.estado}`,
-          expectedState: 'borrador_encoder',
+          expectedStates: ['borrador_encoder', 'rechazado'],
           currentState: grdFile.estado,
         },
         { status: 400 }
@@ -141,7 +141,7 @@ export async function POST(
       data: {
         grdId: updatedFiles[0].id_grd_oficial,
         rowsUpdated: updatedFiles.length,
-        previousState: 'borrador_encoder',
+        previousState: grdFile.estado,
         currentState: updatedFiles[0].estado,
       },
     });
