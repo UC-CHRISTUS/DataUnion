@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import { PaginatedResponse } from './pagination'
+import { getUserFriendlyError } from './error-messages'
 
 /**
  * Success response for regular data
@@ -49,9 +50,19 @@ export function handleError(error: unknown) {
     return validationErrorResponse(error)
   }
 
-  if (error instanceof Error) {
-    return errorResponse(error.message, 500)
+  // Get user-friendly error message
+  const friendlyMessage = getUserFriendlyError(error)
+  
+  // Determine appropriate status code
+  let status = 500
+  if (error && typeof error === 'object') {
+    const err = error as any
+    if (err.code === '23505') status = 409 // Conflict for duplicates
+    else if (err.code === '23503') status = 400 // Bad request for foreign key
+    else if (err.code === '23502') status = 400 // Bad request for not null
+    else if (err.code === '42703') status = 400 // Bad request for invalid format
+    else if (err.status) status = err.status
   }
 
-  return errorResponse('An unexpected error occurred', 500)
+  return errorResponse(friendlyMessage, status)
 }
