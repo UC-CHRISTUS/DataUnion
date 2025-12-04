@@ -127,8 +127,6 @@ export async function POST(
       .from('grd_fila')
       .update({
         estado: newState,
-        // Opcionalmente podríamos guardar el reason en un campo 'documentacion' o crear un campo nuevo
-        ...(body.reason && { documentacion: body.reason }),
       })
       .eq('id_grd_oficial', grdId)
       .select();
